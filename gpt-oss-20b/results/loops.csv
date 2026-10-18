@@ -1,0 +1,13 @@
+model,effort,loops,n,hit_max_tokens,median_completion_tokens,notes
+stock,medium,17,200,26,418,no reasoning_effort sent (server default medium); about 2 of the 17 are markdown-divider false positives
+stock,high,79,200,91,2348,
+round1,medium,1,200,6,282,attention + lm_head LoRA
+round1,high,2,200,44,1133,
+variant_b,medium,0,200,7,305,attention-only LoRA (round 2)
+variant_b,high,2,200,22,774,
+round3_c,medium,1,200,,,
+round3_c,high,1,200,,,
+round3_c2,medium,0,200,,,
+round3_c2,high,1,200,,,
+round3_c3,medium,0,200,,,
+round3_c3,high,0,200,,,

@@ -1,0 +1,5 @@
+model,request_form,context1_meter,context2_artifact,context3_meter,total_not_tool_call,n,passing_contexts_not_tool_call
+variant_b,original,8,10,9,27,30,0
+variant_b,meter_in_tool_result,0,10,2,12,30,0
+variant_b,meter_in_tool_result+artifact_reply_reworded,0,0,2,2,30,
+stock,original,5,10,9,24,30,0

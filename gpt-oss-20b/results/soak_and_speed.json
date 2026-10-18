@@ -1,0 +1,43 @@
+{
+  "soak_variant_b": {
+    "date": "2026-10-17",
+    "duration_hours": 4,
+    "streams": 16,
+    "effort": "medium",
+    "prompts": "Antidoom mix chat prompts (round 2 set)",
+    "generations": 4950,
+    "requests_ok": 5180,
+    "requests_failed": 11,
+    "failed_breakdown": {"proxy_502": 1, "aborted_by_the_soak_timeout_at_the_end": 10},
+    "nan_or_canary_events": 0,
+    "server_errors_logged": 0,
+    "full_loops_to_token_cap": 3,
+    "degenerate_stretches_that_recovered": 2,
+    "hit_4000_token_cap": 76
+  },
+  "soak_stock_vllm031": {
+    "date": "2026-10-14 to 2026-10-15",
+    "duration_hours": 4.08,
+    "streams": 16,
+    "requests_ok": 2978,
+    "requests_failed": 0,
+    "nan_or_canary_events": 0
+  },
+  "engine_speed_stock_vllm031": {
+    "date": "2026-10-14",
+    "conditions": "one Arc Pro B70, vLLM 0.31.0 XPU, stock openai/gpt-oss-20b MXFP4, XPU graphs via gpt-oss.extra.example, short prompts, tok/s",
+    "one_stream_tok_s": [106, 117],
+    "four_streams_summed_tok_s": 257,
+    "sixteen_streams_summed_tok_s": 698,
+    "eager_one_stream_tok_s": 43,
+    "vllm026_reference": {"one_stream_tok_s": [109, 119], "four_streams_summed_tok_s": 261, "sixteen_streams_summed_tok_s": 702},
+    "kv_pool_tokens": 643585
+  },
+  "grammar_500s_replay": {
+    "contexts": 12,
+    "samples_each": 5,
+    "temperature": 1.0,
+    "stock": 3, "variant_b": 5, "round3_c": 0, "round3_c2": 2, "round3_c3": 2,
+    "mining_traffic_per_1000_tool_requests": [7.1, 9.2]
+  }
+}
