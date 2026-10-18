@@ -17,8 +17,10 @@ This page covers:
   fixes ([docs/AGENT-HARNESS.md](docs/AGENT-HARNESS.md))
 - what broke along the way ([docs/PITFALLS.md](docs/PITFALLS.md))
 
-**Weights: not published yet.** The scripts here rebuild the fine-tune from the public base model and Liquid AI's
-public prompt mix.
+**Weights: [Taggert2222/gpt-oss-20b-antidoom](https://huggingface.co/Taggert2222/gpt-oss-20b-antidoom)** on Hugging
+Face. That's variant B, merged into the MXFP4 checkpoint and ready to serve, with the unmerged LoRA in its `adapter/`
+folder. To serve it, set `MODEL=Taggert2222/gpt-oss-20b-antidoom` (or a local download) in the quick start below. The
+scripts here also rebuild it from the public base model and Liquid AI's public prompt mix.
 
 ## Results
 

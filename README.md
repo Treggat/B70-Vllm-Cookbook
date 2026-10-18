@@ -9,7 +9,7 @@ page, patches, launcher, benchmarks and raw results.
 | recipe | model | format | what's in it | speed on one B70 |
 |---|---|---|---|---|
 | [**Qwen3.8-27B 709-L**](qwen38-709l/README.md) | DavidAU's merged Qwen3.8-27B fine-tune | AWQ W4A16 | MTP speculative decoding, vision and video, 131k context, three community patch sets stacked on one tree, per-patch measurements | 132 t/s one stream, 265 t/s across 4 |
-| [**gpt-oss-20b**](gpt-oss-20b/README.md) | OpenAI gpt-oss-20b, plus our anti-loop fine-tune | MXFP4 (stock) | harmony tool calling with a strict tool-call grammar, a reasoning-effort cap, an [Antidoom](https://github.com/Liquid4All/antidoom) fine-tune trained on two B70s that removes doom loops, and what an agent harness does to make gpt-oss fake its tool calls | 106-117 t/s one stream, 698 t/s across 16 |
+| [**gpt-oss-20b**](gpt-oss-20b/README.md) | OpenAI gpt-oss-20b, plus our anti-loop fine-tune ([weights](https://huggingface.co/Taggert2222/gpt-oss-20b-antidoom)) | MXFP4 | harmony tool calling with a strict tool-call grammar, a reasoning-effort cap, an [Antidoom](https://github.com/Liquid4All/antidoom) fine-tune trained on two B70s that removes doom loops, and what an agent harness does to make gpt-oss fake its tool calls | 106-117 t/s one stream, 698 t/s across 16 |
 
 Speeds are single-run measurements through an OpenAI-compatible endpoint. Each recipe page gives the conditions and
 the noise.
