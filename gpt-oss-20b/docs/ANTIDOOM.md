@@ -1,5 +1,9 @@
 # Antidoom on two B70s: training gpt-oss-20b out of its loops
 
+The result of this page, variant B, is published as
+[Taggert2222/gpt-oss-20b-antidoom](https://huggingface.co/Taggert2222/gpt-oss-20b-antidoom): the merged MXFP4
+checkpoint, plus the unmerged LoRA in its `adapter/` folder. Read on for how it was made, or to train your own.
+
 ## The problem
 
 gpt-oss-20b sometimes repeats itself until it runs out of tokens: a phrase, a list item, a line of a table, again
@@ -225,6 +229,10 @@ Lessons:
 What fixed it instead was changing the harness, not the weights: [AGENT-HARNESS.md](AGENT-HARNESS.md).
 
 ## Reproduce
+
+To use variant B without training it, download
+[Taggert2222/gpt-oss-20b-antidoom](https://huggingface.co/Taggert2222/gpt-oss-20b-antidoom) and serve it with
+`MODEL=` pointing at it. The steps below rebuild it from scratch.
 
 From `antidoom/`. Every script that talks to a server reads `BASE_URL` (default `http://localhost:8000`) and an
 optional `OPENAI_API_KEY`.
