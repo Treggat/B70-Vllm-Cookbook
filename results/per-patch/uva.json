@@ -1,0 +1,145 @@
+{
+ "tag": "uva",
+ "when": "2026-10-17 08:59 PM",
+ "short_code": {
+  "tps": [
+   119.4,
+   126.6,
+   128.5
+  ],
+  "avg": 124.8,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.739,
+   "tok_per_step": 4.7,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   51.4,
+   77.7,
+   37.8,
+   78.3
+  ],
+  "summed": 245.2,
+  "gen_over_wall": 162.9,
+  "wall": 16.6,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.377,
+   "tok_per_step": 2.89,
+   "preempt": 0.0
+  }
+ },
+ "depth": {
+  "24k": {
+   "prompt": 25375,
+   "cold_ttft": 15.9,
+   "prefill_tps": 1598,
+   "decode": 55.3,
+   "gen": 226,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.32,
+    "tok_per_step": 2.6,
+    "preempt": 0.0
+   }
+  },
+  "32k": {
+   "prompt": 33468,
+   "cold_ttft": 22.3,
+   "prefill_tps": 1502,
+   "decode": 51.2,
+   "gen": 400,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.3,
+    "tok_per_step": 2.5,
+    "preempt": 0.0
+   }
+  },
+  "65k": {
+   "prompt": 64124,
+   "cold_ttft": 52.9,
+   "prefill_tps": 1212,
+   "decode": 56.7,
+   "gen": 360,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.447,
+    "tok_per_step": 3.23,
+    "preempt": 0.0
+   }
+  },
+  "74k": {
+   "prompt": 73336,
+   "cold_ttft": 64.0,
+   "prefill_tps": 1146,
+   "decode": 47.0,
+   "gen": 320,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.367,
+    "tok_per_step": 2.83,
+    "preempt": 0.0
+   }
+  },
+  "100k": {
+   "prompt": 97855,
+   "cold_ttft": 97.9,
+   "prefill_tps": 1000,
+   "decode": 44.7,
+   "gen": 335,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.395,
+    "tok_per_step": 2.97,
+    "preempt": 0.0
+   }
+  }
+ },
+ "greedy": [
+  {
+   "sha": "b4928eb11a94",
+   "gen": 227,
+   "canary": null,
+   "vs_base": "same"
+  },
+  {
+   "sha": "80dc222c0592",
+   "gen": 173,
+   "canary": null,
+   "vs_base": "same"
+  },
+  {
+   "sha": "5cc5ab5d1860",
+   "gen": 176,
+   "canary": null,
+   "vs_base": "same"
+  }
+ ],
+ "image": {
+  "sec": 20.3,
+  "prompt": 2251,
+  "canary": null
+ },
+ "video": {
+  "sec": 2.9,
+  "prompt": 406
+ }
+}

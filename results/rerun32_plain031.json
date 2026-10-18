@@ -1,0 +1,90 @@
+{
+ "tag": "plain031",
+ "when": "2026-10-17 11:02 PM",
+ "names_in_context": [],
+ "runs": [
+  {
+   "seed": 100,
+   "cites": 3,
+   "hit": [
+    "_parse_known_args",
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 22.0,
+   "decode": 56.9,
+   "gen": 400
+  },
+  {
+   "seed": 101,
+   "cites": 3,
+   "hit": [
+    "_parse_known_args",
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 22.1,
+   "decode": 48.6,
+   "gen": 322
+  },
+  {
+   "seed": 102,
+   "cites": 3,
+   "hit": [
+    "_parse_known_args",
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 22.2,
+   "decode": 54.6,
+   "gen": 400
+  },
+  {
+   "seed": 103,
+   "cites": 2,
+   "hit": [
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 22.2,
+   "decode": 55.6,
+   "gen": 400
+  },
+  {
+   "seed": 104,
+   "cites": 2,
+   "hit": [
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 22.2,
+   "decode": 46.3,
+   "gen": 394
+  },
+  {
+   "seed": 105,
+   "cites": 2,
+   "hit": [
+    "_parse_known_args",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 22.2,
+   "decode": 47.1,
+   "gen": 389
+  }
+ ],
+ "cites": [
+  3,
+  3,
+  3,
+  2,
+  2,
+  2
+ ]
+}

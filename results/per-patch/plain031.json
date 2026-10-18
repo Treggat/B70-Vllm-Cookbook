@@ -1,0 +1,142 @@
+{
+ "tag": "plain031",
+ "when": "2026-10-17 07:36 PM",
+ "short_code": {
+  "tps": [
+   117.8,
+   122.3,
+   122.6
+  ],
+  "avg": 120.9,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.76,
+   "tok_per_step": 4.8,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   51.9,
+   81.3,
+   32.9,
+   79.6
+  ],
+  "summed": 245.7,
+  "gen_over_wall": 158.3,
+  "wall": 15.6,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.419,
+   "tok_per_step": 3.09,
+   "preempt": 0.0
+  }
+ },
+ "depth": {
+  "24k": {
+   "prompt": 25375,
+   "cold_ttft": 15.7,
+   "prefill_tps": 1620,
+   "decode": 50.6,
+   "gen": 289,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.295,
+    "tok_per_step": 2.47,
+    "preempt": 0.0
+   }
+  },
+  "32k": {
+   "prompt": 33468,
+   "cold_ttft": 22.1,
+   "prefill_tps": 1518,
+   "decode": 48.8,
+   "gen": 356,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.294,
+    "tok_per_step": 2.47,
+    "preempt": 0.0
+   }
+  },
+  "65k": {
+   "prompt": 64124,
+   "cold_ttft": 52.6,
+   "prefill_tps": 1220,
+   "decode": 52.1,
+   "gen": 372,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.42,
+    "tok_per_step": 3.1,
+    "preempt": 0.0
+   }
+  },
+  "74k": {
+   "prompt": 73336,
+   "cold_ttft": 63.7,
+   "prefill_tps": 1151,
+   "decode": 41.1,
+   "gen": 317,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.309,
+    "tok_per_step": 2.54,
+    "preempt": 0.0
+   }
+  },
+  "100k": {
+   "prompt": 97855,
+   "cold_ttft": 97.6,
+   "prefill_tps": 1003,
+   "decode": 40.6,
+   "gen": 329,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.351,
+    "tok_per_step": 2.76,
+    "preempt": 0.0
+   }
+  }
+ },
+ "greedy": [
+  {
+   "sha": "b4928eb11a94",
+   "gen": 227,
+   "canary": null
+  },
+  {
+   "sha": "df15db80aad7",
+   "gen": 230,
+   "canary": null
+  },
+  {
+   "sha": "5cc5ab5d1860",
+   "gen": 176,
+   "canary": null
+  }
+ ],
+ "image": {
+  "sec": 2.6,
+  "prompt": 2251,
+  "canary": null
+ },
+ "video": {
+  "sec": 0.4,
+  "prompt": 406
+ }
+}

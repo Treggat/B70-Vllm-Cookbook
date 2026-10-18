@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+serve/prod.env
+serve/prod.extra
+serve/test.env
+serve/test.extra
+serve/use-test
+serve/draft_vocab_*.json
+bench/bench_*.json
+bench/stress4_*.json

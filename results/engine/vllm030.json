@@ -1,0 +1,61 @@
+{
+ "tag": "vllm030",
+ "short_code": {
+  "tps": [
+   115.7,
+   107.0,
+   119.1
+  ],
+  "ttft": [
+   0.13,
+   0.15,
+   0.15
+  ],
+  "mtp": {
+   "per_token": 0.719,
+   "tok_per_step": 4.595,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   44.5,
+   74.6,
+   31.9,
+   70.3
+  ],
+  "summed": 221.3,
+  "gen_over_wall": 152.8,
+  "wall": 18.3,
+  "mtp": {
+   "per_token": 0.3628,
+   "tok_per_step": 2.814,
+   "preempt": 0.0
+  }
+ },
+ "when": "2026-10-17 06:20 PM",
+ "depth75k": {
+  "prompt": 75729,
+  "cold_ttft": 66.9,
+  "prefill_tps": 1133,
+  "decode": [
+   50.6,
+   44.7
+  ],
+  "cached_ttft": 0.57,
+  "cites": 4,
+  "mtp": {
+   "per_token": 0.3873684210526316,
+   "tok_per_step": 2.9368421052631577,
+   "preempt": 0.0
+  }
+ },
+ "image": {
+  "sec": 1.6,
+  "prompt": 2251
+ },
+ "video": {
+  "sec": 0.6,
+  "prompt": 406
+ }
+}

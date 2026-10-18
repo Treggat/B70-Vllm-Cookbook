@@ -1,0 +1,145 @@
+{
+ "tag": "kern",
+ "when": "2026-10-17 08:04 PM",
+ "short_code": {
+  "tps": [
+   120.4,
+   127.0,
+   129.3
+  ],
+  "avg": 125.6,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.739,
+   "tok_per_step": 4.7,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   50.7,
+   79.6,
+   35.9,
+   83.2
+  ],
+  "summed": 249.4,
+  "gen_over_wall": 162.7,
+  "wall": 16.7,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.379,
+   "tok_per_step": 2.9,
+   "preempt": 0.0
+  }
+ },
+ "depth": {
+  "24k": {
+   "prompt": 25375,
+   "cold_ttft": 14.2,
+   "prefill_tps": 1792,
+   "decode": 58.1,
+   "gen": 283,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.315,
+    "tok_per_step": 2.58,
+    "preempt": 0.0
+   }
+  },
+  "32k": {
+   "prompt": 33468,
+   "cold_ttft": 19.5,
+   "prefill_tps": 1720,
+   "decode": 56.1,
+   "gen": 354,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.311,
+    "tok_per_step": 2.55,
+    "preempt": 0.0
+   }
+  },
+  "65k": {
+   "prompt": 64124,
+   "cold_ttft": 43.1,
+   "prefill_tps": 1488,
+   "decode": 61.1,
+   "gen": 372,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.425,
+    "tok_per_step": 3.12,
+    "preempt": 0.0
+   }
+  },
+  "74k": {
+   "prompt": 73336,
+   "cold_ttft": 51.3,
+   "prefill_tps": 1430,
+   "decode": 57.8,
+   "gen": 400,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.403,
+    "tok_per_step": 3.02,
+    "preempt": 0.0
+   }
+  },
+  "100k": {
+   "prompt": 97855,
+   "cold_ttft": 75.6,
+   "prefill_tps": 1295,
+   "decode": 52.9,
+   "gen": 389,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.403,
+    "tok_per_step": 3.02,
+    "preempt": 0.0
+   }
+  }
+ },
+ "greedy": [
+  {
+   "sha": "b4928eb11a94",
+   "gen": 227,
+   "canary": null,
+   "vs_base": "same"
+  },
+  {
+   "sha": "00266d3b4edc",
+   "gen": 163,
+   "canary": null,
+   "vs_base": "differs at char 760"
+  },
+  {
+   "sha": "5cc5ab5d1860",
+   "gen": 176,
+   "canary": null,
+   "vs_base": "same"
+  }
+ ],
+ "image": {
+  "sec": 3.1,
+  "prompt": 2251,
+  "canary": null
+ },
+ "video": {
+  "sec": 0.6,
+  "prompt": 406
+ }
+}

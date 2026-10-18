@@ -1,0 +1,145 @@
+{
+ "tag": "fp8head",
+ "when": "2026-10-17 09:11 PM",
+ "short_code": {
+  "tps": [
+   125.9,
+   135.4,
+   138.3
+  ],
+  "avg": 133.2,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.746,
+   "tok_per_step": 4.73,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   56.7,
+   88.5,
+   37.6,
+   88.7
+  ],
+  "summed": 271.6,
+  "gen_over_wall": 155.3,
+  "wall": 15.1,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.429,
+   "tok_per_step": 3.15,
+   "preempt": 0.0
+  }
+ },
+ "depth": {
+  "24k": {
+   "prompt": 25375,
+   "cold_ttft": 15.8,
+   "prefill_tps": 1611,
+   "decode": 57.9,
+   "gen": 264,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.318,
+    "tok_per_step": 2.59,
+    "preempt": 0.0
+   }
+  },
+  "32k": {
+   "prompt": 33468,
+   "cold_ttft": 22.1,
+   "prefill_tps": 1512,
+   "decode": 53.7,
+   "gen": 373,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.302,
+    "tok_per_step": 2.51,
+    "preempt": 0.0
+   }
+  },
+  "65k": {
+   "prompt": 64124,
+   "cold_ttft": 52.6,
+   "prefill_tps": 1219,
+   "decode": 54.5,
+   "gen": 372,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.405,
+    "tok_per_step": 3.02,
+    "preempt": 0.0
+   }
+  },
+  "74k": {
+   "prompt": 73336,
+   "cold_ttft": 63.7,
+   "prefill_tps": 1151,
+   "decode": 50.9,
+   "gen": 384,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.389,
+    "tok_per_step": 2.95,
+    "preempt": 0.0
+   }
+  },
+  "100k": {
+   "prompt": 97855,
+   "cold_ttft": 97.5,
+   "prefill_tps": 1004,
+   "decode": 48.0,
+   "gen": 370,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.422,
+    "tok_per_step": 3.11,
+    "preempt": 0.0
+   }
+  }
+ },
+ "greedy": [
+  {
+   "sha": "b4928eb11a94",
+   "gen": 227,
+   "canary": null,
+   "vs_base": "same"
+  },
+  {
+   "sha": "9c150bf7d5df",
+   "gen": 225,
+   "canary": null,
+   "vs_base": "differs at char 86"
+  },
+  {
+   "sha": "5cc5ab5d1860",
+   "gen": 176,
+   "canary": null,
+   "vs_base": "same"
+  }
+ ],
+ "image": {
+  "sec": 3.1,
+  "prompt": 2251,
+  "canary": null
+ },
+ "video": {
+  "sec": 0.5,
+  "prompt": 406
+ }
+}

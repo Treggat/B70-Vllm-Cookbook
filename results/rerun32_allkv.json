@@ -1,0 +1,89 @@
+{
+ "tag": "allkv",
+ "when": "2026-10-17 10:56 PM",
+ "names_in_context": [],
+ "runs": [
+  {
+   "seed": 100,
+   "cites": 1,
+   "hit": [
+    "consume_positionals"
+   ],
+   "prompt": 33468,
+   "ttft": 19.4,
+   "decode": 70.8,
+   "gen": 339
+  },
+  {
+   "seed": 101,
+   "cites": 3,
+   "hit": [
+    "_parse_known_args",
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 19.5,
+   "decode": 58.7,
+   "gen": 330
+  },
+  {
+   "seed": 102,
+   "cites": 2,
+   "hit": [
+    "_parse_known_args",
+    "consume_positionals"
+   ],
+   "prompt": 33468,
+   "ttft": 19.5,
+   "decode": 58.5,
+   "gen": 362
+  },
+  {
+   "seed": 103,
+   "cites": 3,
+   "hit": [
+    "_parse_known_args",
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 19.5,
+   "decode": 69.7,
+   "gen": 400
+  },
+  {
+   "seed": 104,
+   "cites": 2,
+   "hit": [
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 19.6,
+   "decode": 54.1,
+   "gen": 400
+  },
+  {
+   "seed": 105,
+   "cites": 3,
+   "hit": [
+    "_parse_known_args",
+    "consume_positionals",
+    "_match_argument"
+   ],
+   "prompt": 33468,
+   "ttft": 19.6,
+   "decode": 65.1,
+   "gen": 328
+  }
+ ],
+ "cites": [
+  1,
+  3,
+  2,
+  3,
+  2,
+  3
+ ]
+}
