@@ -37,6 +37,8 @@
 - **"4 streams" is an admission cap, not a promise.** What actually limits concurrent long chats is the KV pool.
   With 268k tokens, two 90k chats filled it and the 3rd and 4th waited. 389k fits 4 × ~95k. During cold prefill
   vLLM still runs one long prompt at a time.
+- **Don't redirect the server's output inside its launch config** (`exec >> file` in an env file the launcher
+  sources). The server runs fine, but a supervisor such as llama-swap then shows an empty log for the model.
 - **llama-swap users:** scraping `/upstream/<model>/metrics` for a model that isn't loaded **loads it**, swapping out
   whatever is running. Only scrape the seat that's already up.
 - **Do the VRAM math before raising KV.** CUDA-graph-style capture memory isn't counted by
