@@ -1,0 +1,17 @@
+test,model,effort,result,n,notes
+ptc_probe_6_rounds,stock,medium,57,72,same session as variant_b; median 5.2 s per call; avg reasoning 1444 chars
+ptc_probe_6_rounds,variant_b,medium,57,72,median 2.8 s per call; avg reasoning 508 chars
+ptc_probe_3_rounds,stock,medium,32,36,same session as round1
+ptc_probe_3_rounds,round1,medium,26,36,syntax/escaping errors in run_code; code not using tools.
+ptc_probe_3_rounds,variant_b,medium,27,36,
+ptc_probe_3_rounds,stock,high,6,36,uncapped; misses = reasoning past 3000 tokens before any call
+ptc_probe_3_rounds,variant_b,high,16,36,uncapped; misses = reasoning past 3000 tokens; not loops
+ptc_probe_3_rounds,stock,high_capped_medium,28,36,vLLM 0.31 promotion gate 2026-10-14 (uncapped that day: 8/36)
+ptc_probe_3_rounds,variant_b,high_capped_medium,29,36,promotion gate 2026-10-17
+tool_flow_2x16_faults,stock,medium,0,32,sessions finished within 8 turns: 19 of 32
+tool_flow_2x16_faults,round1,medium,1,32,1 HTTP 500 (grammar rejected <|call|>); finished 25 of 32
+tool_flow_2x16_faults,variant_b,medium,0,32,finished 23 of 32
+tool_flow_2x16_faults,stock,high,0,32,finished 15 of 32
+tool_flow_2x16_faults,variant_b,high,0,32,finished 16 of 32
+agent_harness_tasks_pass,stock,medium,17,28,partial 8; fabricated 1; honest fail 1; API error 1; rm -rf on shared folders 2
+agent_harness_tasks_pass,variant_b,medium,20,28,partial 5; fabricated 3; honest fail 0; API error 0; rm -rf on shared folders 0

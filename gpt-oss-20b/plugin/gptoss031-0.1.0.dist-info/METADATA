@@ -1,0 +1,4 @@
+Metadata-Version: 2.1
+Name: gptoss031
+Version: 0.1.0
+Summary: vLLM 0.31 plugin (active only where this folder is on PYTHONPATH) for gpt-oss: harmony tool-call grammar (stop-only call end), effort mapping/cap, HarmonyError stream guard

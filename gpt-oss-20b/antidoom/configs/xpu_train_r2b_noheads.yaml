@@ -1,0 +1,47 @@
+# ROUND 2 VARIANT B "no lm_head": round 1 strength (lr 1.5e-5, stop 0.40) but the LoRA leaves lm_head
+# alone. lm_head is the one target that shifts every token's prior at once; the round 1 tool-call regressions
+# (broken Python inside valid JSON, a <|call|> the grammar rejected) look like exactly that kind of global drift.
+# Attention projections only: the loop fix then has to come from attention, where the repetition actually starts.
+# Same data as variant A. merge_into_mxfp4.py merges whatever the adapter holds, so lm_head stays byte-identical.
+# FTPO LoRA for gpt-oss-20b on two Arc B70s (run with xpu_train.py).
+# Hyperparameters follow upstream's configs/default.yaml; the differences are marked.
+model_name: "/models/gpt-oss-20b"   # the stock MXFP4 checkpoint (openai/gpt-oss-20b), local copy
+
+train:
+  dataset_jsonl: "runs/mine2/pairs-r2.jsonl"   # round 1 clean (1763, medium) + round 2 chat-high + tools-high, divider FPs removed
+  output_dir: "runs/ftpo_lora_r2b"
+  merged_output_dir: "runs/ftpo_merged_gptoss"     # unused: merge_into_mxfp4.py does the merge
+  auto_merged_output_name: false
+  merge_lora: false
+  max_seq_length: 5120          # longest round 2 context is 5070 tokens (merge_pairs_r2.py, 2026-10-17)
+  batch_size: 1                 # upstream 4 x 4; same effective batch of 16
+  gradient_accumulation_steps: 16
+  num_epochs: 1
+  learning_rate: 0.000015
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  seed: 3407
+  max_train_examples: 12000
+  rejected_regularisation_strength: 0.3
+  chosen_regularisation_strength: 0.5
+  source_balance_mode: "off"
+  min_chosen_tokens: 1
+  filter_rejected_stop_words: false
+  lora_r: 256
+  lora_alpha: 128
+  lora_dropout: 0.0
+  lora_ensure_weight_tying: false
+  freeze_early_layers: false
+  n_layers_unfrozen: 5
+  # gpt-oss experts are fused parameters, not Linear layers, so gate/up/down_proj
+  # never matched; attention and lm_head are stored bf16 in the MXFP4 checkpoint,
+  # which is what lets merge_into_mxfp4.py merge them in place.
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]   # round 1 also had lm_head
+  load_in_4bit: false
+  bf16: true
+  lambda_mse_target: 0.05
+  tau_mse_target: 0.5
+  lambda_mse: 0.4
+  clip_epsilon_logits: 2.0
+  early_stopping_chosen_win: 0.4
+  optim: adamw_torch            # no bitsandbytes on Intel XPU

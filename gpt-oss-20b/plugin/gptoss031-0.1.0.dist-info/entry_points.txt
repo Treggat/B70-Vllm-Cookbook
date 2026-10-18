@@ -1,0 +1,2 @@
+[vllm.general_plugins]
+gptoss031 = gptoss031.vllm_plugin:register

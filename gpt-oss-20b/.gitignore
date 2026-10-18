@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+serve/gpt-oss.extra
+antidoom/upstream/
+antidoom/data/
+antidoom/runs/
+antidoom/train.log
+bench/runs/
