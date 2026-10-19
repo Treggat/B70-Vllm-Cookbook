@@ -3,8 +3,8 @@
 [← B70 vLLM Cookbook](../README.md)
 
 A reproducible recipe for serving a **merged Qwen3.8-27B fine-tune** ([DavidAU](https://huggingface.co/DavidAU)'s [*TWIN-TURBO Fable Cold-Fusion 709-L*](https://huggingface.co/DavidAU/Qwen3.8-27B-TWIN-TURBO-Fable-Cold-Fusion-709-L-Uncensored-NM-DAU-NEO-MTP-GGUF))
-as an **AWQ W4A16** checkpoint on **one Arc Pro B70 (32 GB)**, with MTP speculative decoding, vision, 131k context and
-4 concurrent streams. vLLM 0.32.0 (XPU, built from source; the 0.31 recipe is in this folder's git history), the
+as an **AWQ W4A16** checkpoint on **one Arc Pro B70 (32 GB)**, with MTP speculative decoding, vision, the model's full
+262k context and 4 concurrent streams. vLLM 0.32.0 (XPU, built from source; the 0.31 recipe is in this folder's git history), the
 [SergiioB][sergiiob] and [Vcvzgbzz][vcv] cookbook patches, and [riceharvest][rice]'s b70 layer on top, plus four small
 patches of our own (one of them SergiioB's MTP boundary fix re-based onto 0.32).
 

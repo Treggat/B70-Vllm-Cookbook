@@ -111,6 +111,12 @@ See [AWQ.md](AWQ.md). Short version: TheUnderscore's W4A16 quant of the 709-L co
 - `--enable-prefix-caching --prefix-match-unit 64 --enable-mamba-shared-prefix-checkpoint --mamba-ssm-cache-dtype float16`.
   0.31 **renamed** `--enable-mamba-fine-grained-prefix-cache` to `--enable-mamba-shared-prefix-checkpoint`. Without
   it, replies crossing a state page get corrupted (see PITFALLS).
+- `--max-model-len 262144` (in `prod.extra`, over the launcher's 131072). The 709-L is native 262k (plain rope). With the
+  14.5 GiB pool the KV cache reads 416,591 tokens (1.59 × 262k), so one 262k request or 4 × ~100k fit. Speed is
+  unchanged against the 131k window (RESULTS.md), including under XPU graphs, where `max_seqlen_k` is the window at
+  capture time. Whatever sits in front of the server (a router's admission check, a harness's compaction threshold)
+  has to learn the new number too: we raise the router's declared window and the harness's `contextWindow` to
+  262144 − 8192 and restart both, since each reads it once at start.
 - `--max-num-batched-tokens 3584`. Don't raise it on this build: 16384 made cold prefill 2–3× slower for us.
   Don't lower it for single-stream use either. If the seat serves several chats and one long cold prompt must not stall
   the others, add `--long-prefill-token-threshold 512` (decode during another chat's prefill 2.2 → 10 t/s, that

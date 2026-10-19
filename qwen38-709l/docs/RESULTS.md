@@ -101,6 +101,13 @@ compile cache: 241 s. 0 GPU resets across the day's loads once the drafter's emb
 **4 × long chats at once** (`results/stress4_032.json`): 4 distinct prompts of 93k–102k tokens, all 4 correct, 0
 preemptions, KV peak 50%, wall 321 s (prefill serialises, as before).
 
+## 262k window (0.32, `--max-model-len 262144`, `results/engine/vllm032-ctx262k.json`)
+
+Same bench on the same seat with the window raised from 131,072 to 262,144 (KV pool 416,591 tokens, same 14.5 GiB):
+short code 130.8 t/s, 4 writers 259.2 summed, prefill 24k / 32k / 65k / 74k / 100k = 1,797 / 1,737 / 1,502 / 1,441 /
+1,303 t/s, decode 63.0 / 67.9 / 67.1 / 53.9 / 58.1 t/s, cites 4 / 4 / 4 at 65k+. Parity with the 131k runs above.
+A 139k-token prompt is admitted and answered in 124 s.
+
 ## Max-model-len boundary (0.32, `bench/maxlen.py`)
 
 `results/maxlen_032.json`: a 128,977-token prompt with `max_tokens: 8000` on the 131,072 window. The reply stopped at

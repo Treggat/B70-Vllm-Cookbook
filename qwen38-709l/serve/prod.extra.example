@@ -1,3 +1,4 @@
 --limit-mm-per-prompt {"image":16,"video":4}
 --cpu-offload-gb 4 --cpu-offload-params embed_tokens
 --kv-cache-memory-bytes 15569256448
+--max-model-len 262144
