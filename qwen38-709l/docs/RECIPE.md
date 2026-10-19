@@ -75,7 +75,8 @@ See [AWQ.md](AWQ.md). Short version: TheUnderscore's W4A16 quant of the 709-L co
 - `--cpu-offload-gb 4 --cpu-offload-params embed_tokens` + `B70_EMBED_UVA=1`: keeps the embedding table in pinned host
   RAM. That alone didn't speed anything up, but the VRAM it frees is part of what made the 14.5 GiB pool possible.
   Offload only `embed_tokens`. Adding `visual` (the vision tower) to `--cpu-offload-params` made an image request take
-  20.3 s instead of about 3 s.
+  20.3 s instead of about 3 s. `apply_stack.sh` also keeps the MTP drafter's own embedding table off the offloader
+  (see PITFALLS): the target's offloaded table is the one both end up using.
 - `--speculative-config '{"method":"mtp","num_speculative_tokens":5}'`.
 - `--enable-prefix-caching --prefix-match-unit 64 --enable-mamba-shared-prefix-checkpoint --mamba-ssm-cache-dtype float16`.
   0.31 **renamed** `--enable-mamba-fine-grained-prefix-cache` to `--enable-mamba-shared-prefix-checkpoint`. Without

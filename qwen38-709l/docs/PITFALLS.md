@@ -37,6 +37,13 @@
 - **"4 streams" is an admission cap, not a promise.** What actually limits concurrent long chats is the KV pool.
   With 268k tokens, two 90k chats filled it and the 3rd and 4th waited. 389k fits 4 × ~95k. During cold prefill
   vLLM still runs one long prompt at a time.
+- **GPU copy-engine reset while loading, with embed UVA on.** The drafter builds its own `embed_tokens`, and
+  riceharvest's `patch_embed_uva` offloads that one too, so the draft's weight load writes 2.37 GiB into a second pinned
+  host copy over the copy engine. Twice that write ended in an `Engine reset: engine_class=bcs` in `dmesg`, the engine
+  core died and the server hung in "starting". vLLM throws the drafter's table away right after the load anyway
+  (`_maybe_share_embeddings`), so `apply_stack.sh` now leaves it on the GPU (`B70_EMBED_UVA_DRAFT=1` restores the old
+  behaviour). 5 back-to-back cold loads after the change: no resets, same speed, byte-identical greedy output. Symptom
+  to look for: the log's "Total CPU offloaded parameters" jumping from 2.37 to 4.74 right before the hang.
 - **Don't redirect the server's output inside its launch config** (`exec >> file` in an env file the launcher
   sources). The server runs fine, but a supervisor such as llama-swap then shows an empty log for the model.
 - **llama-swap users:** scraping `/upstream/<model>/metrics` for a model that isn't loaded **loads it**, swapping out

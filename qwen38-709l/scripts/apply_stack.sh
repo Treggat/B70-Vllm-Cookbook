@@ -57,6 +57,12 @@ for p in patch_embed_uva patch_draft_vocab patch_target_lmhead_fp8 patch_gdn_spe
          patch_gdn_mixed_no_sync patch_xpu_graph_kv_splits patch_spec_greedy_warmup patch_eager_token_pad patch_spec_packed; do
   run b70/$p.py
 done
+# patch_embed_uva also wraps the DRAFTER's embed_tokens (qwen3_5_mtp.py). vLLM discards that table right after the load
+# (_maybe_share_embeddings) and shares the target's, so the wrap only adds a second pinned copy and a copy-engine write
+# during the draft's weight load; that write reset our card twice. Gate it behind B70_EMBED_UVA_DRAFT (default off).
+MTP=$VL/model_executor/models/qwen3_5_mtp.py
+grep -q "B70_EMBED_UVA_DRAFT" "$MTP" || sed -i "s|environ.get('B70_EMBED_UVA', '1') == '1'|environ.get('B70_EMBED_UVA_DRAFT', '0') == '1'|" "$MTP"
+grep -q "B70_EMBED_UVA_DRAFT" "$MTP" || fail "draft embed gate not applied"
 
 K=$SP/vllm_xpu_kernels/libattn_kernels_xe_2.so
 [ -f "$K.stock" ] || cp -p "$K" "$K.stock"
