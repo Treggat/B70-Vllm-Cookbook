@@ -12,6 +12,15 @@
   `minimal`, `xhigh` or `max` need mapping; the plugin does it.
 - **High effort runs out of tokens.** At high, stock gpt-oss-20b looped on 39.5% of our loop set and made a valid
   `run_code` call on 6–8 of 36 tasks at 3,000 tokens. Cap agent traffic at medium.
+- **`--kv-cache-dtype-skip-layers sliding_window` doesn't start on vllm-xpu-kernels 0.1.15.4.** With fp8 on the full
+  layers only, the bf16 window layers get 32-token pages, and there is no head-64 local+sink paged-decode kernel for
+  that page size ("Paged decode kernel not compiled for this configuration", then a crash in the PyTorch fallback
+  during graph capture). Use `--kv-cache-dtype fp8` on all layers ([RECIPE.md](RECIPE.md#kv-cache-fp8)).
+- **A "kernel not compiled" fallback is not a crash, it's a slowdown.** vllm-xpu-kernels falls back to PyTorch
+  reference attention for configs its build doesn't include and prints the config line to add. Grep the server log
+  for "not compiled" after any change to KV dtype, block size or the kernel library.
+- **Model-specific kernel builds don't carry over.** A custom `libattn_kernels_xe_2.so` built only for another model's
+  head sizes (for example a Qwen build with head 256/96/128 only) has no head-64 kernels for gpt-oss.
 - **Eager mode is 2.7× slower** (about 43 vs 106–117 tok/s on one stream). Without `serve/gpt-oss.extra` the launcher
   starts eager on purpose; copy the example.
 - **`oss-harmony` and `openai-harmony` both install `openai_harmony`.** vLLM 0.31 wants oss-harmony ≥ 0.0.11; an

@@ -17,6 +17,8 @@
 #   1 stream 106-117 tok/s, 4 streams 257 summed, 16 streams 698 summed. Without the .extra (eager) about 43 tok/s.
 #   bench/tool_flow.py 2 x 16 streaming multi-turn sessions: 168 calls, 0 problems. bench/ptc_probe.py at effort high
 #   capped to medium: 28/36 (uncapped: 8/36).
+# fp8 KV cache (in gpt-oss.extra.example since 2026-10-18; variant B, bench/bench_kv.py): KV pool 643,585 -> 1,287,170
+#   tokens, same decode speed, 16 x 69k contexts all stay cached; cold long prefill about 25% slower.
 HERE=$(cd "$(dirname "$0")" && pwd)
 V=${VENV:?set VENV to the venv dir from build_venv.sh}
 MODEL=${MODEL:?set MODEL to the gpt-oss-20b model dir}
