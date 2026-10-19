@@ -152,10 +152,14 @@ the way 16 long agent sessions come back for their next turn.
 | 51k-token read: first token, decode | 9.0 s, 103 tok/s | 11.1 s, 113 tok/s |
 | 16 × 69k cold prefill, serial | 224 s | 285 s |
 
-The cost is prefill: a cold long read is about 25% slower, because the stock kernels' fp8-to-fp16 conversion is slow on
-Xe2 (riceharvest's [sycl-tla#859](https://github.com/intel/sycl-tla/pull/859) and
-[vllm-xpu-kernels#638](https://github.com/vllm-project/vllm-xpu-kernels/pull/638) target exactly this; both open when
-we measured). Decode speed does not change. Quality on the variant B gates, fp8 vs bf16:
+The cost is prefill: a cold long read is about 25% slower, because on Xe2 the stock kernels convert fp8 back to bf16
+in 11 instructions per 64 values. Decode speed does not change. riceharvest's
+[sycl-tla#859](https://github.com/intel/sycl-tla/pull/859) and
+[vllm-xpu-kernels#638](https://github.com/vllm-project/vllm-xpu-kernels/pull/638) fix this for fp16 models only (both
+still open). gpt-oss runs in bf16, so we wrote the bf16 version: [`kernels/`](../kernels/README.md) rebuilds the
+attention library with it and wins back about half the cost (51k first token 11.1 → 10.0 s), with output
+byte-identical to the stock kernels. It's optional and has to be rebuilt for every vllm-xpu-kernels version. We serve
+with it. Quality on the variant B gates, fp8 vs bf16 (stock kernels):
 
 | gate | bf16 | fp8 |
 |---|---|---|
@@ -180,8 +184,9 @@ off, so keeping them bf16 is faster, and they hold almost nothing, so it costs n
 Blackwell.) On vllm-xpu-kernels 0.1.15.4 that does not start: to give both layer types the same page bytes, vLLM
 gives the bf16 window layers 32-token pages, and the library has no paged-decode kernel for head 64 + local + sink at
 page size 32 (it asks for config line `8,64,32,false,true,true`). The PyTorch fallback then fails during graph capture.
-With fp8 on all layers both types keep 64-token pages, which the stock build covers. Rebuilding the kernels with that
-config line added should make the skip form work; we have not tried it.
+With fp8 on all layers both types keep 64-token pages, which the stock build covers. The [`kernels/`](../kernels/README.md)
+build includes that config line, and the skip form then loads. It isn't worth it on our box: no faster, a 3% smaller
+pool (1,248,218 tokens), and graded 82.9% / PTC 55 against bars of 83.0% / 56.
 
 Host RAM does not change: the cache lives on the card.
 
