@@ -57,7 +57,8 @@ median 305 completion tokens on the loop set at medium, stock 418.
 **fp8 KV cache** (`serve/gpt-oss.extra.example` since 2026-10-18): the KV pool doubles from 643,585 to 1,287,170
 tokens at the same decode speed. 16 agent-sized contexts of 69k each all stay cached (bf16: 0.1%), so their next turn
 starts in 0.3–1.5 s instead of 15–230 s. A cold long read is about 25% slower. Variant B's gates hold: loops 1/200 at
-medium and high, graded 83.9%, tool_flow 0 format faults, PTC 56/72. Details in
+medium and high, graded 83.9%, tool_flow 0 format faults, PTC 56/72. A 69-minute 16-stream soak on fp8 (339 chat
+replies, 465 long reads, 625 tool calls) had 0 errors and 0 NaN replies. Details in
 [docs/RECIPE.md](docs/RECIPE.md#kv-cache-fp8).
 
 **What did not work:** round 3 tried to also train out a "narrated tool call" habit (the model writes the call or a

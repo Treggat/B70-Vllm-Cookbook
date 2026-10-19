@@ -167,9 +167,11 @@ we measured). Decode speed does not change. Quality on the variant B gates, fp8 
 Greedy replies to 20 short prompts: 3 byte-identical to bf16, the other 17 the same facts and code in different
 wording. The checkpoint ships no KV scales, so vLLM stores K and V with scale 1.0. That is the one fp8-specific risk
 we know of: a K or V value past fp8's range of ±448 could turn into a NaN, which shows up as a reply of `!!!!`. The
-gates (about 1,300 requests) had none. A 4-hour 16-stream soak on fp8 is running as we write this; at 45 minutes it
-had 0 errors and 0 `!!!!` replies in about 500 chat and long-read requests and 20 tool_flow runs
-([results/fp8_kv.json](../results/fp8_kv.json)).
+gates (about 1,300 requests) had none, and neither did a 69-minute 16-stream soak on the live server (we stopped it
+early; earlier soaks were 4 hours): 339 chat replies at temperature 1.0, 465 long reads of 25–55k tokens (17.3M prompt
+tokens in all), and 136 tool_flow sessions with 625 tool calls. That's 0 errors, 0 `!!!!` replies, 0 grammar 500s,
+0 preemptions and 0 tool-call format faults. 2 long reads came back empty (the reply spent its 1,000 tokens
+reasoning) and 11 chat replies hit the 4,000-token cap ([results/fp8_kv.json](../results/fp8_kv.json)).
 
 **fp8 on all layers, not "skip sliding-window layers".** vLLM's
 [fp8 KV-cache write-up](https://vllm.ai/blog/2026-04-22-fp8-kvcache) recommends
