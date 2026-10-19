@@ -1,0 +1,11 @@
+{
+ "tag": "b1024-t256",
+ "b_prompt": 82886,
+ "b_prefill_s": 92.9,
+ "b_prefill_tps": 893,
+ "a_before": 87.1,
+ "a_during": 18.4,
+ "a_after": 105.8,
+ "a_tokens": 2500,
+ "a_longest_gap_s": 0.5
+}

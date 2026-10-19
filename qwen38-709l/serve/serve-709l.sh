@@ -1,10 +1,12 @@
 #!/bin/sh
-# Serve the 709-L AWQ on one Arc Pro B70 with the patched vLLM 0.31 venv (scripts/build_venv.sh + scripts/apply_stack.sh).
+# Serve the 709-L AWQ on one Arc Pro B70 with the patched vLLM 0.32 venv (scripts/build_venv.sh + scripts/apply_stack.sh).
 # Config lives in two small files next to this script (copy the *.example ones):
 #   prod.env   = sh lines sourced here: runtime switches, cache dir, log
 #   prod.extra = plain flags appended LAST (the last flag wins), e.g. the KV pool size
 # For experiments, create test.env / test.extra and `touch use-test`: the live config is never edited for a test,
 # and `rm use-test` puts the next load back on prod.
+# No --kv-offloading-size: the CPU KV tier never finds its blocks again on this hybrid model (bench/kvoff_probe.py), it only
+# pins host RAM (8 GiB as a /dev/shm mmap for size 8). Vcvzgbzz's cookbook found the same on 0.31.
 # Usage: sh serve-709l.sh <port>
 HERE=$(cd "$(dirname "$0")" && pwd)
 V=${VENV:?set VENV to the venv dir from build_venv.sh}
@@ -29,7 +31,7 @@ exec "$V/venv/bin/python" -m vllm.entrypoints.cli.main serve "$MODEL" \
   --served-model-name qwen38-709l \
   --port "$PORT" \
   --dtype float16 --max-model-len 131072 \
-  --kv-cache-dtype fp8 --kv-cache-memory-bytes 8589934592 --kv-offloading-size 8 \
+  --kv-cache-dtype fp8 --kv-cache-memory-bytes 8589934592 \
   --max-num-seqs 4 --max-num-batched-tokens 3584 \
   --enable-prefix-caching --prefix-match-unit 64 \
   --enable-mamba-shared-prefix-checkpoint --mamba-ssm-cache-dtype float16 \

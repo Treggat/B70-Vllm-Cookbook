@@ -1,0 +1,59 @@
+{
+ "A_cold": {
+  "slice": 0,
+  "secs": 36.4,
+  "prompt_tokens": 55564,
+  "cached_tokens": 0
+ },
+ "fill": [
+  {
+   "slice": 1,
+   "secs": 35.5,
+   "prompt_tokens": 54838,
+   "cached_tokens": 0
+  },
+  {
+   "slice": 2,
+   "secs": 38.3,
+   "prompt_tokens": 58038,
+   "cached_tokens": 0
+  },
+  {
+   "slice": 3,
+   "secs": 39.2,
+   "prompt_tokens": 59021,
+   "cached_tokens": 0
+  },
+  {
+   "slice": 4,
+   "secs": 36.6,
+   "prompt_tokens": 55963,
+   "cached_tokens": 0
+  },
+  {
+   "slice": 5,
+   "secs": 37.3,
+   "prompt_tokens": 56824,
+   "cached_tokens": 0
+  },
+  {
+   "slice": 6,
+   "secs": 37.5,
+   "prompt_tokens": 57104,
+   "cached_tokens": 0
+  },
+  {
+   "slice": 7,
+   "secs": 43.0,
+   "prompt_tokens": 63609,
+   "cached_tokens": 0
+  }
+ ],
+ "A_replay": {
+  "slice": 0,
+  "secs": 36.4,
+  "prompt_tokens": 55564,
+  "cached_tokens": 0
+ },
+ "verdict": "no hit after eviction: the offload tier never finds the blocks (drop the flag)"
+}

@@ -74,3 +74,81 @@ every run, with 0 preemptions throughout.
 `results/stress4_kv145.json`: 4 distinct prompts of 93k–102k tokens at once. All 4 answered correctly, with 0
 preemptions and no OOM. KV use peaked at 49%: vLLM prefills one long prompt at a time, so the others wait during
 prefill and the first one finishes before the last one starts. Wall time was 316 s, nearly all of it prefill.
+
+## Engine: 0.31 + riceharvest ("allkv") → 0.32, same stack (2026-10-19)
+
+Same bench, same box, same day, prod config (14.5 GiB KV), single runs (`results/engine/vllm032.json`, a second run
+`results/engine/vllm032-run2.json` after the KV-offload flag was dropped, vs `results/per-patch/allkv.json`). The 0.32
+stack drops the four riceharvest patches 0.32 made obsolete (RECIPE.md) and carries SergiioB's boundary fix re-based.
+
+| | 0.31 allkv | 0.32, run 1 | **0.32, run 2** |
+|---|---|---|---|
+| short code, t/s ×3 | 126.7 / 136.3 / 131.7 (131.1) | 127.4 / 135.7 / 132.1 (131.7) | 119.8 / 134.8 / 132.3 (129.0) |
+| 4 writers, summed t/s | 272.7 | 267.2 | 274.7 |
+| prefill 24k / 32k / 65k / 74k / 100k, t/s | 1,784 / 1,712 / 1,482 / 1,425 / 1,291 | 1,633 / 1,675 / 1,450 / 1,423 / 1,289 | 1,781 / 1,731 / 1,497 / 1,439 / 1,303 |
+| decode 24k / 32k / 65k / 74k / 100k, t/s | 66.0 / 61.6 / 65.2 / 61.0 / 58.4 | 66.2 / 57.0 / 61.9 / 55.0 / 56.1 | 63.5 / 68.0 / 69.5 / 58.8 / 60.3 |
+| first token 100k, cold | 75.8 s | 75.9 s | 75.1 s |
+| cites at 65k / 74k / 100k | 4 / 4 / 4 | 4 / 4 / 4 | 4 / 4 / 4 |
+| image (2,251 prompt tokens) | 1.5 s | 3.2 s (first image after the load) | 3.3 s |
+| video (4 s clip) | 0.2 s | 0.6 s | 0.6 s |
+| greedy hashes vs allkv | — | code and list identical; prose differs at char 86 (engine change, same as plain-0.31 vs base) | same |
+| KV pool | 389,315 tokens | 389,315 tokens | 389,315 tokens |
+| MTP acceptance, code | 73% | 73.5% (4.67 tok/step) | 71.8% (4.59) |
+
+Parity within the ±5% single-run noise on every row; run 1's 74k decode (−10%) did not repeat. Cold load with a warm
+compile cache: 241 s. 0 GPU resets across the day's loads once the drafter's embedding table stayed on the GPU.
+
+**4 × long chats at once** (`results/stress4_032.json`): 4 distinct prompts of 93k–102k tokens, all 4 correct, 0
+preemptions, KV peak 50%, wall 321 s (prefill serialises, as before).
+
+## Max-model-len boundary (0.32, `bench/maxlen.py`)
+
+`results/maxlen_032.json`: a 128,977-token prompt with `max_tokens: 8000` on the 131,072 window. The reply stopped at
+exactly 131,072 total tokens (2,095 generated, `finish_reason: length`), no `!!!!` runs, no replacement characters, and
+the server answered the follow-up. This is the case `patch_mtp_boundary_032.py` exists for: the last MTP step is a
+partial speculative group right at the window. Decode at that depth, prefix cached: 2,095 tokens in 21.8 s (96 t/s).
+
+## CPU KV offload tier (0.32, `bench/kvoff_probe.py`)
+
+`results/kvoff_probe_032.json`: a 55,564-token prompt, then 7 distinct 55k–64k prompts (405k tokens, more than the
+389k pool), then the first prompt again. The replay reported `cached_tokens: 0` and took the full 36.4 s again, the
+same as cold. The same probe with a 20k prompt replayed immediately shows 19,776 cached tokens in 0.2 s, so the field
+works; the CPU tier just never returns a block. `--kv-offloading-size 8` is off the serve line.
+
+## Chunked-prefill sweep: one big cold prompt vs everyone else (0.32, `bench/starve.py`)
+
+vLLM prefills a long prompt in chunks of `--max-num-batched-tokens` (3,584 here, about 2.7 s per chunk at depth) and
+decode requests get one step per chunk. So while a 100k prompt prefills, every other chat on the seat decodes at
+about 3 t/s. `--long-prefill-token-threshold N` caps how many tokens of a long prompt go into one step, leaving the
+rest of the step budget for decodes. Four configs, each loaded through the test switch with the live prod config plus
+the flags shown; raw JSON in `results/prefill-sweep/`.
+
+**A chat is decoding when an 83k-token cold prompt arrives** (`starve.py`: A = 2,500-token code generation, B = the
+cold prompt 6 s in):
+
+| config | A before B | **A while B prefills** | A's longest stall | B's prefill | prefill t/s |
+|---|---|---|---|---|---|
+| live: batched 3584, no threshold | 91.5 t/s | **2.2 t/s** | 2.9 s | 62.5 s | 1,326 |
+| 3584 + threshold 512 | 75.4 | **10.2** | 0.6 s | 76.4 s | 1,085 |
+| batched 2048 + threshold 512 | 78.0 | **11.1** | 0.6 s | 76.2 s | 1,087 |
+| batched 1024 + threshold 256 | 87.1 | **18.4** | 0.5 s | 92.9 s | 893 |
+
+**One 112k-token chat plus three 47k chats sent together** (`ctxconc.py` from our scratch dir, the same prompts as the
+262k context test; the three small ones arrive 3 s after the big one):
+
+| config | small chats' first token | small chats' decode while sharing | big chat's first token | all 4 running at once |
+|---|---|---|---|---|
+| live | 122 / 154 / 178 s | ~3 t/s | 93 s | no (max 2) |
+| threshold 512 | 125 / 125 / 125 s | 7.8 | 184 s | yes |
+| 2048 + 512 | 124 / 124 / 124 s | 7.9 | 186 s | yes |
+| 1024 + 256 | 123 / 123 / 123 s | 11.1 | 189 s | yes |
+
+All runs: every answer correct (6/6 current values, 0 stale), 0 preemptions, KV peak 40–62%.
+
+Reading: the threshold is a real lever for the "agent chat mid-answer while a teammate's big prompt lands" case: a
+512-token cap turns a 2.2 t/s crawl with 3 s stalls into 10 t/s with sub-second stalls, for 22% more cold prefill time
+on the big prompt (and 2× on the big chat's first token when four arrive together, since the chunks interleave). The
+1024/256 config buys another 1.8× decode during prefill for 1.5× slower cold prefill. It does not get the small chats
+their first token sooner when all four arrive at once: FCFS still prefills in arrival order, the chunks just interleave.
+We left the live seat on the default (no threshold), because single-stream first-token time is what we optimise first;
+`--long-prefill-token-threshold 512` is the switch to flip when the seat serves a team.
