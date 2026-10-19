@@ -1,0 +1,103 @@
+{
+ "date": "2026-10-18",
+ "conditions": "one Arc Pro B70, vLLM 0.31.0 XPU, vllm-xpu-kernels 0.1.15.4, variant B weights, plugin gptoss031, XPU graphs (FULL_DECODE_ONLY), max-num-seqs 16, max-model-len 131072, gpu-memory-utilization 0.9; bench/bench_kv.py, effort low, short-prompt replies up to 700 tokens; only the KV dtype differs",
+ "bf16_kv": {
+  "kv_pool_tokens": 643585,
+  "full_131k_contexts": 4.91,
+  "decode_tok_s": {
+   "x1": 117.9,
+   "x4_summed": 308.4,
+   "x16_summed": 820.1
+  },
+  "long_read": {
+   "prompt_tokens": 51193,
+   "first_token_s": 9.02,
+   "decode_tok_s": 102.8,
+   "needle_found": true
+  },
+  "sixteen_x_69k_sent_again_at_once": {
+   "prompt_tokens_total": 1107443,
+   "cache_hit": 0.001,
+   "first_token_s_min_max": [
+    15.33,
+    230.33
+   ],
+   "peak_running": 4.0,
+   "peak_waiting": 15.0,
+   "preemptions": 0.0,
+   "needles_found": 15,
+   "serial_cold_prefill_s": 223.7
+  }
+ },
+ "fp8_kv": {
+  "kv_pool_tokens": 1287170,
+  "full_131k_contexts": 9.82,
+  "decode_tok_s": {
+   "x1": 116.5,
+   "x4_summed": 309.2,
+   "x16_summed": 817.7
+  },
+  "long_read": {
+   "prompt_tokens": 51193,
+   "first_token_s": 11.14,
+   "decode_tok_s": 113.3,
+   "needle_found": true
+  },
+  "sixteen_x_69k_sent_again_at_once": {
+   "prompt_tokens_total": 1107443,
+   "cache_hit": 1.0,
+   "first_token_s_min_max": [
+    0.33,
+    1.52
+   ],
+   "peak_running": 16.0,
+   "peak_waiting": 0.0,
+   "preemptions": 0.0,
+   "needles_found": 16,
+   "serial_cold_prefill_s": 285.4
+  }
+ },
+ "fp8_greedy_vs_bf16": {
+  "prompts": 20,
+  "byte_identical": 3,
+  "note": "other 17: same facts and code, different wording"
+ },
+ "fp8_skip_sliding_window": {
+  "flags": "--kv-cache-dtype fp8 --kv-cache-dtype-skip-layers sliding_window",
+  "result": "does not start: no paged-decode kernel 8,64,32,false,true,true (head 64, local, sink, page 32) in vllm-xpu-kernels 0.1.15.4"
+ },
+ "gates_variant_b": {
+  "bf16": {
+   "loops_medium": 0,
+   "loops_high": 2,
+   "graded_700": 0.83,
+   "tool_flow_format_faults": 0,
+   "ptc_of_72": 57
+  },
+  "fp8": {
+   "loops_medium": 1,
+   "loops_high": 1,
+   "graded_700": 0.839,
+   "tool_flow_format_faults": 0,
+   "tool_flow_grammar_500s": 1,
+   "ptc_of_72": 56
+  }
+ },
+ "soak_fp8": {
+  "status": "done, stopped early at 69 min (planned 4 h)",
+  "window": "2026-10-18 6:51-8:00 PM, live server, 16 streams: 10 chat (temperature 1.0, effort medium, max 4000), 2 long reads (25-55k tokens with a needle, max 1000), 4 tool_flow sessions",
+  "chat_replies": 339,
+  "chat_hit_4000_cap": 11,
+  "long_reads": 465,
+  "long_read_prompt_tokens": 17315899,
+  "long_read_empty_answer": 2,
+  "tool_flow_sessions": 136,
+  "tool_calls": 625,
+  "tool_call_format_faults": 0,
+  "errors": 0,
+  "bang_replies": 0,
+  "grammar_500s": 0,
+  "preemptions": 0,
+  "server_errors_logged": 0
+ }
+}

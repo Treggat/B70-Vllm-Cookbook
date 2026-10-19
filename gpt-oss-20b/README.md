@@ -49,10 +49,17 @@ from the proxy in front of vLLM (the server logged nothing), no NaN/canary event
 looped to the token cap and 2 had a short degenerate stretch that recovered: about 0.1%. (10 more requests show as
 aborted: the soak's own timeout killed them in flight at the end.)
 
-**Engine speed**, measured 2026-10-14 on stock weights, vLLM 0.31.0, one B70, XPU graphs on
-(`serve/gpt-oss.extra.example`), short prompts: 1 stream 106–117 tok/s, 4 streams 257 tok/s summed, 16 streams
-698 tok/s summed. Eager mode (no graphs) did about 43 tok/s on one stream. B has the same tensors and shapes, so we did
-not re-measure speed. It writes shorter replies: median 305 completion tokens on the loop set at medium, stock 418.
+**Engine speed**, measured 2026-10-14 on stock weights, vLLM 0.31.0, one B70, XPU graphs on, short prompts:
+1 stream 106–117 tok/s, 4 streams 257 tok/s summed, 16 streams 698 tok/s summed. Eager mode (no graphs) did about
+43 tok/s on one stream. B has the same tensors and shapes, so we did not re-measure speed. It writes shorter replies:
+median 305 completion tokens on the loop set at medium, stock 418.
+
+**fp8 KV cache** (`serve/gpt-oss.extra.example` since 2026-10-18): the KV pool doubles from 643,585 to 1,287,170
+tokens at the same decode speed. 16 agent-sized contexts of 69k each all stay cached (bf16: 0.1%), so their next turn
+starts in 0.3–1.5 s instead of 15–230 s. A cold long read is about 25% slower. Variant B's gates hold: loops 1/200 at
+medium and high, graded 83.9%, tool_flow 0 format faults, PTC 56/72. A 69-minute 16-stream soak on fp8 (339 chat
+replies, 465 long reads, 625 tool calls) had 0 errors and 0 NaN replies. Details in
+[docs/RECIPE.md](docs/RECIPE.md#kv-cache-fp8).
 
 **What did not work:** round 3 tried to also train out a "narrated tool call" habit (the model writes the call or a
 made-up result as text). Three variants cut it on our replay set (27/30 → 11, 1 and 9 of 30) but each broke
@@ -72,7 +79,7 @@ sh ../qwen38-709l/scripts/build_venv.sh /opt/b70/vllm031
 # 2. check the plugin against that venv (offline, no GPU): must end "31/31 passed"
 PYTHONPATH=$PWD/plugin GPTOSS_MODEL_DIR=/models/gpt-oss-20b /opt/b70/vllm031/venv/bin/python plugin/selftest.py
 
-# 3. serve (XPU graphs on via the .extra)
+# 3. serve (XPU graphs and fp8 KV cache on via the .extra)
 cp serve/gpt-oss.extra.example serve/gpt-oss.extra
 VENV=/opt/b70/vllm031 MODEL=/models/gpt-oss-20b CARD=0 sh serve/serve-gpt-oss.sh 8000
 
@@ -91,7 +98,8 @@ with `MODEL=` pointing at it.
 |---|---|
 | `plugin/` | `gptoss031` vLLM plugin (tool-call grammar, effort map + cap, HarmonyError guard) and its offline `selftest.py` |
 | `serve/serve-gpt-oss.sh` | launcher: venv, card, plugin, effort cap and compile cache as variables |
-| `serve/gpt-oss.extra.example` | the flags that turn XPU graphs on (copy to `gpt-oss.extra`) |
+| `serve/gpt-oss.extra.example` | the flags that turn XPU graphs and the fp8 KV cache on (copy to `gpt-oss.extra`) |
+| `bench/bench_kv.py` | KV pool, decode speed at 1/4/16 streams, a long read, and the 16 × 69k "all come back at once" test |
 | `bench/measure_loops.py` | loop rate on 200 held-out Antidoom prompts, with Antidoom's own detector |
 | `bench/grade_eval.py` | graded accuracy on 700 public test items |
 | `bench/tool_flow.py` | streaming multi-turn tool-call sessions with simulated tool results; counts format faults |

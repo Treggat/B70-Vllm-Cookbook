@@ -3,8 +3,9 @@
 ## 0. Box
 
 - One Intel Arc Pro B70 (BMG-G31, 32 GB) serves the model. gpt-oss-20b in its native MXFP4 checkpoint is about
-  13.8 GB on disk. With `--gpu-memory-utilization 0.9` vLLM gave us a KV pool of 643,585 tokens, shared by up to 16
-  streams (about five full 131k contexts at once).
+  13.8 GB on disk. With `--gpu-memory-utilization 0.9` and an fp8 KV cache vLLM gives a KV pool of 1,287,170 tokens,
+  shared by up to 16 streams (about ten full 131k contexts at once; 643,585 with the default bf16 cache, see
+  [KV cache: fp8](#kv-cache-fp8)).
 - Our machine has two B70s. We pinned the server to one with `ZE_AFFINITY_MASK` (`CARD=` in the launcher). Training
   ([ANTIDOOM.md](ANTIDOOM.md)) needs both.
 - Linux with the `xe` driver. As on the [Qwen page](../../qwen38-709l/docs/RECIPE.md), we ran vLLM from a venv on a
@@ -112,6 +113,8 @@ mapping, the guard, and that the entry point is found. Run it after every vLLM u
   `--no-enforce-eager --compilation-config {"mode":0,"cudagraph_mode":"FULL_DECODE_ONLY",...}`. With that file, one
   stream does 106–117 tok/s; eager does about 43 (2.7× slower). The launcher keeps the eager line so a missing or
   empty `.extra` still starts. Graph capture took about 1 s.
+- `--kv-cache-dtype fp8`, also in the `.extra`: doubles the KV pool at the same decode speed. See
+  [KV cache: fp8](#kv-cache-fp8) for the numbers and why it is fp8 on all layers.
 - `ZE_AFFINITY_MASK=$CARD` and `unset ONEAPI_DEVICE_SELECTOR`: with torch 2.13+ the card is chosen the Level Zero way.
 - `VLLM_CACHE_ROOT` per `.extra` content (md5 of the file): the compile cache is keyed on flags, so a changed flag
   must not reuse a stale graph.
@@ -120,11 +123,67 @@ mapping, the guard, and that the entry point is found. Run it after every vLLM u
 - `exec` at the end, so a launcher's SIGTERM reaches vLLM.
 
 Speed, 2026-10-14, stock weights, short prompts, graphs on: 1 stream 106–117 tok/s, 4 streams 257 summed, 16 streams
-698 summed. The same model on the older vLLM 0.26 image did 109–119 / 261 / 702, so 0.31 is on par. First load takes
+698 summed. The same model on the older vLLM 0.26 image did 109–119 / 261 / 702, so 0.31 is on par. (The 2026-10-18
+fp8 measurements below use a different script with low effort and 700-token replies, so their 118 / 308 / 820 is not
+a speedup over these.) First load takes
 about 2.5–3 minutes on our box (a cold reload measured 144–169 s); later requests are warm.
 
 If a launcher or proxy sits in front of the server, keep its concurrency limit at or above `--max-num-seqs` so it
 doesn't queue requests vLLM could take.
+
+### KV cache: fp8
+
+At 16 streams the KV pool, not the context window, limits long chats: 643,585 bf16 tokens is about 40k per stream
+when all 16 are busy, so long agent sessions push each other's prefixes out of the prefix cache and every follow-up
+turn re-reads tens of thousands of tokens. `--kv-cache-dtype fp8` halves the bytes per token.
+
+Measured 2026-10-18 with `bench/bench_kv.py`, one B70, variant B weights, same build, plugin and flags, the KV dtype the
+only difference. "16 × 69k" primes 16 unique 69k-token code reads one after another, then sends all 16 again at once,
+the way 16 long agent sessions come back for their next turn.
+
+| | bf16 KV (default) | **fp8 KV** |
+|---|---|---|
+| KV pool | 643,585 tokens (4.9 × 131k) | **1,287,170** (9.8 × 131k) |
+| 16 × 69k sent again: prompt tokens still cached | 0.1% | **100%** |
+| 16 × 69k sent again: first token | 15–230 s | **0.3–1.5 s** |
+| 16 × 69k sent again: running together / queued | 4 / 15 | **16 / 0** |
+| needle found in those 16 replies | 15/16 | 16/16 |
+| decode, 1 / 4 / 16 streams (summed tok/s) | 118 / 308 / 820 | 117 / 309 / 818 |
+| 51k-token read: first token, decode | 9.0 s, 103 tok/s | 11.1 s, 113 tok/s |
+| 16 × 69k cold prefill, serial | 224 s | 285 s |
+
+The cost is prefill: a cold long read is about 25% slower, because the stock kernels' fp8-to-fp16 conversion is slow on
+Xe2 (riceharvest's [sycl-tla#859](https://github.com/intel/sycl-tla/pull/859) and
+[vllm-xpu-kernels#638](https://github.com/vllm-project/vllm-xpu-kernels/pull/638) target exactly this; both open when
+we measured). Decode speed does not change. Quality on the variant B gates, fp8 vs bf16:
+
+| gate | bf16 | fp8 |
+|---|---|---|
+| loops, 200 held-out prompts, medium / high | 0 / 2 | 1 / 1 |
+| graded accuracy, 700 items, medium | 83.0% | 83.9% |
+| tool_flow 2 × 16 sessions: format faults | 0 | 0 (plus one grammar 500, the known [long-context class](AGENT-HARNESS.md#grammar-500s-on-long-agent-contexts)) |
+| PTC probe, 72 calls | 57 (56 on a same-day rerun) | 56 |
+
+Greedy replies to 20 short prompts: 3 byte-identical to bf16, the other 17 the same facts and code in different
+wording. The checkpoint ships no KV scales, so vLLM stores K and V with scale 1.0. That is the one fp8-specific risk
+we know of: a K or V value past fp8's range of ±448 could turn into a NaN, which shows up as a reply of `!!!!`. The
+gates (about 1,300 requests) had none, and neither did a 69-minute 16-stream soak on the live server (we stopped it
+early; earlier soaks were 4 hours): 339 chat replies at temperature 1.0, 465 long reads of 25–55k tokens (17.3M prompt
+tokens in all), and 136 tool_flow sessions with 625 tool calls. That's 0 errors, 0 `!!!!` replies, 0 grammar 500s,
+0 preemptions and 0 tool-call format faults. 2 long reads came back empty (the reply spent its 1,000 tokens
+reasoning) and 11 chat replies hit the 4,000-token cap ([results/fp8_kv.json](../results/fp8_kv.json)).
+
+**fp8 on all layers, not "skip sliding-window layers".** vLLM's
+[fp8 KV-cache write-up](https://vllm.ai/blog/2026-04-22-fp8-kvcache) recommends
+`--kv-cache-dtype-skip-layers sliding_window` for gpt-oss: on the 128-token window layers the fp8 overhead doesn't pay
+off, so keeping them bf16 is faster, and they hold almost nothing, so it costs no pool. (Measured on Hopper and
+Blackwell.) On vllm-xpu-kernels 0.1.15.4 that does not start: to give both layer types the same page bytes, vLLM
+gives the bf16 window layers 32-token pages, and the library has no paged-decode kernel for head 64 + local + sink at
+page size 32 (it asks for config line `8,64,32,false,true,true`). The PyTorch fallback then fails during graph capture.
+With fp8 on all layers both types keep 64-token pages, which the stock build covers. Rebuilding the kernels with that
+config line added should make the skip form work; we have not tried it.
+
+Host RAM does not change: the cache lives on the card.
 
 ## 4. Verify
 
