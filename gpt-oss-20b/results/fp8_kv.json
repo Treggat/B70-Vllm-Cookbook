@@ -99,5 +99,55 @@
   "grammar_500s": 0,
   "preemptions": 0,
   "server_errors_logged": 0
+ },
+ "fast5_kernel": {
+  "what": "kernels/ build: vllm-xpu-kernels release/0.1.15.4 (ddf336d) + sycl-tla 87f68506 + riceharvest tla-fast3, xk-fold, zero-sum-guard + our bf16fast5, gpt-oss confs only; 41,912,952 bytes",
+  "fp8_all_layers": {
+   "long_read": {
+    "prompt_tokens": 51193,
+    "first_token_s": 9.96,
+    "decode_tok_s": 114.0
+   },
+   "decode_tok_s": {
+    "x1": 116.7,
+    "x4_summed": 307.7,
+    "x16_summed": 820.5
+   },
+   "sixteen_x_fill_928k_cold_s": 194.9,
+   "same_928k_fill_on_riceharvest_patches_only_build_s": 217.0,
+   "greedy_vs_stock_fp8": "20/20 byte-identical, reasoning included",
+   "gates": {
+    "loops_medium": 1,
+    "loops_high": 1,
+    "graded_700": 0.833,
+    "tool_flow_format_faults": 0,
+    "ptc_of_72": [
+     50,
+     51,
+     50
+    ],
+    "ptc_stock_kernel_control_same_hour": [
+     48,
+     55
+    ]
+   }
+  },
+  "fp8_skip_sliding_window": {
+   "kv_pool_tokens": 1248218,
+   "loads": true,
+   "long_first_token_s": 10.14,
+   "sixteen_x_fill_928k_cold_s": 194.9,
+   "gates": {
+    "loops_medium": 0,
+    "loops_high": 1,
+    "graded_700": 0.829,
+    "tool_flow_format_faults": 0,
+    "ptc_of_72": 55
+   }
+  },
+  "riceharvest_patches_only_build": {
+   "long_first_token_s": 11.16,
+   "note": "tla-fast3 covers e4m3->fp16 only; gpt-oss runs bf16"
+  }
  }
 }

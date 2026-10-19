@@ -56,7 +56,8 @@ median 305 completion tokens on the loop set at medium, stock 418.
 
 **fp8 KV cache** (`serve/gpt-oss.extra.example` since 2026-10-18): the KV pool doubles from 643,585 to 1,287,170
 tokens at the same decode speed. 16 agent-sized contexts of 69k each all stay cached (bf16: 0.1%), so their next turn
-starts in 0.3–1.5 s instead of 15–230 s. A cold long read is about 25% slower. Variant B's gates hold: loops 1/200 at
+starts in 0.3–1.5 s instead of 15–230 s. A cold long read is about 25% slower on the stock kernels, about 11% with
+our optional rebuilt kernels ([kernels/](kernels/README.md); output byte-identical). Variant B's gates hold: loops 1/200 at
 medium and high, graded 83.9%, tool_flow 0 format faults, PTC 56/72. A 69-minute 16-stream soak on fp8 (339 chat
 replies, 465 long reads, 625 tool calls) had 0 errors and 0 NaN replies. Details in
 [docs/RECIPE.md](docs/RECIPE.md#kv-cache-fp8).
@@ -99,6 +100,7 @@ with `MODEL=` pointing at it.
 | `plugin/` | `gptoss031` vLLM plugin (tool-call grammar, effort map + cap, HarmonyError guard) and its offline `selftest.py` |
 | `serve/serve-gpt-oss.sh` | launcher: venv, card, plugin, effort cap and compile cache as variables |
 | `serve/gpt-oss.extra.example` | the flags that turn XPU graphs and the fp8 KV cache on (copy to `gpt-oss.extra`) |
+| `kernels/` | optional rebuild of the XPU attention library: fp8 → bf16 conversion in 5 instructions, gpt-oss kernel variants only |
 | `bench/bench_kv.py` | KV pool, decode speed at 1/4/16 streams, a long read, and the 16 × 69k "all come back at once" test |
 | `bench/measure_loops.py` | loop rate on 200 held-out Antidoom prompts, with Antidoom's own detector |
 | `bench/grade_eval.py` | graded accuracy on 700 public test items |
@@ -118,6 +120,9 @@ with `MODEL=` pointing at it.
   [harmony](https://github.com/openai/harmony) response format.
 - **[vLLM](https://github.com/vllm-project/vllm)** (Apache-2.0). `plugin/gptoss031/tags.py` is adapted from vLLM's
   harmony structural tag (`vllm/parser/harmony.py`, PRs #45560 and #52222).
+- **[riceharvest/b70-qwen38-cookbook](https://github.com/riceharvest/b70-qwen38-cookbook)** (MIT): the fast fp8
+  conversion, scale fold and zero-sum guard that `kernels/` builds on (his patches are included unchanged under his
+  license).
 - **[Vcvzgbzz/b70-cookbook](https://github.com/Vcvzgbzz/b70-cookbook)** (MIT): the vLLM 0.31 XPU build line our venv
   follows. More B70 credits are on the [Qwen page](../qwen38-709l/README.md#credits).
 - Eval sets: [GSM8K](https://huggingface.co/datasets/openai/gsm8k), [MATH-500](https://huggingface.co/datasets/HuggingFaceH4/MATH-500),

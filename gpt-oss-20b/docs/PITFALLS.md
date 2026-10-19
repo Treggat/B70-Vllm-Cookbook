@@ -12,10 +12,16 @@
   `minimal`, `xhigh` or `max` need mapping; the plugin does it.
 - **High effort runs out of tokens.** At high, stock gpt-oss-20b looped on 39.5% of our loop set and made a valid
   `run_code` call on 6–8 of 36 tasks at 3,000 tokens. Cap agent traffic at medium.
-- **`--kv-cache-dtype-skip-layers sliding_window` doesn't start on vllm-xpu-kernels 0.1.15.4.** With fp8 on the full
-  layers only, the bf16 window layers get 32-token pages, and there is no head-64 local+sink paged-decode kernel for
-  that page size ("Paged decode kernel not compiled for this configuration", then a crash in the PyTorch fallback
-  during graph capture). Use `--kv-cache-dtype fp8` on all layers ([RECIPE.md](RECIPE.md#kv-cache-fp8)).
+- **`--kv-cache-dtype-skip-layers sliding_window` doesn't start on the stock vllm-xpu-kernels 0.1.15.4.** With fp8 on
+  the full layers only, the bf16 window layers get 32-token pages, and there is no head-64 local+sink paged-decode
+  kernel for that page size ("Paged decode kernel not compiled for this configuration", then a crash in the PyTorch
+  fallback during graph capture). Use `--kv-cache-dtype fp8` on all layers ([RECIPE.md](RECIPE.md#kv-cache-fp8)), or
+  the [`kernels/`](../kernels/README.md) build, which includes that variant.
+- **riceharvest's fast fp8 conversion does nothing for gpt-oss.** It covers e4m3 → fp16 (his Qwen build runs in fp16).
+  gpt-oss runs in bf16, so it takes the e4m3 → bf16 path. A build with his patches alone left our 51k first token at
+  11.16 s. `kernels/patches/bf16fast5.py` is the bf16 version.
+- **Never copy a new kernel library over a loaded one.** The running server has `libattn_kernels_xe_2.so`
+  memory-mapped. Stop it first, copy to a temporary name, then `mv` it into place.
 - **A "kernel not compiled" fallback is not a crash, it's a slowdown.** vllm-xpu-kernels falls back to PyTorch
   reference attention for configs its build doesn't include and prints the config line to add. Grep the server log
   for "not compiled" after any change to KV dtype, block size or the kernel library.
