@@ -64,7 +64,7 @@ the 709-L: **2-5% acceptance per draft token, about 3× slower than MTP-5** (RES
 layers of the target (5, 19, 33, 47, 61), and the merge changed every layer's weights by 19-31% against base
 Qwen3.8. The MTP head survives because it reads only the final hidden state, which the merge kept consistent with
 the LM head. A published drafter only helps the model it was trained on; for a merge, that means training one on
-the merge's own hidden states. `apply_stack.sh` does not apply the DFlash2 patches.
+the merge's own hidden states, which is in progress in [DRAFTER-TRAINING.md](DRAFTER-TRAINING.md). `apply_stack.sh` does not apply the DFlash2 patches.
 
 [vcv]: https://github.com/Vcvzgbzz/b70-cookbook
 

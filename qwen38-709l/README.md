@@ -17,6 +17,8 @@ Most B70 write-ups cover base Qwen3.8 in GPTQ or EXL3. This one covers:
 - a max-model-len boundary test, a check that vLLM's CPU KV offload tier never hits on this hybrid model, and a
   chunked-prefill sweep for the "one big chat starves the small ones" case ([docs/RESULTS.md](docs/RESULTS.md))
 - what broke along the way ([docs/PITFALLS.md](docs/PITFALLS.md))
+- why the published DFlash2 drafter fails on a merge, and a staged attempt to train one for it on the B70s
+  ([docs/DRAFTER-TRAINING.md](docs/DRAFTER-TRAINING.md), in progress)
 
 Before vLLM we ran the same model on llama.cpp SYCL with our own kernel patches. That work is in
 [b70-llamacpp-cookbook](https://github.com/Treggat/b70-llamacpp-cookbook).
