@@ -1,0 +1,131 @@
+{
+ "tag": "dflash2",
+ "when": "2026-10-19 06:29 PM",
+ "short_code": {
+  "tps": [
+   37.3,
+   38.5,
+   37.3
+  ],
+  "avg": 37.7,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.051,
+   "tok_per_step": 1.35,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   23.8,
+   25.6,
+   21.9,
+   24.9
+  ],
+  "summed": 96.2,
+  "gen_over_wall": 82.7,
+  "wall": 34.3,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "texts": [
+   "The development of the printing press stands as one of the most transformative technological breakthroughs in human history, fundamentally altering the way knowledge was preserved, disseminated, and understood across civilizations. Before the advent of movable type, the reproduction of written material was an painstakingly slow process dominated by hand copying, typically undertaken by skilled scribes within monasteries or specialized scriptoria. This method not only limited the quantity of texts that could be produced but also restricted access to literature primarily to the wealthy elite, religious institutions, and a small educated class. The labor-intensive nature of manuscript production meant that a single book could take months or even years to complete, while simultaneously being susceptible to errors introduced through human transcription.\n\nIn East Asia, the earliest forms of printing emerged much earlier than in Europe, with woodblock printing developing in China during the Tang Dynasty around the seventh century. Chinese craftsmen carved entire pages of text onto wooden blocks, which were then inked and pressed against paper to produce copies. The earliest known printed book, the Diamond Sutra, dates from approximately 868 CE and represents a remarkable achievement in early printing technology. However, woodblock printing had significant limitations, particularly the enormous amount of space required to store the individual blocks for each page and the difficulty of correcting errors once a block was carved.\n\nThe pivotal innovation came in the mid-fifteenth century in Europe when Johannes Gutenberg, a German goldsmith, inventor, and publisher, developed a system of movable metal type in Mainz, Germany. While Gutenberg did not invent printing itself, his genius lay in combining several existing technologies and processes into an efficient and reproducible system. Around 1440, he devised a method for casting multiple identical metal type pieces that could be arranged to form words, lines, and entire pages of text. Unlike the earlier woodblock method, movable type allowed printers to reuse individual characters for different texts, dramatically increasing efficiency and reducing costs.\n\nGutenberg's printing system relied on several key innovations working in concert. He developed a specialized lead-based metal alloy with unique properties that made it ideal for type casting. The metal had a low melting point for easy casting, yet it was hard enough to withstand the pressures of printing while producing sharp, clear impressions. Gutenberg also created a durable oil-based ink, distinct from the water-based inks used in Asian printing, which adhered properly to metal type and transferred cleanly to paper. Most crucially, he adapted existing wine-press technology into a printing press capable of applying even pressure across the type and paper, ensuring consistent impression quality throughout each page.\n\nThe first major work produced using Gutenberg's printing press was the 42-line Bible, commonly known as the Gutenberg Bible, which he completed around 1455. This landmark publication demonstrated the superiority of mechanical printing over hand-copying in both quality and efficiency. While still a luxury item, the printed Bible cost significantly less than a manuscript copy and could be produced much more quickly. The Gutenberg Bible proved that high-quality books could be manufactured in multiples, laying the foundation for a commercial printing industry.\n\nThe impact of movable type printing on European society was immediate and profound. Within fifty years of Gutenberg's invention, printing presses had spread throughout Europe, producing approximately twenty million volumes by 1500. This unprecedented explosion in the production of printed material coincided with and significantly accelerated several major cultural and intellectual movements of the Renaissance. Books became more affordable and accessible, allowing ideas to circulate more freely among a growing literate population. The printing press facilitated the rapid dissemination of scientific knowledge, philosophical works, and literary texts, creating a new intellectual environment that challenged established authorities and encouraged critical thinking.\n\nThe Reformation of the early sixteenth century demonstrated the political and religious power of the printing press. Martin Luther's Ninety-Five Theses and other reformist writings spread throughout Europe at unprecedented speed, reaching audiences far beyond what would have been possible through manuscript copies. The ability of",
+   "```python\nimport threading\nimport time\n\n\nclass TokenBucket:\n    \"\"\"Thread-safe token-bucket rate limiter.\"\"\"\n\n    def __init__(self, rate: float, capacity: float, *, tokens: float | None = None):\n        \"\"\"\n        :param rate:     Tokens added per second.\n        :param capacity: Maximum tokens allowed in the bucket.\n        :param tokens:   Initial token count (defaults to capacity).\n        \"\"\"\n        if rate <= 0:\n            raise ValueError(\"rate must be positive\")\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n\n        self._rate = rate\n        self._capacity = capacity\n        self._tokens = capacity if tokens is None else tokens\n        self._last_refill = time.monotonic()\n        self._lock = threading.Lock()\n\n    def _refill(self, now: float) -> None:\n        \"\"\"Add tokens based on elapsed time.\"\"\"\n        elapsed = now - self._last_refill\n        if elapsed > 0:\n            new_tokens = min(self._tokens + elapsed * self._rate, self._capacity)\n            self._tokens = new_tokens\n            self._last_refill = now\n\n    def acquire(self, tokens: float = 1.0, timeout: float | None = None) -> bool:\n        \"\"\"\n        Block until 'tokens' are available and consume them.\n\n        :param tokens:  Tokens to acquire (must be > 0 and <= capacity).\n        :param timeout: Maximum wait seconds (None = wait forever).\n        :return: True if tokens were acquired, False if timed out.\n        \"\"\"\n        if tokens <= 0:\n            raise ValueError(\"tokens must be positive\")\n        if tokens > self._capacity:\n            return False\n\n        deadline = None\n        if timeout is not None:\n            deadline = time.monotonic() + timeout\n\n        with self._lock:\n            now = time.monotonic()\n            while True:\n                self._refill(now)\n                if self._tokens >= tokens:\n                    self._tokens -= tokens\n                    return True\n\n                # Calculate wait time until enough tokens\n                needed = tokens - self._tokens\n                wait = needed / self._rate\n\n                if deadline is not None:\n                    remaining = deadline - now\n                    if remaining <= 0:\n                        return False\n                    wait = min(wait, remaining)\n\n                self._lock.release()\n                time.sleep(wait)\n                self._lock.acquire()\n                now = time.monotonic()\n\n    def try_acquire(self, tokens: float = 1.0) -> bool:\n        \"\"\"Non-blocking acquire. Returns immediately.\"\"\"\n        with self._lock:\n            now = time.monotonic()\n            self._refill(now)\n            if self._tokens >= tokens:\n                self._tokens -= tokens\n                return True\n            return False\n\n    def available(self) -> float:\n        \"\"\"Return the number of currently available tokens.\"\"\"\n        with self._lock:\n            now = time.monotonic()\n            self._refill(now)\n            return self._tokens\n\n\ndef test_basic_rate_limiting():\n    \"\"\"Acquiring more than capacity should block.\"\"\"\n    bucket = TokenBucket(rate=10, capacity=10)\n\n    start = time.monotonic()\n    # First 10 tokens should be immediate (bucket starts full)\n    for _ in range(10):\n        assert bucket.try_acquire()\n    elapsed = time.monotonic() - start\n    assert elapsed < 0.1, \"Initial tokens should be immediately available\"\n\n    # Next token should take ~0.1s\n   ",
+   "The lighthouse at Point Reyes had been automated since 1973, but Elias still lived there, still wound the clockwork mechanism that no one else could fix. He wasn't the keeper anymore\u2014just the old man who refused to leave.\n\nThat Tuesday, while raking kelp from the beach below, he found the bottle: green glass, corked, half-buried in wet sand. Inside, folded small, a piece of parchment paper.\n\nHe read it on his porch, tea gone cold in his hands.\n\n*\"To whoever finds this: I'm sorry about the Meridian. It wasn't supposed to sink. I'll send another ship. Wait for it.\"*\n\nThe paper was old, water-stained, but the ink still sharp. No name. No date.\n\nElias had seen shipwrecks in his years on the point. Many, over seventy years. He knew the names of most: the *Sarah M.*, the *Tigress*, the *Charles W. Morgan*. But he'd never heard of a ship called the Meridian.\n\nStill, he wound the clockwork that night and made sure the lamp burned bright.\n\nThree nights later, as fog rolled in from the west, his radio crackled to life. A voice, weak but clear: *\"Lighthouse, this is the Meridian. Requesting bearing. We're adrift, all engines dead.\"*\n\nElias set down his tea and reached for the microphone. \"Meridian, you are five miles south of the point. I'm shining the beam on your position now. Hold fast.\"\n\nSilence. Then: *\"How long have you been waiting for us?\"*\n\nElias looked at the bottle on his kitchen table, the letter inside still unread by anyone else. \"Since the first time you left,\" he said.\n\nThe light swept on. The Meridian drifted toward it.\n\nHe hadn't told anyone he kept waiting. He hadn't told himself, either. But the mechanism still worked, and he still lived there, and now\u2014finally\u2014someone was coming home.",
+   "```javascript\n/**\n * @fileoverview Utility functions for debouncing and throttling function calls.\n */\n\n/**\n * Creates a debounced function that delays invoking the given function until\n * after `wait` milliseconds have elapsed since the last time the debounced\n * function was called.\n *\n * @param {Function} func - The function to debounce.\n * @param {number} wait - The number of milliseconds to delay.\n * @param {Object} [options] - Optional settings.\n * @param {boolean} [options.leading=false] - Whether to invoke the function on\n *   the leading edge of the timeout.\n * @param {boolean} [options.trailing=true] - Whether to invoke the function on\n *   the trailing edge of the timeout.\n * @returns {Function} The new debounced function.\n */\nexport function debounce(func, wait, options = {}) {\n  let lastCallTime = 0;\n  let timer = null;\n  let lastArgs = null;\n  let lastThis = null;\n  const { leading = false, trailing = true } = options;\n\n  function invoke() {\n    timer = null;\n    if (trailing) {\n      lastCallTime = Date.now();\n      func.apply(lastThis, lastArgs);\n    }\n  }\n\n  function debounced(...args) {\n    const now = Date.now();\n    const remaining = wait - (now - lastCallTime);\n    lastArgs = args;\n    lastThis = this;\n\n    if (remaining <= 0) {\n      if (!timer) {\n        if (leading) {\n          lastCallTime = now;\n          func.apply(lastThis, lastArgs);\n        }\n        if (trailing) {\n          timer = setTimeout(invoke, wait);\n          lastCallTime = now;\n        }\n      }\n    } else {\n      if (!timer) {\n        timer = setTimeout(invoke, remaining);\n      }\n    }\n  }\n\n  debounced.cancel = () => {\n    if (timer !== null) {\n      clearTimeout(timer);\n      timer = null;\n    }\n  };\n\n  debounced.flush = () => {\n    if (timer !== null) {\n      clearTimeout(timer);\n      timer = null;\n      if (trailing && lastArgs !== null) {\n        func.apply(lastThis, lastArgs);\n      }\n      lastArgs = null;\n      lastThis = null;\n    }\n  };\n\n  return debounced;\n}\n\n/**\n * Creates a throttled function that invokes the given function at most once\n * per `wait` milliseconds.\n *\n * @param {Function} func - The function to throttle.\n * @param {number} wait - The number of milliseconds to throttle invocations to.\n * @param {Object} [options] - Optional settings.\n * @param {boolean} [options.leading=true] - Whether to invoke the function on\n *   the leading edge of the timeout.\n * @param {boolean} [options.trailing=true] - Whether to invoke the function on\n *   the trailing edge of the timeout.\n * @returns {Function} The new throttled function.\n */\nexport function throttle(func, wait, options = {}) {\n  let lastCallTime = 0;\n  let timer = null;\n  let lastArgs = null;\n  let lastThis = null;\n  const { leading = true, trailing = true } = options;\n\n  function invoke() {\n    timer = null;\n    if (trailing && lastArgs !== null) {\n      lastCallTime = Date.now();\n      func.apply"
+  ],
+  "mtp": {
+   "per_token": 0.039,
+   "tok_per_step": 1.27,
+   "preempt": 0.0
+  }
+ },
+ "depth": {
+  "24k": {
+   "prompt": 25375,
+   "cold_ttft": 15.6,
+   "prefill_tps": 1622,
+   "decode": 27.9,
+   "gen": 289,
+   "canary": null,
+   "cites": 2,
+   "mtp": {
+    "per_token": 0.036,
+    "tok_per_step": 1.25,
+    "preempt": 0.0
+   }
+  },
+  "32k": {
+   "prompt": 33468,
+   "cold_ttft": 21.8,
+   "prefill_tps": 1533,
+   "decode": 27.3,
+   "gen": 400,
+   "canary": null,
+   "cites": 1,
+   "mtp": {
+    "per_token": 0.042,
+    "tok_per_step": 1.29,
+    "preempt": 0.0
+   }
+  },
+  "65k": {
+   "prompt": 64124,
+   "cold_ttft": 52.1,
+   "prefill_tps": 1230,
+   "decode": 22.1,
+   "gen": 373,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.039,
+    "tok_per_step": 1.27,
+    "preempt": 0.0
+   }
+  },
+  "74k": {
+   "prompt": 73336,
+   "cold_ttft": 63.2,
+   "prefill_tps": 1161,
+   "decode": 19.3,
+   "gen": 368,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.023,
+    "tok_per_step": 1.16,
+    "preempt": 0.0
+   }
+  },
+  "100k": {
+   "prompt": 97855,
+   "cold_ttft": 97.0,
+   "prefill_tps": 1009,
+   "decode": 18.1,
+   "gen": 308,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.033,
+    "tok_per_step": 1.23,
+    "preempt": 0.0
+   }
+  }
+ },
+ "image": {
+  "sec": 4.1,
+  "prompt": 2251,
+  "canary": null
+ },
+ "video": {
+  "sec": 0.8,
+  "prompt": 406
+ }
+}

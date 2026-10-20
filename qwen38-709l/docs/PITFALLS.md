@@ -55,6 +55,12 @@
   whatever is running. Only scrape the seat that's already up.
 - **Do the VRAM math before raising KV.** CUDA-graph-style capture memory isn't counted by
   `gpu_memory_utilization`. Set `--kv-cache-memory-bytes` explicitly and leave about 1.5 GiB of headroom.
+- **A drafter trained on the base model does not transfer to a merge.** The published DFlash2 drafter accepts 2-5% of
+  its tokens on the 709-L (45%+ on base Qwen3.8), because it reads inner layers the merge rewrote. MTP is fine: it
+  reads only the final hidden state. Measure acceptance before building anything around a drafter.
+- **riceharvest's attention `.so` only has the MTP shapes.** A DFlash2 drafter (head 128, non-causal, sliding window)
+  dies in warmup with "Chunk prefill kernel tuple not compiled for this configuration". Use the stock kernel, or
+  build one that includes that shape.
 - **`--kv-offloading-size` does nothing useful for this hybrid model** (0.31 and 0.32): blocks go to the CPU tier and
   are never found again, so an evicted prompt re-prefills in full. It does pin N GiB of `/dev/shm`. Leave it out.
 - **The MTP drafter's weight load is where a host-RAM-starved box resets the GPU.** Both copy-engine resets we had

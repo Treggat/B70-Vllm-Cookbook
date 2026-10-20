@@ -108,6 +108,24 @@ short code 130.8 t/s, 4 writers 259.2 summed, prefill 24k / 32k / 65k / 74k / 10
 1,303 t/s, decode 63.0 / 67.9 / 67.1 / 53.9 / 58.1 t/s, cites 4 / 4 / 4 at 65k+. Parity with the 131k runs above.
 A 139k-token prompt is admitted and answered in 124 s.
 
+## DFlash2 drafter on the 709-L (0.32, `results/engine/vllm032-dflash2-stock-drafter.json`)
+
+[incoai/Qwen3.8-27B-DFlash2](https://huggingface.co/incoai/Qwen3.8-27B-DFlash2), trained on base Qwen3.8, through the
+re-based patches in `patches/dflash2/` (BF16 drafter under the FP16 target, int4 drafter body, int4 draft head,
+sliding-window prefix-cache fix), 7 drafts, stock attention kernel, same bench and 262k window as MTP-5:
+
+| | MTP-5 | DFlash2-7 |
+|---|---|---|
+| short code | 130.8 t/s, 72.8% per draft token, 4.64 tok/step | 37.7 t/s, 5.1%, 1.35 |
+| 4 writers, summed | 259.2 t/s, 2.94 tok/step | 96.2 t/s, 1.27 |
+| decode 24k / 65k / 100k | 63.0 / 67.1 / 58.1 t/s | 27.9 / 22.1 / 18.1 t/s |
+| first token 100k, cold | 75.1 s | 97.0 s (stock kernel) |
+
+Per draft position on a code reply: 23%, 8.6%, 2.8%, 0.7%, then 0. Lossless: page-boundary test 3/3, image and video
+correct. A control with the stock head paths (no fp8 target head, no int4 draft head, BF16 drafter body) gave 2.9%
+per draft token, so the B70 changes are not the cause: the drafter does not recognise the merge's hidden states.
+The step costs the same as MTP-5's on short code (35.8 vs 35.4 ms), so the whole gap is acceptance.
+
 ## Max-model-len boundary (0.32, `bench/maxlen.py`)
 
 `results/maxlen_032.json`: a 128,977-token prompt with `max_tokens: 8000` on the 131,072 window. The reply stopped at
