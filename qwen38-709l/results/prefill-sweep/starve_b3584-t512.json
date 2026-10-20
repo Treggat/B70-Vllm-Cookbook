@@ -1,0 +1,11 @@
+{
+ "tag": "b3584-t512",
+ "b_prompt": 82886,
+ "b_prefill_s": 76.4,
+ "b_prefill_tps": 1085,
+ "a_before": 75.4,
+ "a_during": 10.2,
+ "a_after": 168.7,
+ "a_tokens": 2500,
+ "a_longest_gap_s": 0.6
+}

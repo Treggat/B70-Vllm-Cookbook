@@ -1,0 +1,12 @@
+{
+ "prompt_tokens": 128977,
+ "completion_tokens": 2095,
+ "total": 131072,
+ "finish": "length",
+ "secs": 21.8,
+ "bang_runs": 0,
+ "replacement": 0,
+ "printable": 1.0,
+ "followup": "Paris",
+ "pass": true
+}

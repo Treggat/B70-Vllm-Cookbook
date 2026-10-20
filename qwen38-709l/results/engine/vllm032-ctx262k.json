@@ -1,0 +1,122 @@
+{
+ "tag": "262k",
+ "when": "2026-10-19 05:50 PM",
+ "short_code": {
+  "tps": [
+   127.6,
+   134.5,
+   130.4
+  ],
+  "avg": 130.8,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.728,
+   "tok_per_step": 4.64,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   54.4,
+   80.2,
+   36.6,
+   87.9
+  ],
+  "summed": 259.2,
+  "gen_over_wall": 165.3,
+  "wall": 15.7,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "texts": [
+   "The printing press stands as one of the most transformative inventions in human history, fundamentally reshaping how knowledge was produced, disseminated, and consumed across the globe. While Johannes Gutenberg is most commonly credited with its invention in the fifteenth century, the story of printing is far more complex, extending back centuries and encompassing multiple cultures and technological breakthroughs that collectively paved the way for the modern information age.\n\nBefore Gutenberg's metal movable type press emerged in Europe, printing techniques had already developed independently in East Asia. In China, woodblock printing was practiced as early as the second century CE, with surviving examples from the Tang Dynasty demonstrating sophisticated techniques for reproducing Buddhist texts and other important documents. The Diamond Sutra, dated to 868 CE, remains the world's oldest known printed book, created using woodblock methods in China. This technique involved carving entire pages of text onto wooden blocks, which were then inked and pressed onto paper. While effective, woodblock printing had significant limitations: each new book required carving new blocks, making the process labor-intensive and economically impractical for shorter print runs.\n\nThe crucial innovation that would eventually revolutionize printing came from Bi Sheng in the eleventh century CE. Working in China during the Song Dynasty, Bi Sheng developed movable type using ceramic pieces, allowing individual characters to be arranged, reused, and rearranged for different texts. This represented a quantum leap forward in printing technology, though the system faced practical challenges that limited its widespread adoption in China, particularly the enormous number of Chinese characters required compared to the smaller alphabets used in Europe.\n\nIn Europe, the development of the printing press evolved through a series of incremental improvements that built upon existing technologies. The fundamental concept behind Gutenberg's press, created around 1440 in Mainz, Germany, drew upon several pre-existing technologies. The screw press design was adapted from wine and olive presses already common in European wineries. Metalworking techniques developed for coin production provided the foundation for creating durable type. The true genius of Gutenberg's system lay in its comprehensive nature, combining movable type, an oil-based ink that adhered properly to metal, and a mechanical press into a unified, efficient production system.\n\nGutenberg's movable type system addressed several critical challenges that had hindered previous printing attempts. His type pieces were cast from a lead, tin, and antimony alloy that remained liquid at lower temperatures and produced sharp, durable characters. Crucially, he developed a mold system that allowed for the rapid mass production of identical type pieces, a technological achievement that had eluded earlier inventors. The oil-based ink he formulated provided better adhesion to metal type than the water-based inks traditionally used, resulting in clearer prints. Most importantly, his press mechanism applied even pressure across the page, enabling faster production than hand-copying or earlier printing methods.\n\nThe first major work produced using Gutenberg's press was his 42-line Bible, completed around 1455. Approximately 180 copies were printed, with about 150 on paper and 30 on vellum. The technical achievement of the Gutenberg Bible was remarkable, demonstrating that mechanically printed books could rival or even surpass the quality of hand-copied manuscripts. The Bible's success proved that printing could be both technically feasible and economically viable, setting the stage for the explosion of printed materials that would soon transform European society.\n\nThe spread of printing technology across Europe was remarkably rapid. Within fifty years of Gutenberg's invention, printing presses had been established in over 200 European cities, producing an estimated 20 million volumes. This proliferation was driven by several factors, including the establishment of printing guilds, the development of distribution networks, and the growing demand for books among a literate population. The Italian city of Venice emerged as a major printing center, with Aldus Manutius pioneering the production of smaller, more affordable portable books in the 1490s,",
+   "```python\nimport threading\nimport time\n\n\nclass TokenBucket:\n    \"\"\"Thread-safe token-bucket rate limiter.\"\"\"\n\n    def __init__(self, rate: float, capacity: float, *, tokens: float = None):\n        \"\"\"\n        Args:\n            rate:     Tokens added per second.\n            capacity: Maximum bucket size.\n            tokens:   Initial tokens (defaults to capacity).\n        \"\"\"\n        if rate <= 0:\n            raise ValueError(\"rate must be positive\")\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n\n        self._rate = rate\n        self._capacity = capacity\n        self._tokens = capacity if tokens is None else tokens\n        self._last_refill = time.monotonic()\n        self._lock = threading.Lock()\n\n    def _refill(self, now: float) -> None:\n        elapsed = now - self._last_refill\n        if elapsed > 0:\n            self._tokens = min(self._capacity, self._tokens + elapsed * self._rate)\n            self._last_refill = now\n\n    def try_acquire(self, tokens: float = 1.0) -> bool:\n        \"\"\"Try to consume tokens without blocking.\"\"\"\n        with self._lock:\n            now = time.monotonic()\n            self._refill(now)\n            if self._tokens >= tokens:\n                self._tokens -= tokens\n                return True\n            return False\n\n    def acquire(self, tokens: float = 1.0, timeout: float = None) -> bool:\n        \"\"\"Block until tokens are available or timeout expires.\"\"\"\n        deadline = None\n        if timeout is not None:\n            deadline = time.monotonic() + timeout\n\n        while True:\n            with self._lock:\n                now = time.monotonic()\n                self._refill(now)\n                if self._tokens >= tokens:\n                    self._tokens -= tokens\n                    return True\n\n                # How long until enough tokens?\n                deficit = tokens - self._tokens\n                wait_time = deficit / self._rate\n\n            if deadline is not None:\n                remaining = deadline - time.monotonic()\n                if remaining <= 0:\n                    return False\n                wait_time = min(wait_time, remaining)\n\n            time.sleep(wait_time)\n\n    @property\n    def available(self) -> float:\n        \"\"\"Current available tokens (approximate).\"\"\"\n        with self._lock:\n            self._refill(time.monotonic())\n            return self._tokens\n\n\nif __name__ == \"__main__\":\n    import concurrent.futures\n\n    # Basic capacity test\n    bucket = TokenBucket(rate=10.0, capacity=5.0)\n    assert bucket.available >= 4.9, f\"Expected ~5, got {bucket.available}\"\n\n    # Try-acquire up to capacity\n    got = sum(bucket.try_acquire() for _ in range(10))\n    assert got == 5, f\"Expected 5, got {got}\"\n    assert bucket.try_acquire() is False\n\n    # Refill over time\n    time.sleep(0.3)\n    assert 0 < bucket.available < 2.0\n\n    # Concurrency: 20 threads, 5 tokens, each needs 1\n    bucket2 = TokenBucket(rate=100.0, capacity=5.0)\n    successes = []\n\n    def worker():\n        if bucket2.try_acquire():\n            successes.append(1)\n\n    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as pool:\n        pool.map(lambda _: worker(), range(20))\n\n    # Should get roughly 5 successes (could be",
+   "The lighthouse at Point Reyes had been automated for years, but Elias stayed on, telling himself he liked the solitude. Most days he read, mended nets for the fishermen, and watched ships pass. That morning, something different bobbed in the surf: a green glass bottle with a wax-sealed note inside.\n\nHe sat on the rocks and unscrewed the cork, reading the folded page until the sea fog rolled in around him.\n\n*\"To whoever finds this: If you are still keeping the light at Point Reyes after I'm gone, tell my mother I'm okay. Tell her I learned to swim, and that the stars at night here are brighter than anywhere else I've ever been.\"*\n\nElias had kept the light for forty-two years. He had known the boy who wrote it \u2014 a sailor lost in a storm in 1974, rescued and taken in by the keeper of that time. He remembered the boy, and he remembered the mother who had waited and waited for news.\n\nThe mother was long dead now.\n\nHe held the paper to the flame of his pocket lighter. When the ash drifted away on the ocean breeze, he put the bottle back in the water and watched it disappear into the waves.\n\nSome messages, he thought, are meant to arrive too late to change anything, but on time to still matter.\n\nThat night, as he climbed the spiral stairs to tend the lamp, he paused on the gallery and looked up. He had never told the mother her son was okay, but tonight the stars were brighter than he remembered.",
+   "```javascript\n/**\n * @fileoverview Utility functions for debounce and throttle.\n */\n\n/**\n * Creates a debounced function that delays invoking `func` until after `wait`\n * milliseconds have elapsed since the last time the debounced function was invoked.\n *\n * @param {Function} func - The function to debounce.\n * @param {number} wait - The number of milliseconds to delay.\n * @param {Object} [options] - Options object.\n * @param {boolean} [options.leading=false] - Specify invoking on the leading edge of the timeout.\n * @returns {Function} The new debounced function.\n */\nfunction debounce(func, wait, options = {}) {\n  const leading = options.leading || false;\n  let timer = null;\n  let leadingCalled = false;\n\n  return function (...args) {\n    const context = this;\n    const later = () => {\n      timer = null;\n      if (!leadingCalled) {\n        func.apply(context, args);\n      }\n    };\n    const callNow = leading && !timer;\n\n    if (timer) {\n      clearTimeout(timer);\n    }\n    timer = setTimeout(later, wait);\n    leadingCalled = callNow;\n\n    if (callNow) {\n      func.apply(context, args);\n    }\n  };\n}\n\n/**\n * Creates a throttled function that only invokes `func` at most once per\n * every `wait` milliseconds.\n *\n * @param {Function} func - The function to throttle.\n * @param {number} wait - The number of milliseconds to throttle invocations to.\n * @param {Object} [options] - Options object.\n * @param {boolean} [options.leading=true] - Specify invoking on the leading edge of the timeout.\n * @param {boolean} [options.trailing=true] - Specify invoking on the trailing edge of the timeout.\n * @returns {Function} The new throttled function.\n */\nfunction throttle(func, wait, options = {}) {\n  const leading = options.leading !== false;\n  const trailing = options.trailing !== false;\n  let timeout = null;\n  let previous = 0;\n  let result;\n\n  const later = (context, args) => {\n    previous = Date.now();\n    timeout = null;\n    result = func.apply(context, args);\n  };\n\n  return function (...args) {\n    const context = this;\n    const now = Date.now();\n    if (!previous && leading === false) {\n      previous = now;\n    }\n    const remaining = wait - (now - previous);\n\n    if (remaining <= 0 || remaining > wait) {\n      if (timeout) {\n        clearTimeout(timeout);\n        timeout = null;\n      }\n      previous = now;\n      result = func.apply(context, args);\n    } else if (!timeout && trailing !== false) {\n      timeout = setTimeout(() => later(context, args), remaining);\n    }\n    return result;\n  };\n}\n\nmodule.exports = { debounce, throttle };\n```"
+  ],
+  "mtp": {
+   "per_token": 0.387,
+   "tok_per_step": 2.94,
+   "preempt": 0.0
+  }
+ },
+ "depth": {
+  "24k": {
+   "prompt": 25375,
+   "cold_ttft": 14.1,
+   "prefill_tps": 1797,
+   "decode": 63.0,
+   "gen": 264,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.318,
+    "tok_per_step": 2.59,
+    "preempt": 0.0
+   }
+  },
+  "32k": {
+   "prompt": 33468,
+   "cold_ttft": 19.3,
+   "prefill_tps": 1737,
+   "decode": 67.9,
+   "gen": 371,
+   "canary": null,
+   "cites": 2,
+   "mtp": {
+    "per_token": 0.365,
+    "tok_per_step": 2.82,
+    "preempt": 0.0
+   }
+  },
+  "65k": {
+   "prompt": 64124,
+   "cold_ttft": 42.7,
+   "prefill_tps": 1502,
+   "decode": 67.1,
+   "gen": 372,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.43,
+    "tok_per_step": 3.15,
+    "preempt": 0.0
+   }
+  },
+  "74k": {
+   "prompt": 73336,
+   "cold_ttft": 50.9,
+   "prefill_tps": 1441,
+   "decode": 53.9,
+   "gen": 326,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.319,
+    "tok_per_step": 2.6,
+    "preempt": 0.0
+   }
+  },
+  "100k": {
+   "prompt": 97855,
+   "cold_ttft": 75.1,
+   "prefill_tps": 1303,
+   "decode": 58.1,
+   "gen": 377,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.405,
+    "tok_per_step": 3.02,
+    "preempt": 0.0
+   }
+  }
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "tag": "b2048-t512",
+ "b_prompt": 82886,
+ "b_prefill_s": 76.2,
+ "b_prefill_tps": 1087,
+ "a_before": 78.0,
+ "a_during": 11.1,
+ "a_after": 143.4,
+ "a_tokens": 2500,
+ "a_longest_gap_s": 0.6
+}

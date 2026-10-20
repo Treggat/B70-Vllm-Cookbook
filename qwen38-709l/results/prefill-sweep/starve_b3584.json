@@ -1,0 +1,11 @@
+{
+ "tag": "b3584",
+ "b_prompt": 82886,
+ "b_prefill_s": 62.5,
+ "b_prefill_tps": 1326,
+ "a_before": 91.5,
+ "a_during": 2.2,
+ "a_after": 133.8,
+ "a_tokens": 2500,
+ "a_longest_gap_s": 2.9
+}

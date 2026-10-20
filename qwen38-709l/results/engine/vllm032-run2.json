@@ -1,0 +1,151 @@
+{
+ "tag": "032",
+ "when": "2026-10-19 05:18 PM",
+ "short_code": {
+  "tps": [
+   119.8,
+   134.8,
+   132.3
+  ],
+  "avg": 129.0,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.718,
+   "tok_per_step": 4.59,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   53.0,
+   89.3,
+   42.8,
+   89.5
+  ],
+  "summed": 274.7,
+  "gen_over_wall": 161.4,
+  "wall": 17.3,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "texts": [
+   "The printing press stands as one of the most transformative inventions in human history, fundamentally reshaping how knowledge was produced, disseminated, and consumed across the globe. While Johannes Gutenberg is most commonly credited with its invention in the fifteenth century, the story of printing is far more complex, extending back centuries and encompassing multiple cultures and technological breakthroughs that collectively paved the way for the modern information age.\n\nBefore Gutenberg's metal movable type press emerged in Europe, printing techniques had already developed independently in East Asia. In China, woodblock printing was practiced as early as the second century CE, with surviving examples from the Tang Dynasty demonstrating sophisticated techniques for reproducing Buddhist texts and other important documents. The Diamond Sutra, dated to 868 CE, remains the world's oldest known printed book, created using woodblock methods in China. This technique involved carving entire pages of text onto wooden blocks, which were then inked and pressed onto paper. While effective, woodblock printing had significant limitations: each new book required carving new blocks, making the process labor-intensive and economically impractical for shorter print runs.\n\nThe crucial innovation that would eventually revolutionize printing came from Bi Sheng in the eleventh century CE. Working in China during the Song Dynasty, Bi Sheng developed movable type using ceramic pieces, allowing individual characters to be arranged, reused, and rearranged for different texts. This represented a quantum leap forward in printing technology, though the system faced practical challenges that limited its widespread adoption in China, particularly the enormous number of Chinese characters required compared to the relatively small alphabets used in Europe. Despite these challenges, the concept of movable type continued to evolve in East Asia, with Korean printers making significant advances using metal movable type by the thirteenth century.\n\nWhen we turn to Europe, the story of printing's arrival is intertwined with the life and work of Johannes Gutenberg, a goldsmith from Mainz, Germany. Gutenberg's genius lay not in inventing any single component of printing but in combining various existing technologies into a coherent, practical system. Around 1440, he developed a method for creating metal type using a brass punch, a matrix mold, and an alloy of lead, tin, and antimony that cooled quickly and wore well. This combination solved the durability and consistency problems that had plagued earlier attempts at movable type in Europe.\n\nEqually important was Gutenberg's adaptation of the wine press, which he modified to create the screw press that would apply even pressure across the printing surface. His development of oil-based inks, rather than the water-based inks traditionally used in Asia, proved crucial for European printing, as the heavier metal type required more substantial ink coverage to produce clear impressions. Perhaps most significant of all was Gutenberg's integration of these components into a unified production system that could operate profitably, transforming printing from a craft into an industry.\n\nThe first major work produced using Gutenberg's new technology was the Bible, specifically the 42-line Bible completed around 1455. This masterwork demonstrated the potential of movable type printing with a clarity that could not be ignored. The quality of the Gutenberg Bible astonished contemporaries; its pages were so beautifully printed that many initially believed they had been produced by hand. The Bible's success proved that printing could produce not merely functional documents but objects of genuine aesthetic beauty, a crucial step in establishing printing's cultural legitimacy.\n\nThe impact of Gutenberg's press on European society was swift and profound. Within fifty years of its invention, printing presses had appeared throughout Europe, producing an estimated twenty million volumes by 1500. This explosion in the availability of printed materials transformed education, religion, science, and politics in ways that few could have anticipated. The Protestant Reformation, one of the most significant religious and political movements in European history, was in many ways facilitated by printing technology; Martin Luther's theses and writings could be reproduced rapidly and distributed widely, reaching audiences far beyond what would have",
+   "```python\nimport threading\nimport time\n\n\nclass TokenBucket:\n    \"\"\"Thread-safe token-bucket rate limiter.\"\"\"\n\n    def __init__(self, rate: float, capacity: float):\n        \"\"\"\n        Args:\n            rate: tokens added per second\n            capacity: maximum burst size (bucket capacity)\n        \"\"\"\n        self.rate = rate\n        self.capacity = capacity\n        self._tokens = capacity\n        self._last = time.monotonic()\n        self._lock = threading.Lock()\n\n    def _refill(self) -> None:\n        now = time.monotonic()\n        elapsed = now - self._last\n        add = elapsed * self.rate\n        if add > 0:\n            self._tokens = min(self.capacity, self._tokens + add)\n            self._last = now\n\n    def acquire(self, tokens: float = 1.0) -> float:\n        \"\"\"Wait until `tokens` are available, consume them, return wait time.\"\"\"\n        wait = 0.0\n        with self._lock:\n            while True:\n                self._refill()\n                if self._tokens >= tokens:\n                    self._tokens -= tokens\n                    return wait\n                need = tokens - self._tokens\n                sleep = need / self.rate\n                wait += sleep\n                time.sleep(sleep)\n\n    def try_acquire(self, tokens: float = 1.0) -> bool:\n        \"\"\"Non-blocking: consume `tokens` if available.\"\"\"\n        with self._lock:\n            self._refill()\n            if self._tokens >= tokens:\n                self._tokens -= tokens\n                return True\n            return False\n\n\n# Tests\nimport unittest\n\n\nclass TestTokenBucket(unittest.TestCase):\n    def test_burst(self):\n        b = TokenBucket(rate=10, capacity=5)\n        self.assertTrue(b.try_acquire(5))\n        self.assertFalse(b.try_acquire(1))\n\n    def test_refill(self):\n        b = TokenBucket(rate=100, capacity=10)\n        b.try_acquire(10)\n        time.sleep(0.05)\n        self.assertTrue(b.try_acquire(3))\n\n    def test_acquire_blocks(self):\n        b = TokenBucket(rate=100, capacity=1)\n        b.try_acquire(1)\n        t0 = time.monotonic()\n        b.acquire(1)\n        dt = time.monotonic() - t0\n        self.assertGreater(dt, 0.005)\n\n    def test_concurrent(self):\n        b = TokenBucket(rate=1000, capacity=100)\n        results = []\n\n        def worker():\n            count = 0\n            for _ in range(50):\n                if b.try_acquire():\n                    count += 1\n            results.append(count)\n\n        threads = [threading.Thread(target=worker) for _ in range(4)]\n        for t in threads:\n            t.start()\n        for t in threads:\n            t.join()\n        total = sum(results)\n        self.assertLessEqual(total, 100)\n        self.assertGreater(total, 0)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n```",
+   "The lighthouse at Point Reyes had been automated for years, but Elias stayed on, telling himself he liked the solitude. Most days he read, mended nets for the fishermen, and watched ships pass. That morning, he found the bottle.\n\nIt had washed up on the shingle beach below, its glass smooth and ancient-looking, with a note rolled inside. The seal was broken, but he managed to extract the paper without tearing it.\n\n*If anyone finds this, I was real.*\n\nNothing else. No name, no coordinates, no date. Just that.\n\nElias read it twice, then walked to his telescope. Beyond the fog, a container ship churned past, its horn blaring into the morning. No one was in danger. No one was calling for help.\n\nHe carried the note back to his small kitchen, set it on the table beside his coffee, and stared at it for a long time.\n\n*If anyone finds this, I was real.*\n\nIt sounded less like a message and more like a plea. A desperate one. The handwriting was shaky, the ink smeared in places, as if whoever had written it had been crying or in pain. Or both.\n\nMaybe it meant: I existed once. Someone acknowledge that.\n\nElias thought about all the ships that passed through this stretch of ocean without seeing him, without ever knowing someone was there on the point, turning the light on and off. He thought about how, in seventy-three years, no ship had crashed. No one had needed him.\n\nHe went to his desk, found a pen and fresh paper, and wrote:\n\n*Yes, you were. Someone was here when you needed to be seen, and they saw you.*\n\nHe folded it, sealed it in an envelope, and placed it in the mail slot of his outgoing box, marked for delivery to the post office on Highway 1. Then he picked up the original note again and held it against his palm.\n\nMaybe it had been written by someone who had stood where he stood, looking out at the same gray water, wondering if they had mattered. Wondering if anyone noticed when the light went out.\n\nElias put on his coat and went down to the beach. There were more bottles there, he realized\u2014dozens of them, tangled in the kelp. He didn't know when they'd arrived. He didn't know if they had messages or were just bottles, empty and waiting.\n\nHe picked one up. Inside was a photograph, small and faded: a woman, a child, a house with a garden. No note.\n\nAnother: just a button, brass and tarnished.\n\nHe carried them all back to the lighthouse, where they sat now on his kitchen table, a row of small mysteries. Messages and non-messages, from people he would never know.\n\nThat night, as he turned on the great light and watched it sweep the dark water, Elias thought: *I am here.* He thought it to the ships and to the bottles and to the note in its envelope, already on its way to a stranger in a place he had never seen.\n\n*I saw you, whoever you were,* he thought. *I am seeing you still.*\n\nThe beam passed over the ocean. Over the bottles on his table. Over the empty chairs in the room.\n\nAnd somewhere, a person found the note, read it, and was no longer alone.",
+   "```javascript\n/**\n * @fileoverview Utility functions for debounce and throttle.\n */\n\n/**\n * Creates a debounced function that delays invoking `func` until after `wait`\n * milliseconds have elapsed since the last time the debounced function was invoked.\n *\n * @param {Function} func - The function to debounce.\n * @param {number} wait - The number of milliseconds to delay.\n * @param {Object} [options] - Options object.\n * @param {boolean} [options.leading=false] - Specify invoking on the leading edge of the timeout.\n * @returns {Function} The new debounced function.\n */\nfunction debounce(func, wait, options = {}) {\n  let timeoutId = null;\n  let leading = options.leading || false;\n  let lastCallTime = 0;\n\n  return function debounced(...args) {\n    const now = Date.now();\n    const timeSinceLastCall = now - lastCallTime;\n\n    if (leading && timeSinceLastCall >= wait) {\n      lastCallTime = now;\n      return func.apply(this, args);\n    }\n\n    if (timeoutId !== null) {\n      clearTimeout(timeoutId);\n    }\n\n    timeoutId = setTimeout(() => {\n      timeoutId = null;\n      lastCallTime = Date.now();\n      if (!leading) {\n        return func.apply(this, args);\n      }\n    }, wait);\n  };\n}\n\n/**\n * Creates a throttled function that only invokes `func` at most once per\n * every `wait` milliseconds.\n *\n * @param {Function} func - The function to throttle.\n * @param {number} wait - The number of milliseconds to throttle invocations to.\n * @returns {Function} The new throttled function.\n */\nfunction throttle(func, wait) {\n  let lastCallTime = 0;\n  let timeoutId = null;\n\n  return function throttled(...args) {\n    const now = Date.now();\n    const timeSinceLastCall = now - lastCallTime;\n\n    if (timeSinceLastCall >= wait) {\n      lastCallTime = now;\n      if (timeoutId !== null) {\n        clearTimeout(timeoutId);\n        timeoutId = null;\n      }\n      return func.apply(this, args);\n    }\n\n    if (timeoutId === null) {\n      timeoutId = setTimeout(() => {\n        timeoutId = null;\n        lastCallTime = Date.now();\n        return func.apply(this, args);\n      }, wait - timeSinceLastCall);\n    }\n  };\n}\n\nexport { debounce, throttle };\n```"
+  ],
+  "mtp": {
+   "per_token": 0.356,
+   "tok_per_step": 2.78,
+   "preempt": 0.0
+  }
+ },
+ "depth": {
+  "24k": {
+   "prompt": 25375,
+   "cold_ttft": 14.3,
+   "prefill_tps": 1781,
+   "decode": 63.5,
+   "gen": 264,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.318,
+    "tok_per_step": 2.59,
+    "preempt": 0.0
+   }
+  },
+  "32k": {
+   "prompt": 33468,
+   "cold_ttft": 19.3,
+   "prefill_tps": 1731,
+   "decode": 68.0,
+   "gen": 371,
+   "canary": null,
+   "cites": 2,
+   "mtp": {
+    "per_token": 0.365,
+    "tok_per_step": 2.82,
+    "preempt": 0.0
+   }
+  },
+  "65k": {
+   "prompt": 64124,
+   "cold_ttft": 42.8,
+   "prefill_tps": 1497,
+   "decode": 69.5,
+   "gen": 372,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.452,
+    "tok_per_step": 3.26,
+    "preempt": 0.0
+   }
+  },
+  "74k": {
+   "prompt": 73336,
+   "cold_ttft": 51.0,
+   "prefill_tps": 1439,
+   "decode": 58.8,
+   "gen": 355,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.365,
+    "tok_per_step": 2.83,
+    "preempt": 0.0
+   }
+  },
+  "100k": {
+   "prompt": 97855,
+   "cold_ttft": 75.1,
+   "prefill_tps": 1303,
+   "decode": 60.3,
+   "gen": 378,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.43,
+    "tok_per_step": 3.15,
+    "preempt": 0.0
+   }
+  }
+ },
+ "greedy": [
+  {
+   "sha": "b4928eb11a94",
+   "gen": 227,
+   "canary": null,
+   "vs_base": "same"
+  },
+  {
+   "sha": "9c150bf7d5df",
+   "gen": 225,
+   "canary": null,
+   "vs_base": "differs at char 86"
+  },
+  {
+   "sha": "5cc5ab5d1860",
+   "gen": 176,
+   "canary": null,
+   "vs_base": "same"
+  }
+ ],
+ "image": {
+  "sec": 3.3,
+  "prompt": 2251,
+  "canary": null
+ },
+ "video": {
+  "sec": 0.6,
+  "prompt": 406
+ }
+}

@@ -25,12 +25,17 @@
   or short-context decode lost about 25%.
 - **0.31 rejects per-request multimodal kwargs** (`mm_processor_kwargs`, `media_io_kwargs`) unless
   `--trust-request-mm-kwargs` is set. Check that your clients don't send them.
-- **`triton==3.8.0+xpu` only exists on `https://wheels.vllm.ai/xpu/`.**
+- **`triton==3.8.0+xpu` only exists on vLLM's XPU index, and since 0.32 that index is versioned:**
+  `https://wheels.vllm.ai/0.32.0/xpu/`. The bare `/xpu/` path stopped tracking the release the day 0.32 came out.
 - **Patch scripts that patch every vLLM they find** (see RECIPE). Pin them to one tree.
 - **"dubious ownership":** don't `chown` the vLLM git checkout away from the user who runs pip.
 - **Compile cache keyed on flags, not env:** give each switch combination its own `VLLM_CACHE_ROOT`.
 - **`--max-num-batched-tokens 16384`** made cold prefill 2–3× slower on this XPU build. We use 3584.
 - **Memory query reads 0 GiB free** under some Level Zero driver/container combinations. Fixed by `patch_meminfo_fallback`.
+- **0.32 rewrote the GDN speculative-decode metadata path** (`v1/attention/backends/gdn_attn.py`): SergiioB's
+  `patch_mtp_boundary` and riceharvest's three `gdn_*` patches all refuse on it. The sync-free slicing they added is
+  upstream now; the boundary fix is not, so we re-based it (`patches/patch_mtp_boundary_032.py`) and test it with
+  `bench/maxlen.py`. Dry-run every patch script against a clean clone of the new tag before you build.
 
 ## Serving
 
@@ -50,6 +55,11 @@
   whatever is running. Only scrape the seat that's already up.
 - **Do the VRAM math before raising KV.** CUDA-graph-style capture memory isn't counted by
   `gpu_memory_utilization`. Set `--kv-cache-memory-bytes` explicitly and leave about 1.5 GiB of headroom.
+- **`--kv-offloading-size` does nothing useful for this hybrid model** (0.31 and 0.32): blocks go to the CPU tier and
+  are never found again, so an evicted prompt re-prefills in full. It does pin N GiB of `/dev/shm`. Leave it out.
+- **The MTP drafter's weight load is where a host-RAM-starved box resets the GPU.** Both copy-engine resets we had
+  came during that step while another container was compiling with ~20 GiB of RAM free. Keep the box's RAM quiet
+  during loads, and don't give the drafter its own UVA copy (above).
 
 ## Two cards (not used here)
 
