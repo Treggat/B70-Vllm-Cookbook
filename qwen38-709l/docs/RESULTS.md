@@ -126,6 +126,28 @@ correct. A control with the stock head paths (no fp8 target head, no int4 draft 
 per draft token, so the B70 changes are not the cause: the drafter does not recognise the merge's hidden states.
 The step costs the same as MTP-5's on short code (35.8 vs 35.4 ms), so the whole gap is acceptance.
 
+## Our MTP seat on Vcvzgbzz's own tests (`results/vcvzgbzz-tests/`)
+
+To check whether the speeds in [Vcvzgbzz's cookbook](https://github.com/Vcvzgbzz/b70-cookbook) are within reach,
+his `tests/` scripts (dd083d5, unchanged apart from an auth header) ran against our live MTP-5 seat at the 262k
+window. His model is base Qwen3.8-27B in AutoRound int4; ours is the 709-L merge in AWQ.
+
+| his test | his MTP-5 | our MTP-5 | his DFlash2 |
+|---|---|---|---|
+| `short_code.py`, greedy, 9 runs | 124.6 t/s | **130.8** | 160.3 |
+| `deep_decode.py`, decode after a cached 23k / 55k / 110k prompt | 87 / 86 / 75 | **84.1 / 82.0 / 64.5** (23k / 58k / 115k) | 86 / 81 / 87 |
+| `prefill_ab.py`, cold first token at ~30k / ~120k | 17.8 s / 101.9 s | **17.7 s / 105.8 s** (31k / 125k; same speed per token) | 19.8 / 111.4 s |
+| `arrivals.py`, total with 3 requests arriving mid-decode | 69-70 | **56.9** | 74-75 |
+
+On the same tests the MTP seats are level: short code 5% faster, prefill the same per token, deep decode within
+3-5% up to 55k. Two real gaps: decode at ~110k (-14%) and the arrivals test (-18%, one arriving request decodes at
+6 t/s while another's 80k prompt prefills; `--long-prefill-token-threshold 512` targets exactly this, see the sweep
+above). His headline 160 / 216 t/s is the DFlash2 column, which needs a drafter trained for the model it serves
+([DRAFTER-TRAINING.md](DRAFTER-TRAINING.md)).
+
+Our own bench reads lower at depth (58-67 t/s) because it is a harder test: cold prompts, temperature 0.3 and a
+prose answer, against his cached prompt, greedy decoding and "explain the last file function by function".
+
 ## Max-model-len boundary (0.32, `bench/maxlen.py`)
 
 `results/maxlen_032.json`: a 128,977-token prompt with `max_tokens: 8000` on the 131,072 window. The reply stopped at

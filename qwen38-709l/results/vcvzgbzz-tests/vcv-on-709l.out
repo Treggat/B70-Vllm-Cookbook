@@ -1,0 +1,19 @@
+== short_code
+prompt 1: 135.6 134.6 133.6  (600 tok)
+prompt 2: 135.6 135.7 135.3  (386 tok)
+prompt 3: 122.6 121.2 122.7  (328 tok)
+avg of 9: 130.8 t/s
+spec before: 2.0 10.0 2.0
+spec after:  855.0 4275.0 3088.0
+== deep_decode
+ours deep  23239 tok: decode  84.1 t/s (500 out, ttft 0.2s)
+ours deep  58204 tok: decode  82.0 t/s (500 out, ttft 0.3s)
+ours deep 114801 tok: decode  64.5 t/s (500 out, ttft 0.5s)
+spec before: 855.0 4275.0 3088.0
+spec after:  1707.0 8535.0 5232.0
+== prefill_ab
+ours prompt  30993 tok  ttft   17.7 s    1747 tok/s
+ours prompt 124845 tok  ttft  105.8 s    1180 tok/s
+== arrivals
+ours round 1: A decode 47.6 t/s | B ttft 2.6s dec 73.8 C ttft 5.6s dec 6.2 D ttft 11.4s dec 54.4 | total 1805 tok / 31.7s = 56.9 t/s
+ours round 2: A decode 47.6 t/s | B ttft 2.6s dec 72.4 C ttft 5.6s dec 6.3 D ttft 11.4s dec 59.1 | total 1788 tok / 31.7s = 56.5 t/s
