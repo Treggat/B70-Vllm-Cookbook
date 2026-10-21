@@ -1,0 +1,121 @@
+{
+ "short code": {
+  "tps": [
+   80.8,
+   77.0,
+   61.4
+  ],
+  "avg": 73.1,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.234,
+   "tok_per_step": 2.64,
+   "preempt": 0.0
+  }
+ },
+ "4 writers": {
+  "each": [
+   35.1,
+   48.1,
+   25.5,
+   49.1
+  ],
+  "summed": 157.9,
+  "gen_over_wall": 115.7,
+  "wall": 23.4,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.147,
+   "tok_per_step": 2.03,
+   "preempt": 0.0
+  }
+ },
+ "depth 24k": {
+  "prompt": 25375,
+  "cold_ttft": 15.6,
+  "prefill_tps": 1622,
+  "decode": 50.6,
+  "gen": 278,
+  "canary": null,
+  "cites": 2,
+  "mtp": {
+   "per_token": 0.184,
+   "tok_per_step": 2.29,
+   "preempt": 0.0
+  }
+ },
+ "depth 32k": {
+  "prompt": 33468,
+  "cold_ttft": 21.8,
+  "prefill_tps": 1532,
+  "decode": 46.2,
+  "gen": 400,
+  "canary": null,
+  "cites": 1,
+  "mtp": {
+   "per_token": 0.169,
+   "tok_per_step": 2.19,
+   "preempt": 0.0
+  }
+ },
+ "depth 65k": {
+  "prompt": 64124,
+  "cold_ttft": 52.1,
+  "prefill_tps": 1230,
+  "decode": 40.2,
+  "gen": 354,
+  "canary": null,
+  "cites": 4,
+  "mtp": {
+   "per_token": 0.188,
+   "tok_per_step": 2.31,
+   "preempt": 0.0
+  }
+ },
+ "depth 74k": {
+  "prompt": 73336,
+  "cold_ttft": 63.2,
+  "prefill_tps": 1161,
+  "decode": 37.0,
+  "gen": 350,
+  "canary": null,
+  "cites": 4,
+  "mtp": {
+   "per_token": 0.175,
+   "tok_per_step": 2.22,
+   "preempt": 0.0
+  }
+ },
+ "depth 100k": {
+  "prompt": 97855,
+  "cold_ttft": 97.1,
+  "prefill_tps": 1008,
+  "decode": 31.8,
+  "gen": 385,
+  "canary": null,
+  "cites": 4,
+  "mtp": {
+   "per_token": 0.165,
+   "tok_per_step": 2.16,
+   "preempt": 0.0
+  }
+ },
+ "image": {
+  "sec": 4.6,
+  "prompt": 2251,
+  "canary": null
+ },
+ "video": {
+  "sec": 0.7,
+  "prompt": 406
+ }
+}

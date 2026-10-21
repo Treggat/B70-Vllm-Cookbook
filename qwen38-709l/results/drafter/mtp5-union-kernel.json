@@ -1,0 +1,42 @@
+{
+ "short code": {
+  "tps": [
+   126.6,
+   134.4,
+   132.0
+  ],
+  "avg": 131.0,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.729,
+   "tok_per_step": 4.65,
+   "preempt": 0.0
+  }
+ },
+ "4 writers": {
+  "each": [
+   54.6,
+   84.8,
+   37.8,
+   88.3
+  ],
+  "summed": 265.6,
+  "gen_over_wall": 162.9,
+  "wall": 15.3,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.413,
+   "tok_per_step": 3.07,
+   "preempt": 0.0
+  }
+ }
+}

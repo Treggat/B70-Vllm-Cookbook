@@ -108,6 +108,46 @@ short code 130.8 t/s, 4 writers 259.2 summed, prefill 24k / 32k / 65k / 74k / 10
 1,303 t/s, decode 63.0 / 67.9 / 67.1 / 53.9 / 58.1 t/s, cites 4 / 4 / 4 at 65k+. Parity with the 131k runs above.
 A 139k-token prompt is admitted and answered in 124 s.
 
+## DFlash2 drafter on the 709-L (0.32, `results/engine/vllm032-dflash2-stock-drafter.json`)
+
+[incoai/Qwen3.8-27B-DFlash2](https://huggingface.co/incoai/Qwen3.8-27B-DFlash2), trained on base Qwen3.8, through the
+re-based patches in `patches/dflash2/` (BF16 drafter under the FP16 target, int4 drafter body, int4 draft head,
+sliding-window prefix-cache fix), 7 drafts, stock attention kernel, same bench and 262k window as MTP-5:
+
+| | MTP-5 | DFlash2-7 |
+|---|---|---|
+| short code | 130.8 t/s, 72.8% per draft token, 4.64 tok/step | 37.7 t/s, 5.1%, 1.35 |
+| 4 writers, summed | 259.2 t/s, 2.94 tok/step | 96.2 t/s, 1.27 |
+| decode 24k / 65k / 100k | 63.0 / 67.1 / 58.1 t/s | 27.9 / 22.1 / 18.1 t/s |
+| first token 100k, cold | 75.1 s | 97.0 s (stock kernel) |
+
+Per draft position on a code reply: 23%, 8.6%, 2.8%, 0.7%, then 0. Lossless: page-boundary test 3/3, image and video
+correct. A control with the stock head paths (no fp8 target head, no int4 draft head, BF16 drafter body) gave 2.9%
+per draft token, so the B70 changes are not the cause: the drafter does not recognise the merge's hidden states.
+The step costs the same as MTP-5's on short code (35.8 vs 35.4 ms), so the whole gap is acceptance.
+
+## Our MTP seat on Vcvzgbzz's own tests (`results/vcvzgbzz-tests/`)
+
+To check whether the speeds in [Vcvzgbzz's cookbook](https://github.com/Vcvzgbzz/b70-cookbook) are within reach,
+his `tests/` scripts (dd083d5, unchanged apart from an auth header) ran against our live MTP-5 seat at the 262k
+window. His model is base Qwen3.8-27B in AutoRound int4; ours is the 709-L merge in AWQ.
+
+| his test | his MTP-5 | our MTP-5 | his DFlash2 |
+|---|---|---|---|
+| `short_code.py`, greedy, 9 runs | 124.6 t/s | **130.8** | 160.3 |
+| `deep_decode.py`, decode after a cached 23k / 55k / 110k prompt | 87 / 86 / 75 | **84.1 / 82.0 / 64.5** (23k / 58k / 115k) | 86 / 81 / 87 |
+| `prefill_ab.py`, cold first token at ~30k / ~120k | 17.8 s / 101.9 s | **17.7 s / 105.8 s** (31k / 125k; same speed per token) | 19.8 / 111.4 s |
+| `arrivals.py`, total with 3 requests arriving mid-decode | 69-70 | **56.9** | 74-75 |
+
+On the same tests the MTP seats are level: short code 5% faster, prefill the same per token, deep decode within
+3-5% up to 55k. Two real gaps: decode at ~110k (-14%) and the arrivals test (-18%, one arriving request decodes at
+6 t/s while another's 80k prompt prefills; `--long-prefill-token-threshold 512` targets exactly this, see the sweep
+above). His headline 160 / 216 t/s is the DFlash2 column, which needs a drafter trained for the model it serves
+([DRAFTER-TRAINING.md](DRAFTER-TRAINING.md)).
+
+Our own bench reads lower at depth (58-67 t/s) because it is a harder test: cold prompts, temperature 0.3 and a
+prose answer, against his cached prompt, greedy decoding and "explain the last file function by function".
+
 ## Max-model-len boundary (0.32, `bench/maxlen.py`)
 
 `results/maxlen_032.json`: a 128,977-token prompt with `max_tokens: 8000` on the 131,072 window. The reply stopped at

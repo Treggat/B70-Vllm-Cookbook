@@ -59,9 +59,12 @@ the zero-sum guard, `packed_verify.py` (= riceharvest's `spec_packed.py`), the f
 once the int4 draft head is built, embed UVA, and the draft-vocab trim. His `gdn-spec-no-sync.patch` is what 0.32 ships
 upstream. **Nothing to add for MTP.** What is new is the **DFlash2 drafter**
 ([incoai/Qwen3.8-27B-DFlash2](https://huggingface.co/incoai/Qwen3.8-27B-DFlash2), 7 drafts per step; +29% short code,
-+37% edits on base Qwen3.8 in his numbers). Not ported here: his four DFlash2 patches are against 0.31 and all refuse on
-0.32 (anchors moved), the drafter was trained on base Qwen3.8 hidden states, and earlier DFlash/DSpark drafters got
-3-12% acceptance on this merge. A re-base plus an acceptance probe is the open item.
++37% edits on base Qwen3.8 in his numbers). We re-based his patches onto 0.32 (`patches/dflash2/`) and measured it on
+the 709-L: **2-5% acceptance per draft token, about 3× slower than MTP-5** (RESULTS.md). The drafter reads five inner
+layers of the target (5, 19, 33, 47, 61), and the merge changed every layer's weights by 19-31% against base
+Qwen3.8. The MTP head survives because it reads only the final hidden state, which the merge kept consistent with
+the LM head. A published drafter only helps the model it was trained on; for a merge, that means training one on
+the merge's own hidden states, which is in progress in [DRAFTER-TRAINING.md](DRAFTER-TRAINING.md). `apply_stack.sh` does not apply the DFlash2 patches.
 
 [vcv]: https://github.com/Vcvzgbzz/b70-cookbook
 
