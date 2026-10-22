@@ -15,6 +15,11 @@
 # COOLDOWN-step cooldown (false triggers on boilerplate code cost ~1 step each, then stop).
 # The worker (B70ComboSpeculator) still decides per request inside a K_COPY step: copied drafts only when its own
 # n-gram match agrees with MTP's first draft, else MTP drafts.
+# Depth tiers (2026-10-21 evening): B70_COMBO_MTP_TIERS / B70_COMBO_COPY_TIERS = "ctx:K,ctx:K,..." pick the MTP and the
+# copy draft count by the longest scheduled request (largest ctx <= its length wins); unset = K_MTP / the configured
+# num_speculative_tokens at every depth. Every K used must have graphs (B70_COMBO_CAPTURE_KS) and its q_len in
+# B70_GDN_VARLEN_SPEC. A step is a copy step when K >= COPY_MIN_K (B70_COMBO_COPY_MIN_K, default the configured K);
+# the worker uses the same rule.
 import os
 from array import array
 
@@ -28,9 +33,33 @@ MIN_YIELD = int(_E("B70_COMBO_MIN_YIELD", "6"))
 COOLDOWN = int(_E("B70_COMBO_COOLDOWN", "16"))
 DEBUG = _E("B70_COMBO_DEBUG") == "1"
 SUSTAIN = _E("B70_COMBO_SUSTAIN", "1") == "1"
-# B70_COMBO_CTL (tests only): a file of key=value lines (max_ctx, off) re-read every 64 steps, so one load can A/B.
+# B70_COMBO_CTL (tests only): a file of key=value lines (max_ctx, off, mtp_tiers, copy_tiers) re-read every 8 steps,
+# so one load can A/B.
 CTL = _E("B70_COMBO_CTL")
 _ctl = {}
+
+
+def _tiers(spec, default_k):
+    """"0:5,48000:3" -> [(0, 5), (48000, 3)] sorted; empty/None -> [(0, default_k)]."""
+    out = []
+    for part in (spec or "").split(","):
+        if ":" in part:
+            c, k = part.split(":", 1)
+            out.append((int(c), int(k)))
+    return sorted(out) or [(0, default_k)]
+
+
+def _pick(tiers, T):
+    k = tiers[0][1]
+    for c, kk in tiers:
+        if T >= c:
+            k = kk
+    return k
+
+
+MTP_TIERS = _tiers(_E("B70_COMBO_MTP_TIERS"), K_MTP)
+COPY_TIERS = None  # resolved on first use (needs the configured K)
+COPY_MIN_K = int(_E("B70_COMBO_COPY_MIN_K", "0"))  # 0 = the configured num_speculative_tokens
 
 _state: dict[str, list] = {}  # req_id -> [buf, n_tokens_in_buf, bad_steps, cooldown, src_ptr, T_at_last_check]
 _calls = 0
@@ -89,8 +118,12 @@ def choose_k(sched, num_scheduled_tokens: dict, default_k: int) -> int:
     if _calls % 512 == 0:
         for rid in [r for r in _state if r not in sched.requests]:
             del _state[rid]
-    global MAX_CTX
-    if CTL and _calls % 64 == 1:
+    global MAX_CTX, MTP_TIERS, COPY_TIERS, COPY_MIN_K
+    k_max = sched.num_spec_tokens
+    if COPY_TIERS is None:
+        COPY_TIERS = _tiers(_E("B70_COMBO_COPY_TIERS"), k_max)
+        COPY_MIN_K = COPY_MIN_K or k_max
+    if CTL and _calls % 8 == 1:
         try:
             new = dict(l.strip().split("=", 1) for l in open(CTL) if "=" in l)
         except OSError:
@@ -98,19 +131,22 @@ def choose_k(sched, num_scheduled_tokens: dict, default_k: int) -> int:
         if new != _ctl:
             _ctl.clear(); _ctl.update(new)
             MAX_CTX = int(_ctl.get("max_ctx", _E("B70_COMBO_MAX_CTX", "32768")))
-            print(f"[B70 combo] ctl {_ctl} -> max_ctx {MAX_CTX}", flush=True)
-    k_copy = sched.num_spec_tokens
-    k = k_copy
-    if _ctl.get("off") == "1" or len(num_scheduled_tokens) > MAX_BS:
-        k = K_MTP
-    else:
-        for req_id in num_scheduled_tokens:
-            req = sched.requests.get(req_id)
-            # every row must be a decode with output so far, and every row must be copying
-            if req is None or req.is_prefill_chunk or req.num_output_tokens == 0 or not _copying(req):
-                k = K_MTP
-                break
-    if k != K_MTP:
+            MTP_TIERS = _tiers(_ctl.get("mtp_tiers", _E("B70_COMBO_MTP_TIERS")), K_MTP)
+            COPY_TIERS = _tiers(_ctl.get("copy_tiers", _E("B70_COMBO_COPY_TIERS")), k_max)
+            print(f"[B70 combo] ctl {_ctl} -> max_ctx {MAX_CTX} mtp {MTP_TIERS} copy {COPY_TIERS}", flush=True)
+    T = 0
+    copying = _ctl.get("off") != "1" and len(num_scheduled_tokens) <= MAX_BS
+    for req_id in num_scheduled_tokens:
+        req = sched.requests.get(req_id)
+        if req is None:
+            copying = False
+            continue
+        T = max(T, len(req._all_token_ids))
+        # every row must be a decode with output so far, and every row must be copying
+        if copying and (req.is_prefill_chunk or req.num_output_tokens == 0 or not _copying(req)):
+            copying = False
+    k = _pick(COPY_TIERS, T) if copying else _pick(MTP_TIERS, T)
+    if copying:
         _stats["copy_steps"] += 1
     else:
         _stats["mtp_steps"] += 1
@@ -121,7 +157,7 @@ def choose_k(sched, num_scheduled_tokens: dict, default_k: int) -> int:
 
 def observe(request, num_draft_tokens: int, num_accepted: int, k_copy: int) -> None:
     """Per-request verify result (scheduler.update_from_output): back off after weak copy steps."""
-    if num_draft_tokens != k_copy:
+    if num_draft_tokens < (COPY_MIN_K or k_copy):
         return
     s = _st(request.request_id)
     if num_accepted + 1 < MIN_YIELD:

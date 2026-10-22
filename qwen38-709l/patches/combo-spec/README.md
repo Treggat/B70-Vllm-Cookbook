@@ -8,7 +8,8 @@ step:
 
 - **Scheduler** (`combo/b70_combo_policy.py`, installed as `vllm/v1/core/sched/b70_combo_policy.py`): each step it
   picks the draft count for the whole batch, the way Dynamic SD does.
-  - K = 15 only when every scheduled request is a decode that is *copying* and under 32k tokens.
+  - K = 15 only when every scheduled request is a decode that is *copying* and under `B70_COMBO_MAX_CTX` tokens
+    (the live seat sets it to the whole 262k window: an agent's system prompt alone can be 40k).
   - A request counts as copying when its last 4 tokens match earlier in the request, at least 10 tokens remain after
     the match, and the tokens generated since the last check equal the source tokens that follow the match. That
     last test is an exact compare, which makes repeated 4-grams in code harmless.
@@ -35,8 +36,11 @@ step:
   `spec_packed.py` packs any uniform q_len, but only 2, 3 and 6 have been checked on the b70 `.so`. Other q_len values go
   to the stock path, so copy steps (q_len 16) verify unpacked and MTP steps (q_len 6) stay packed.
   - Worth applying even without the combined speculator.
-  - The kernel's row mask itself looks right for any q_len: it derives the group from the packed tensor. Q_len 16 packed
-    is simply unmeasured.
+  - The kernel's row mask is right for any q_len (it derives the group from the packed tensor). `tests/pk16.py` checks
+    q_len 11 and 16 against the stock path at 2k-115k context: identical output, 1.2-1.3x faster at depth. The live
+    seat packs 2,3,6,16.
+- `patch_combo_capture_032.py` (`B70_COMBO_CAPTURE_KS`, optional): Dynamic SD captures graphs for at most one K per
+  batch size (4 with `max_num_seqs` 4). This adds more K values to the capture set, for the depth-tier experiments.
 - `patch_combo_spec_032.py` installs both modules, hooks `scheduler.py` (`choose_k` after Dynamic SD, `observe` after
   each verify) and `spec_decode/__init__.py`, and keeps `all_token_ids` dense on the GPU in `model_runner.py`.
   Otherwise the scan would read UVA host memory over PCIe every copy step.
@@ -48,17 +52,25 @@ Every hook is a no-op with its switch unset. Apply them after `scripts/apply_sta
 ## Serving
 
 ```sh
-export B70_SPEC_PACKED=1 B70_SPEC_PACKED_QLENS=2,3,6 B70_GDN_VARLEN_SPEC=6,16 B70_COMBO_SPEC=1
-SPEC='{"method":"mtp","num_speculative_tokens":15,"num_speculative_tokens_per_batch_size":[[1,1,15],[2,4,5]]}'
+export B70_SPEC_PACKED=1 B70_SPEC_PACKED_QLENS=2,3,6,16 B70_GDN_VARLEN_SPEC=6,16 B70_COMBO_SPEC=1
+export B70_COMBO_MAX_CTX=262144 B70_COMBO_SCAN_CTX=262144
+SPEC='{"method":"mtp","num_speculative_tokens":15,"num_speculative_tokens_per_batch_size":[[1,1,15],[2,4,5]],"rejection_sample_method":"block"}'
 ```
 
 The Dynamic SD schedule is there only so that vLLM captures graphs for q_len 6 and 16 (target, MTP prefill and MTP
 decode). The policy overrides its choice. KV drops about 10% (416,591 → 375,067 tokens in our 14.5 GiB pool): the GDN
-layers keep a state slot per draft position. Other knobs (env, defaults): `B70_COMBO_MAX_CTX` 32768,
+layers keep a state slot per draft position. `B70_COMBO_SCAN_CTX` must cover every context you copy from: the worker's
+n-gram scan stops there (default 65536), so at 94k with the default it found no source and paid 16-token verifies for
+MTP-sized gains. `rejection_sample_method: "block"` (vLLM's block verification) keeps greedy output exact; on sampled
+prose it was neutral to slightly positive. Other knobs (env, defaults): `B70_COMBO_MAX_CTX` 32768,
 `B70_COMBO_SCHED_N` 4, `B70_COMBO_MIN_AVAIL` 10, `B70_COMBO_MIN_YIELD` 6, `B70_COMBO_COOLDOWN` 16, `B70_COMBO_MAX_BS` 4,
 `B70_COMBO_MTP_IN_COPY` 0 (1 = full MTP-5 on copy steps, so a request that falls back gets 5 real MTP drafts instead
 of 1; no measurable difference on edits under the offset policy, 207 vs 205),
-`B70_COMBO_AGREE` 1, `B70_COMBO_USE_MIN_N` 3.
+`B70_COMBO_AGREE` 1, `B70_COMBO_USE_MIN_N` 3. Depth-tier knobs (inert unless set): `B70_COMBO_MTP_TIERS` and
+`B70_COMBO_COPY_TIERS` (`"ctx:K,ctx:K"`, the K for the longest scheduled request), `B70_COMBO_COPY_MIN_K` (a step with
+K at or above this is a copy step; default the configured K), `B70_COMBO_CTL` (tests only: a key=value file re-read every
+8 steps, so one load can A/B `max_ctx`, `off`, `mtp_tiers`, `copy_tiers`). Measured: neither MTP nor copy tiers pay off
+on this seat ([docs/RESULTS.md](../../docs/RESULTS.md)), so the live seat sets none of them.
 
 ## Tests
 
@@ -67,5 +79,7 @@ of 1; no measurable difference on edits under the offset policy, 207 vs 205),
   anything above the context cap.
 - `tests/test_kernels.py`: the scan + finalize kernels against a Python reference. It runs under `TRITON_INTERPRET=1`
   on CPU tensors, no card needed: 145 rows, 41 through the copy path, 0 mismatches.
-- On the card: `bench/editbench.py` (6/6 exact), `bench/crossing.py`, `bench/maxlen.py` at 262k, short code, depth and
+- `tests/pk16.py`: packed vs stock verify at q_len 6/11/16 on the card (no server).
+- On the card: `bench/editbench.py` (6/6 exact), `bench/tierbench.py` (decode and copy-edit at depth with per-run spec
+  counters), `bench/snap.py` (spec counters around agent turns), `bench/crossing.py`, `bench/maxlen.py` at 262k, short code, depth and
   4 writers. The numbers are in [docs/RESULTS.md](../../docs/RESULTS.md).

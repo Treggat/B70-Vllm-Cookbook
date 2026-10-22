@@ -1,0 +1,3 @@
+{"mode": "deep", "tag": "cutall", "prompt": 23239, "out": 500, "tps": 82.8, "tok_step": 3.29, "drafts_step": 5.2, "ms_step": 39.7}
+{"mode": "deep", "tag": "cutall", "prompt": 61314, "out": 500, "tps": 77.9, "tok_step": 3.54, "drafts_step": 5.0, "ms_step": 45.4}
+{"mode": "deep", "tag": "cutall", "prompt": 120355, "out": 500, "tps": 65.5, "tok_step": 3.6, "drafts_step": 5.0, "ms_step": 54.8}

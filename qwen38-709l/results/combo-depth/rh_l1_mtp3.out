@@ -1,0 +1,3 @@
+== rhbench l1-mtp3
+4 writers: {'each': [58.6, 79.8, 44.6, 81.6], 'summed': 264.6, 'gen_over_wall': 206.3, 'wall': 13.9, 'canary': [None, None, None, None], 'mtp': {'per_token': 0.547, 'tok_per_step': 2.64, 'preempt': 0.0}}
+== done

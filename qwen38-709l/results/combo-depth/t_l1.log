@@ -1,0 +1,40 @@
+[09:13:52 PM] T1 edit bench, defaults (cutoff 32k, MTP-5, copy 15)
+l1base EDIT avg: greedy 236.8 t/s, sampled 233.3 t/s, all 235.1 t/s; exact 6/6
+[09:15:15 PM] ctl: off=1 mtp_tiers=0:5 
+mtp5 deep  23239 tok:   84.8 t/s,  3.36 tok/step,  5.00 drafts/step,  39.5 ms/step
+mtp5 deep  61314 tok:   77.8 t/s,  3.54 tok/step,  5.00 drafts/step,  45.5 ms/step
+mtp5 deep 120355 tok:   67.4 t/s,  3.71 tok/step,  5.00 drafts/step,  54.8 ms/step
+4 writers: {'each': [52.7, 81.6, 41.2, 87.7], 'summed': 263.3
+'tok_per_step': 2.85
+[09:18:01 PM] ctl: off=1 mtp_tiers=0:4 
+mtp4 deep  23239 tok:   79.0 t/s,  3.06 tok/step,  4.00 drafts/step,  38.7 ms/step
+mtp4 deep  61314 tok:   74.0 t/s,  3.33 tok/step,  4.00 drafts/step,  44.6 ms/step
+mtp4 deep 120355 tok:   63.7 t/s,  3.42 tok/step,  4.00 drafts/step,  53.6 ms/step
+4 writers: {'each': [51.5, 81.9, 43.0, 77.7], 'summed': 254.1
+'tok_per_step': 2.73
+[09:19:03 PM] ctl: off=1 mtp_tiers=0:3 
+mtp3 deep  23239 tok:   77.6 t/s,  2.82 tok/step,  3.00 drafts/step,  36.3 ms/step
+mtp3 deep  61314 tok:   72.9 t/s,  3.01 tok/step,  3.00 drafts/step,  41.2 ms/step
+mtp3 deep 120355 tok:   64.2 t/s,  3.12 tok/step,  3.00 drafts/step,  48.6 ms/step
+4 writers: {'each': [58.6, 79.8, 44.6, 81.6], 'summed': 264.6
+'tok_per_step': 2.64
+[09:20:02 PM] ctl: off=1 mtp_tiers=0:2 
+mtp2 deep  23239 tok:   74.5 t/s,  2.48 tok/step,  2.00 drafts/step,  33.1 ms/step
+mtp2 deep  61314 tok:   70.5 t/s,  2.57 tok/step,  2.00 drafts/step,  36.5 ms/step
+mtp2 deep 120355 tok:   61.3 t/s,  2.57 tok/step,  2.00 drafts/step,  41.7 ms/step
+4 writers: {'each': [54.7, 72.9, 51.6, 74.2], 'summed': 253.3
+'tok_per_step': 2.25
+[09:21:06 PM] ctl: max_ctx=262144 copy_tiers=0:15 
+copy15 edit  47001 tok:  204.4 t/s, 11.39 tok/step, 12.75 drafts/step,  55.7 ms/step, exact=True
+copy15 edit  93977 tok:   89.0 t/s,  4.98 tok/step,  6.83 drafts/step,  55.9 ms/step, exact=True
+[09:22:55 PM] ctl: max_ctx=262144 copy_tiers=0:10 
+copy10 edit  47001 tok:  168.3 t/s,  8.25 tok/step,  8.47 drafts/step,  49.0 ms/step, exact=True
+copy10 edit  93977 tok:   92.9 t/s,  4.97 tok/step,  5.91 drafts/step,  53.5 ms/step, exact=True
+[09:23:58 PM] ctl: off=1 
+copyoff edit  47001 tok:  130.2 t/s,  5.66 tok/step,  5.00 drafts/step,  43.5 ms/step, exact=True
+copyoff edit  93977 tok:  110.7 t/s,  5.63 tok/step,  5.00 drafts/step,  50.9 ms/step, exact=True
+[09:25:01 PM] ctl: max_ctx=262144 
+cutall deep  23239 tok:   82.8 t/s,  3.29 tok/step,  5.20 drafts/step,  39.7 ms/step
+cutall deep  61314 tok:   77.9 t/s,  3.54 tok/step,  5.00 drafts/step,  45.4 ms/step
+cutall deep 120355 tok:   65.5 t/s,  3.60 tok/step,  5.00 drafts/step,  54.8 ms/step
+[09:25:44 PM] T_L1_DONE

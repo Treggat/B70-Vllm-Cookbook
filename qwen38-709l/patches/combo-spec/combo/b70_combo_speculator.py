@@ -129,6 +129,8 @@ class B70ComboSpeculator(MTPSpeculator):
         self.use_min_n = int(_E("B70_COMBO_USE_MIN_N", "3"))
         self.worker_min_avail = int(_E("B70_COMBO_WORKER_MIN_AVAIL", "4"))
         self.agree = _E("B70_COMBO_AGREE", "1") == "1"
+        # A step is a copy step when the scheduler's K >= this (default: the configured K); smaller K = plain MTP-K.
+        self.copy_min_k = int(_E("B70_COMBO_COPY_MIN_K", "0")) or self.num_speculative_steps
         self.debug = _E("B70_COMBO_DEBUG_WORKER") == "1"  # host sync per copy step: diagnosis only
         assert 1 <= self.ng_min <= self.use_min_n <= self.ng_max
         assert 1 <= self.k_mtp < self.num_speculative_steps, (
@@ -153,10 +155,10 @@ class B70ComboSpeculator(MTPSpeculator):
         self._dbg_rows = 0
         logger.info(
             "B70 combo speculator: copy K=%d / MTP K=%d, ngram %d-%d (use >= %d, avail >= %d), "
-            "agree=%s, mtp_in_copy=%s, scan %d blocks",
+            "agree=%s, mtp_in_copy=%s, scan %d blocks, copy when K >= %d",
             self.num_speculative_steps, self.k_mtp, self.ng_min, self.ng_max,
             self.use_min_n, self.worker_min_avail, self.agree, self.mtp_in_copy,
-            self.n_blocks,
+            self.n_blocks, self.copy_min_k,
         )
 
     @torch.inference_mode()
@@ -181,7 +183,7 @@ class B70ComboSpeculator(MTPSpeculator):
         num_speculative_tokens: int | None = None,
     ) -> torch.Tensor:
         k = self.num_speculative_steps if num_speculative_tokens is None else num_speculative_tokens
-        copy_step = k == self.num_speculative_steps and not dummy_run and not is_profile
+        copy_step = k >= self.copy_min_k and not dummy_run and not is_profile
         mtp = super().propose(
             input_batch,
             attn_metadata,

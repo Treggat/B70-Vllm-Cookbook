@@ -1,0 +1,21 @@
+[09:39:04 PM] ctl max_ctx=262144
+l2 EDIT avg: greedy 237.3 t/s, sampled 234.2 t/s, all 235.8 t/s; exact 6/6
+exact lines: 6
+crossing clean (of 3): 3
+l2copy15 edit  47001 tok:  216.6 t/s, 11.39 tok/step, 12.75 drafts/step,  52.6 ms/step, exact=True
+l2copy15 edit  93977 tok:  171.0 t/s, 11.21 tok/step, 12.34 drafts/step,  65.6 ms/step, exact=True
+l2cutall deep  23239 tok:   94.5 t/s,  3.78 tok/step,  5.68 drafts/step,  40.0 ms/step
+l2cutall deep  61314 tok:   78.4 t/s,  3.56 tok/step,  5.00 drafts/step,  45.4 ms/step
+l2cutall deep 120355 tok:   67.4 t/s,  3.70 tok/step,  5.00 drafts/step,  54.8 ms/step
+short code: {'tps': [119.4, 133.6, 137.2], 'avg': 130.0, 'canary': [None, None, None], 'mtp': {'per_token': 0.658, 'tok_
+4 writers: {'each': [48.7, 87.2, 45.4, 82.6], 'summed': 263.8, 'gen_over_wall': 179.3, 'wall': 17.8, 'canary': [None, No
+'tok_per_step': 4.62
+'tok_per_step': 2.82
+avg of 9: 131.1 t/s
+[09:47:19 PM] max-len 262k
+ "total": 262144,
+ "finish": "length",
+ "bang_runs": 0,
+ "replacement": 0,
+ "pass": true
+[09:54:01 PM] T_L2_DONE
