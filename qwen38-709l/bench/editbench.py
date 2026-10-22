@@ -3,17 +3,18 @@
 # E2 = gguf-py/gguf/utility.py (~3.5k tok): add a `timeout` parameter to SafetensorRemote.get_data_by_range.
 # E3 = scripts/server-bench.py (~3.5k tok) with one injected bug: fix it.
 # Each task twice: run g = greedy (temperature 0), run s = server-default sampling. Correctness = the returned code block
-# vs the expected file (exact match, difflib ratio). Files from G:\AI\Projects\llama.cpp-b70-patches (14964cee3).
+# vs the expected file (exact match, difflib ratio). The source files come from a llama.cpp checkout at 14964cee3,
+# given as $LLAMACPP_TREE.
 import difflib, json, os, re, sys, time, urllib.request
 URL = os.environ["BASE_URL"].rstrip("/") + "/chat/completions"
 MODEL = os.environ.get("MODEL", "LLM:Fable-709L")
 HDRS = {"Content-Type": "application/json", "Authorization": "Bearer " + os.environ["API_KEY"]}
-L = os.environ.get("LLAMACPP_TREE", r"G:\AI\Projects\llama.cpp-b70-patches")  # a llama.cpp checkout at 14964cee3
-rd = lambda p: open(os.path.join(L, p), encoding="utf-8").read()
+L = os.environ["LLAMACPP_TREE"]  # a llama.cpp checkout at 14964cee3
+rd = lambda p: open(os.path.join(L, *p.split("/")), encoding="utf-8").read()
 
-f1 = rd(r"tools\server\tests\unit\test_stream.py")
-f2 = rd(r"gguf-py\gguf\utility.py")
-f3 = rd(r"scripts\server-bench.py")
+f1 = rd("tools/server/tests/unit/test_stream.py")
+f2 = rd("gguf-py/gguf/utility.py")
+f3 = rd("scripts/server-bench.py")
 TAIL = " Return the COMPLETE updated file in one code block and nothing else."
 A2 = "    def get_data_by_range(cls, url: str, start: int, size: int = -1) -> bytes:"
 B2 = "        response = requests.get(url, allow_redirects=True, headers=headers)\n        response.raise_for_status()\n\n        # Get raw byte data"

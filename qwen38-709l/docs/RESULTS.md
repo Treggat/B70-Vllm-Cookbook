@@ -212,7 +212,7 @@ match exactly.
 |---|---|---|---|---|---|---|
 | prod MTP-5 (packed verify) | 155 (6/6) | 131.7 | 84.2 / 82.1 / 66.5 | 132.2 / 272.3 | 3/3 | pass |
 | n-gram K=15 alone (2026-10-21 probe) | 267 (6/6) | 33.1 | 22.7 / 20.5 / 15.8 | 43.0 / 70.2 | 3/3 | – |
-| combined, first policy (match only) | 227 (6/6) | 124.2 | 77.4 / 84.1 / 65.1 | 124.6 / 271.3 | 3/3 | pass |
+| combined, first policy (match only; debug host sync on) | 227 (6/6) | 124.2 | 77.4 / 84.1 / 65.1 | 124.6 / 271.3 | 3/3 | pass |
 | combined, policy checks the match offset holds | 205 (6/6) | 130.5 | 76.2 / 84.0 / 64.1 | 132.5 / 279.0 | 3/3 | pass |
 | **combined, policy checks the source continues (live)** | **233 (6/6)** | **131.5** | 78.8 / 84.1 / 65.1 | 128.3 / 265.4 | 3/3 | pass |
 | live seat after promotion | **235 (6/6)**; E1 185, E2 242, E3 279 | 131.0 | – | 128.4 + 129.7 / 272.4 + 266.7 | 3/3 | – |
@@ -232,5 +232,7 @@ Reading:
 - **Depth:** above 32k the policy never copies (a 16-row verify at 115k costs ~80 ms), and 58k/115k match prod.
 - **4 writers:** nearly identical to prod. Four requests rarely all copy at once, and the batch only copies when they
   all do.
-- Full MTP-5 on copy steps instead of only its first pass (`B70_COMBO_MTP_IN_COPY=1`) makes copy steps ~7 ms dearer:
-  edits 207 vs 227 on the same policy.
+- **Full MTP-5 on copy steps** (`B70_COMBO_MTP_IN_COPY=1`) instead of only its first pass: no measurable difference
+  on edits under the same (offset) policy, 207 with it vs 205 without. We kept first-pass-only; it has not been
+  measured on the live policy. (The first-policy row cannot be compared with it: that run also had a debug host sync
+  per copy step left on.)

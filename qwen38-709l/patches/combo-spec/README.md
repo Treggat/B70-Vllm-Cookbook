@@ -21,7 +21,9 @@ step:
   - Then it runs the n-gram Triton scan from vLLM's `NgramGPUSpeculator`. A request uses the 15 copied drafts when the
     match is at least 3 tokens long and the first copied token equals MTP's first draft. Otherwise it gets MTP's
     draft padded to 15.
-  - Drafts are greedy (one-hot) on both paths, so mixing them in one verify is lossless.
+  - Drafts are greedy (one-hot) on both paths, so mixing them in one verify is lossless. This relies on vLLM's
+    default `draft_sample_method: "greedy"`. With `"probabilistic"` the rejection sampler would check the copied tokens
+    against MTP's cached draft logits, so do not combine the two.
 - **GDN** (`patch_gdn_varlen_spec_032.py`, `B70_GDN_VARLEN_SPEC=6,16`): the metadata builder assumes every spec decode
   has `num_speculative_tokens + 1` tokens.
   - With K max 15, a 6-token MTP step looked like a truncated final group, so the boundary patch sent it to the stateful
@@ -54,7 +56,8 @@ The Dynamic SD schedule is there only so that vLLM captures graphs for q_len 6 a
 decode). The policy overrides its choice. KV drops about 10% (416,591 → 375,067 tokens in our 14.5 GiB pool): the GDN
 layers keep a state slot per draft position. Other knobs (env, defaults): `B70_COMBO_MAX_CTX` 32768,
 `B70_COMBO_SCHED_N` 4, `B70_COMBO_MIN_AVAIL` 10, `B70_COMBO_MIN_YIELD` 6, `B70_COMBO_COOLDOWN` 16, `B70_COMBO_MAX_BS` 4,
-`B70_COMBO_MTP_IN_COPY` 0 (1 = full MTP-5 on copy steps: safer fallback, about 10% slower on edits),
+`B70_COMBO_MTP_IN_COPY` 0 (1 = full MTP-5 on copy steps, so a request that falls back gets 5 real MTP drafts instead
+of 1; no measurable difference on edits under the offset policy, 207 vs 205),
 `B70_COMBO_AGREE` 1, `B70_COMBO_USE_MIN_N` 3.
 
 ## Tests
