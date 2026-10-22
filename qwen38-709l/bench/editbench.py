@@ -1,4 +1,4 @@
-# editbench.py <tag>: whole-file EDIT/REWRITE decode t/s through $BASE_URL (hearth), thinking off.
+# editbench.py <tag>: whole-file EDIT/REWRITE decode t/s through $BASE_URL (endpoint settings as in common.py), thinking off.
 # E1 = Vcvzgbzz eval/bench.py's edit prompt (dd083d5): llama.cpp tools/server/tests/unit/test_stream.py, rename `server` -> `srv`.
 # E2 = gguf-py/gguf/utility.py (~3.5k tok): add a `timeout` parameter to SafetensorRemote.get_data_by_range.
 # E3 = scripts/server-bench.py (~3.5k tok) with one injected bug: fix it.
@@ -6,9 +6,8 @@
 # vs the expected file (exact match, difflib ratio). The source files come from a llama.cpp checkout at 14964cee3,
 # given as $LLAMACPP_TREE.
 import difflib, json, os, re, sys, time, urllib.request
-URL = os.environ["BASE_URL"].rstrip("/") + "/chat/completions"
-MODEL = os.environ.get("MODEL", "LLM:Fable-709L")
-HDRS = {"Content-Type": "application/json", "Authorization": "Bearer " + os.environ["API_KEY"]}
+from common import BASE, MODEL, HDR as HDRS
+URL = BASE + "/chat/completions"
 L = os.environ["LLAMACPP_TREE"]  # a llama.cpp checkout at 14964cee3
 rd = lambda p: open(os.path.join(L, *p.split("/")), encoding="utf-8").read()
 

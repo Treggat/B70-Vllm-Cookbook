@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+# local config: ship the *.example files instead
+serve/prod.env
+serve/prod.extra
+serve/test.env
+serve/test.extra
+serve/use-test
+serve/draft_vocab_*.json
+# bench output (keep what a doc cites under results/)
+bench/bench_*.json
+bench/stress4_*.json
+bench/starve_*.json
+bench/kvoff_probe.json
+bench/maxlen.json
+bench/snap_*.json
+edit_*.json
+edit_*.txt
+tier_*.jsonl

@@ -4,21 +4,21 @@
 #                                                          filler, exact-match check: copy at depth
 # Each depth: one fill call (warms the prefix cache), then the measured call between two /metrics snapshots.
 # Prints t/s, tokens per verify step, drafts per step and ms per step; appends JSON lines to tier_<tag>.jsonl.
+# Endpoint settings as in common.py (BASE_URL, MODEL, API_KEY, METRICS_URL); LLAMACPP_TREE = a llama.cpp checkout at
+# 14964cee3 (the E3 source file, as in editbench.py).
 import glob, json, os, re, sys, sysconfig, time, urllib.request
-URL = os.environ["BASE_URL"].rstrip("/") + "/chat/completions"
-MODEL = os.environ.get("MODEL", "LLM:Fable-709L")
-HDRS = {"Content-Type": "application/json", "Authorization": "Bearer " + os.environ["API_KEY"]}
-MET = "http://192.168.1.218:8080/upstream/VLLM-Qwen3.8-Fable-709L/metrics"
+from common import BASE, MODEL, HDR as HDRS, METRICS as MET
+URL = BASE + "/chat/completions"
 KEYS = {"drafts": "vllm:spec_decode_num_drafts_total", "dtok": "vllm:spec_decode_num_draft_tokens_total",
         "acc": "vllm:spec_decode_num_accepted_tokens_total"}
-L = os.environ.get("LLAMACPP_TREE", r"G:\AI\Projects\llama.cpp-b70-patches")
+L = os.environ["LLAMACPP_TREE"]
 
 src = ""
 for f in sorted(glob.glob(os.path.join(sysconfig.get_paths()["stdlib"], "**/*.py"), recursive=True)):
     src += open(f, errors="ignore").read()
     if len(src) > 2_000_000:
         break
-f3 = open(os.path.join(L, r"scripts\server-bench.py"), encoding="utf-8").read()
+f3 = open(os.path.join(L, "scripts", "server-bench.py"), encoding="utf-8").read()
 GOOD3 = "        ret.append(random.randint(prompt_length_min, prompt_length_max))"
 BAD3 = "        ret.append(random.randint(prompt_length_min, prompt_length_min))"
 E3 = ("Here is a Python script:\n\n```python\n" + f3.replace(GOOD3, BAD3) + "\n```\n\nThere is a bug: "

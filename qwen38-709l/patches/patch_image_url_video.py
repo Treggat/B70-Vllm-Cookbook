@@ -1,4 +1,4 @@
-"""vLLM 0.30-0.32: accept a video sent the llama.cpp way. llama.cpp-style clients (DSH among them) put a clip on the
+"""vLLM 0.30-0.32: accept a video sent the llama.cpp way. llama.cpp-style clients (our agent harness among them) put a clip on the
 wire as an `image_url` part whose URL is `data:video/mp4;base64,...`; vLLM opens that as an image and answers
 400 "cannot identify image file". Route such URLs to vLLM's own video parser. Idempotent; aborts if the anchor moved.
 0.32 moved chat_utils.py from vllm/entrypoints/ to vllm/renderers/ (anchor text unchanged); both paths are tried.

@@ -1,8 +1,11 @@
-# snap.py save NAME   -> store current 709L seat counters as NAME
-# snap.py diff A B    -> per-turn numbers between two snapshots
+# snap.py save NAME   -> store the server's spec-decode counters as NAME
+# snap.py diff A B    -> per-turn numbers between two snapshots (e.g. before and after one agent turn)
+# Reads METRICS_URL (see common.py). Behind llama-swap, set RUNNING_URL (its /running) and SEAT (the model name):
+# scraping /upstream/<model>/metrics for a model that isn't loaded loads it, so snap.py refuses unless SEAT is ready.
 import json, re, sys, urllib.request, os
+from common import METRICS as URL
 D = os.path.dirname(os.path.abspath(__file__))
-URL = "http://192.168.1.218:8080/upstream/VLLM-Qwen3.8-Fable-709L/metrics"
+RUNNING, SEAT = os.environ.get("RUNNING_URL"), os.environ.get("SEAT")
 KEYS = {
     "gen": "vllm:generation_tokens_total",
     "prompt": "vllm:prompt_tokens_total",
@@ -16,9 +19,9 @@ KEYS = {
 
 
 def scrape():
-    # only safe while this seat is already loaded (llama-swap would load it otherwise)
-    run = json.load(urllib.request.urlopen("http://192.168.1.218:8080/running", timeout=10))
-    assert any(r["model"] == "VLLM-Qwen3.8-Fable-709L" and r["state"] == "ready" for r in run["running"]), run
+    if RUNNING:
+        run = json.load(urllib.request.urlopen(RUNNING, timeout=10))
+        assert any(r["model"] == SEAT and r["state"] == "ready" for r in run["running"]), run
     txt = urllib.request.urlopen(URL, timeout=10).read().decode()
     out = {}
     for k, name in KEYS.items():

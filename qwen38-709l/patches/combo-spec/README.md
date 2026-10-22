@@ -45,9 +45,11 @@ step:
   each verify) and `spec_decode/__init__.py`, and keeps `all_token_ids` dense on the GPU in `model_runner.py`.
   Otherwise the scan would read UVA host memory over PCIe every copy step.
 
-All three scripts take `VLLM_ROOT` (the `vllm/` package dir) or a path argument; the guard takes `VLLM032_ROOT` (the
-dir holding `rh-runtime/`). They are idempotent and fail-closed, leave a `.bak`, and `py_compile` what they touch.
-Every hook is a no-op with its switch unset. Apply them after `scripts/apply_stack.sh`, which does not apply them.
+The patch scripts take `VLLM_ROOT` (the `vllm/` package dir, `<venv dir>/src/vllm`) or a path argument; the guard
+takes `VLLM032_ROOT` (the venv dir, which holds `rh-runtime/`). They are idempotent and fail-closed, leave a `.bak`,
+and `py_compile` what they touch. Every hook is a no-op with its switch unset. Apply them after
+`scripts/apply_stack.sh`, which does not apply them; the commands are in the [recipe's quick start](../../README.md#quick-start)
+(`patch_combo_capture_032.py` is only for the depth-tier experiments).
 
 ## Serving
 
