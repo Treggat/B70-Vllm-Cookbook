@@ -1,0 +1,133 @@
+{
+ "tag": "dflash2s2-packed",
+ "when": "2026-10-21 10:22 AM",
+ "short_code": {
+  "tps": [
+   80.3,
+   81.5,
+   71.3
+  ],
+  "avg": 77.7,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.251,
+   "tok_per_step": 2.76,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   36.3,
+   51.7,
+   27.4,
+   51.9
+  ],
+  "summed": 167.2,
+  "gen_over_wall": 123.6,
+  "wall": 22.7,
+  "canary": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "texts": [
+   "The development of the printing press stands as one of the most transformative technological breakthroughs in human history, fundamentally altering the way knowledge was produced, distributed, and consumed across the medieval and early modern world. Before the advent of mechanical printing, books and other written materials were reproduced almost entirely by hand, a laborious process that made them rare and expensive commodities accessible only to the wealthy, the clergy, and a narrow segment of the educated elite. Scribes in monasteries and scriptoria spent weeks or even months copying individual manuscripts, and errors inevitably crept in during the transcription process, leading to variations among copies of the same text. This manual method severely constrained the spread of ideas and limited literacy to those who could afford private education or who lived in monastic communities. The printing press, as developed and perfected in the fifteenth century, solved these problems by introducing a system of movable type and mechanical pressure that allowed for the rapid and relatively inexpensive production of multiple identical copies of a text.\n\nWhile various civilizations had experimented with printing technologies long before Europe, it was in Germany that the full potential of mechanical book printing was realized. In China, woodblock printing had been in use since at least the Tang Dynasty, with single sheets printed for religious purposes, calendars, and other ephemeral materials. The Chinese also invented movable type made of ceramic, though this technology did not spread widely due to the complexity of the Chinese writing system, which requires thousands of distinct characters. In Korea, during the Goryeo and Joseon dynasties, printers developed sophisticated metal movable type, and the Jikji, printed around 1377, is recognized as one of the oldest known books produced with metal movable type. In the Islamic world, various printing experiments took place, but cultural and religious preferences for hand-written manuscripts, combined with guild restrictions, prevented the widespread adoption of printing. These earlier innovations, however, established crucial precedents that would eventually inform European developments.\n\nThe pivotal breakthrough in Europe is traditionally attributed to Johannes Gutenberg, who, working in Mainz, Germany, during the 1440s and 1450s, developed a complete system of printing that combined several key innovations. Gutenberg's genius lay not in inventing any single component but in integrating them into a practical, economically viable system. He developed a durable type metal alloy, typically composed of lead, tin, and antimony, which was hard enough to withstand the pressure of printing but soft enough to be cast. This alloy had excellent casting properties and produced sharp, clear impressions. Gutenberg also created a type matrix and two-mold hand mold that allowed for the rapid production of standardized type characters, a critical advancement over earlier methods. His printing press adapted existing wine-press and paper-making press technology, applying even pressure across the entire page to ensure uniform ink transfer. Perhaps most importantly, he formulated an oil-based ink that adhered properly to metal type, unlike the water-based inks that had been used with woodblock printing. The first major book produced by Gutenberg's press was the Bible, now known as the Gutenberg Bible or the Forty-Two-Line Bible, completed around 1455. Approximately 180 copies were produced, about half on paper and the remainder on vellum.\n\nThe impact of Gutenberg's invention on European society was profound and far-reaching. Within fifty years of the Gutenberg Bible's completion, printing presses had spread throughout Europe, and an estimated twenty million volumes had been produced. This was a staggering increase compared to the manuscript production of previous centuries. The cost of books dropped dramatically, making printed materials accessible to a much broader segment of the population. The standardization of texts through printing helped to stabilize and spread vernacular languages, as books printed in German, French, English, and other local languages became widely available. This contributed to the development of national literatures and identities. The printing press also played a crucial role in the Renaissance by making classical texts more widely",
+   "```python\nimport threading\nimport time\n\n\nclass TokenBucketRateLimiter:\n    \"\"\"Thread-safe token-bucket rate limiter.\"\"\"\n\n    def __init__(self, rate: float, capacity: float, initial_tokens: float = None):\n        \"\"\"\n        Args:\n            rate: Tokens added per second.\n            capacity: Maximum tokens in the bucket.\n            initial_tokens: Starting tokens (defaults to capacity).\n        \"\"\"\n        if rate <= 0:\n            raise ValueError(\"rate must be positive\")\n        if capacity <= 0:\n            raise ValueError(\"capacity must be positive\")\n\n        self._rate = rate\n        self._capacity = capacity\n        self._tokens = capacity if initial_tokens is None else initial_tokens\n        if not (0 <= self._tokens <= capacity):\n            raise ValueError(\"initial_tokens must be in [0, capacity]\")\n        self._last_fill_time = time.monotonic()\n        self._lock = threading.Lock()\n\n    def _refill(self, now: float):\n        \"\"\"Add tokens based on elapsed time.\"\"\"\n        elapsed = now - self._last_fill_time\n        if elapsed > 0:\n            tokens_to_add = elapsed * self._rate\n            self._tokens = min(self._capacity, self._tokens + tokens_to_add)\n            self._last_fill_time = now\n\n    def acquire(self, tokens: float = 1.0, blocking: bool = True, timeout: float = None) -> bool:\n        \"\"\"\n        Try to acquire tokens from the bucket.\n\n        Args:\n            tokens: Number of tokens to acquire.\n            blocking: Whether to block waiting for tokens.\n            timeout: Max seconds to wait (None = forever). Ignored if not blocking.\n\n        Returns:\n            True if tokens were acquired, False otherwise.\n        \"\"\"\n        if tokens <= 0:\n            raise ValueError(\"tokens must be positive\")\n        if tokens > self._capacity:\n            raise ValueError(\"requested tokens exceed capacity\")\n\n        deadline = None\n        if timeout is not None:\n            deadline = time.monotonic() + timeout\n\n        while True:\n            now = time.monotonic()\n            with self._lock:\n                self._refill(now)\n                if self._tokens >= tokens:\n                    self._tokens -= tokens\n                    return True\n\n            if not blocking:\n                return False\n\n            if deadline is not None and time.monotonic() >= deadline:\n                return False\n\n            # Sleep a short time before retrying\n            sleep_time = min(0.01, (tokens - self._tokens) / self._rate) if blocking else 0\n            time.sleep(sleep_time)\n\n    def try_acquire(self, tokens: float = 1.0) -> bool:\n        \"\"\"Non-blocking acquire.\"\"\"\n        return self.acquire(tokens, blocking=False)\n\n    def available_tokens(self) -> float:\n        \"\"\"Return the current number of available tokens.\"\"\"\n        with self._lock:\n            self._refill(time.monotonic())\n            return self._tokens\n\n    @property\n    def rate(self) -> float:\n        return self._rate\n\n    @property\n    def capacity(self) -> float:\n        return self._capacity\n\n\n# --- Tests ---\nimport unittest\n\n\nclass TestTokenBucketRateLimiter(unittest.TestCase):\n\n    def test_initial_state(self):\n        limiter = TokenBucketRateLimiter(rate=10.0, capacity=100.0)\n        self.assertEqual(limiter.available_tokens(), 100.0)\n        self.assertEqual(limiter.rate, 10.0)\n        self.assertEqual(limiter.capacity, 100.0)\n\n    def test_acquire_redu",
+   "The lighthouse at Point Reyes had been automated since 1973, but Elias still lived there. The Coast Guard let him stay because he kept the generator running and the lens polished. And he watched the sea.\n\nEvery morning at six, he walked the beach below, collecting debris: kelp, rope, plastic bottles. One Tuesday in late October, he found a glass bottle, not plastic. Inside was a folded piece of paper, sealed with red wax.\n\nHe carried it up to the keeper's quarters, where the radio crackled and the smell of coffee hung in the air. Using pliers, he pried off the stopper. The paper came out damp but intact.\n\nIt read: *I'm sorry about the accident on the bridge. I was going too fast. God forgive me.*\n\nNo name. No date.\n\nElias held it up to the light. The handwriting was shaky, the ink faded. Years old. He read it three times.\n\n\"Accident on the bridge,\" he said aloud to the empty room. The Golden Gate Bridge was ten miles to the east. People jumped from it. He knew the number. He always knew the number.\n\nHe walked to the window and looked out toward the bay. Fog had rolled in, erasing everything. He could not see the water or the far shore or the bridge. Just gray.\n\nSomehow, over all these years, the bottle had made its way here. Drifting in the currents. Up from the deep.\n\nElias thought: *Whoever you were, you don't have to carry that anymore.*\n\nHe wrote on a fresh sheet of paper: *You are forgiven.*\n\nHe folded it, placed it in the bottle, and returned it to the sea that evening as the sun set. He did not watch it drift away. He turned back toward the lighthouse, up the winding stairs, to begin polishing the great Fresnel lens for the coming night.",
+   "```javascript\n/**\n * @fileoverview Utility functions for debouncing and throttling function calls.\n */\n\n/**\n * Creates a debounced function that delays invoking `fn` until after\n * `wait` milliseconds have elapsed since the last time the debounced\n * function was called.\n *\n * @param {Function} fn - The function to debounce.\n * @param {number} wait - The number of milliseconds to delay.\n * @param {Object} [options] - Optional settings.\n * @param {boolean} [options.leading=false] - Whether to invoke the function\n *   on the leading edge of the timeout.\n * @param {boolean} [options.trailing=true] - Whether to invoke the function\n *   on the trailing edge of the timeout.\n * @returns {Function} The new debounced function.\n */\nexport function debounce(fn, wait, options = {}) {\n    const { leading = false, trailing = true } = options;\n    let timeoutId = null;\n    let lastArgs = null;\n    let lastThis = null;\n    let lastCallTime = 0;\n\n    function invoke(time) {\n        lastCallTime = time;\n        fn.apply(lastThis, lastArgs);\n    }\n\n    function trailingEdge(time) {\n        timeoutId = null;\n        if (trailing && lastArgs !== null) {\n            invoke(time);\n            lastArgs = null;\n            lastThis = null;\n        }\n    }\n\n    function debounced(...args) {\n        const time = Date.now();\n        lastArgs = args;\n        lastThis = this;\n\n        if (!timeoutId) {\n            if (leading) {\n                invoke(time);\n            } else {\n                timeoutId = setTimeout(() => trailingEdge(Date.now()), wait);\n            }\n        } else {\n            clearTimeout(timeoutId);\n            timeoutId = setTimeout(() => trailingEdge(Date.now()), wait);\n        }\n    }\n\n    /**\n     * Cancel any scheduled function invocation.\n     */\n    debounced.cancel = function () {\n        if (timeoutId !== null) {\n            clearTimeout(timeoutId);\n            timeoutId = null;\n        }\n        lastArgs = null;\n        lastThis = null;\n    };\n\n    /**\n     * Immediately invoke the function if it's scheduled.\n     */\n    debounced.flush = function () {\n        if (timeoutId !== null) {\n            trailingEdge(Date.now());\n        }\n    };\n\n    return debounced;\n}\n\n/**\n * Creates a throttled function that only invokes `fn` at most once per\n * every `wait` milliseconds. Additional calls made within that wait time\n * are ignored.\n *\n * @param {Function} fn - The function to throttle.\n * @param {number} wait - The number of milliseconds to throttle invocations to.\n * @param {Object} [options] - Optional settings.\n * @param {boolean} [options.leading=true] - Whether to invoke the function\n *   on the leading edge of the throttle interval.\n * @param {boolean} [options.trailing=false] - Whether to invoke the function\n *   on the trailing edge of the throttle interval.\n * @returns {Function} The new throttled function.\n */\nexport function throttle(fn, wait, options = {}) {\n    const { leading = true, trailing = false } = options;\n    let timeoutId = null;\n    let lastCallTime = 0;\n    let lastArgs = null;\n    let lastThis = null;\n\n    function invoke(time) {\n        lastCallTime = time;\n        fn.apply(lastThis, lastArgs"
+  ],
+  "mtp": {
+   "per_token": 0.159,
+   "tok_per_step": 2.11,
+   "preempt": 0.0
+  }
+ },
+ "depth": {
+  "24k": {
+   "prompt": 25375,
+   "cold_ttft": 14.1,
+   "prefill_tps": 1803,
+   "decode": 54.7,
+   "gen": 373,
+   "canary": null,
+   "cites": 3,
+   "mtp": {
+    "per_token": 0.175,
+    "tok_per_step": 2.23,
+    "preempt": 0.0
+   }
+  },
+  "32k": {
+   "prompt": 33468,
+   "cold_ttft": 19.2,
+   "prefill_tps": 1746,
+   "decode": 52.7,
+   "gen": 400,
+   "canary": null,
+   "cites": 1,
+   "mtp": {
+    "per_token": 0.172,
+    "tok_per_step": 2.2,
+    "preempt": 0.0
+   }
+  },
+  "65k": {
+   "prompt": 64124,
+   "cold_ttft": 42.6,
+   "prefill_tps": 1504,
+   "decode": 50.6,
+   "gen": 385,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.198,
+    "tok_per_step": 2.38,
+    "preempt": 0.0
+   }
+  },
+  "74k": {
+   "prompt": 73336,
+   "cold_ttft": 50.8,
+   "prefill_tps": 1444,
+   "decode": 48.6,
+   "gen": 290,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.195,
+    "tok_per_step": 2.37,
+    "preempt": 0.0
+   }
+  },
+  "100k": {
+   "prompt": 97855,
+   "cold_ttft": 75.1,
+   "prefill_tps": 1304,
+   "decode": 45.3,
+   "gen": 400,
+   "canary": null,
+   "cites": 4,
+   "mtp": {
+    "per_token": 0.198,
+    "tok_per_step": 2.39,
+    "preempt": 0.0
+   }
+  }
+ },
+ "image": {
+  "sec": 4.0,
+  "prompt": 2251,
+  "canary": null,
+  "reply": "This image depicts a fantasy scene rendered in a pixelated, mosaic style, featuring a grand castle illuminated by warm golden lights against a twilight sky. A cloaked figure stands in the foreground on the left, gazing toward the castle, while a dragon flies overhead with its wings spread wide. The scene is set beside a body of water reflecting the castle's lights, with waterfalls cascading down t"
+ },
+ "video": {
+  "sec": 0.6,
+  "prompt": 406,
+  "reply": "The clip shows red first, then blue."
+ }
+}

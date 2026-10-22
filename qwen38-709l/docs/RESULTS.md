@@ -197,8 +197,10 @@ Reading: the threshold is a real lever for the "agent chat mid-answer while a te
 on the big prompt (and 2× on the big chat's first token when four arrive together, since the chunks interleave). The
 1024/256 config buys another 1.8× decode during prefill for 1.5× slower cold prefill. It does not get the small chats
 their first token sooner when all four arrive at once: FCFS still prefills in arrival order, the chunks just interleave.
-We left the live seat on the default (no threshold), because single-stream first-token time is what we optimise first;
-`--long-prefill-token-threshold 512` is the switch to flip when the seat serves a team.
+We first left the live seat on the default (no threshold), because single-stream first-token time is what we optimise
+first. On 2026-10-21 we turned on `--long-prefill-token-threshold 512`, because the seat serves several agent chats at
+once. Checked live: a chat decoding while an 83k prompt prefills went from 2.2 to 10.7 t/s, its longest stall from 2.9
+to 0.6 s; short code unchanged (132.0); the big prompt's own prefill 1,326 → 1,097 t/s.
 
 ## Combined copy + MTP speculator (0.32, 2026-10-21, `patches/combo-spec/`, raw in `results/combo-spec/`)
 
