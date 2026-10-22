@@ -1,0 +1,5 @@
+== rhbench combo-c
+short code: {'tps': [126.6, 139.5, 131.5], 'avg': 132.5, 'canary': [None, None, None], 'mtp': {'per_token': 0.687, 'tok_per_step': 4.75, 'preempt': 0.0}}
+4 writers: {'each': [57.2, 92.2, 38.2, 91.4], 'summed': 279.0, 'gen_over_wall': 157.2, 'wall': 14.4, 'canary': [None, None, None, None], 'mtp': {'per_token': 0.42, 'tok_per_step': 3.1, 'preempt': 0.0}}
+== done
+rhbench spec: 5870.0 38260.0 29906.0 -> 6955.0 43845.0 32768.0

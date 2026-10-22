@@ -1,0 +1,13 @@
+{
+ "prompt_tokens": 257719,
+ "completion_tokens": 4425,
+ "total": 262144,
+ "finish": "length",
+ "secs": 66.7,
+ "bang_runs": 0,
+ "replacement": 0,
+ "printable": 1.0,
+ "tail": "fty-five\nnine hundred fifty-six\nnine hundred fifty-seven\nnine hundred fifty-eight\nnine hundred fifty-nine\nnine hundred sixty\nnine hundred sixty-one\nnine hundred sixty-two\nnine hundred sixty-three\nnine",
+ "followup": "Paris",
+ "pass": true
+}

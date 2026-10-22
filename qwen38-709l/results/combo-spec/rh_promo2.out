@@ -1,0 +1,4 @@
+== rhbench promo2
+short code: {'tps': [119.3, 134.0, 135.9], 'avg': 129.7, 'canary': [None, None, None], 'mtp': {'per_token': 0.66, 'tok_per_step': 4.6, 'preempt': 0.0}}
+4 writers: {'each': [53.1, 82.2, 41.5, 89.9], 'summed': 266.7, 'gen_over_wall': 177.0, 'wall': 15.3, 'canary': [None, None, None, None], 'mtp': {'per_token': 0.375, 'tok_per_step': 2.88, 'preempt': 0.0}}
+== done

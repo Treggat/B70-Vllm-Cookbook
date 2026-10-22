@@ -16,6 +16,17 @@
 - **A benchmark that doesn't contain its own answer.** Our depth test asked about argparse, but at 24k/32k argparse
   wasn't in the prompt. Make sure your retrieval prompt actually includes the text it asks about at every depth.
 
+- **Variable draft counts on the hybrid (GDN) target.** vLLM 0.32's GDN metadata builder sizes a pure spec step as
+  `num_speculative_tokens + 1` tokens per request. With Dynamic SD, or anything else that verifies fewer drafts than
+  the configured maximum, the shorter step looks like a truncated final group: it goes through the stateful prefill
+  path, which cannot roll back rejected drafts. See `patches/combo-spec/patch_gdn_varlen_spec_032.py`.
+- **Packed verify only for checked shapes.** riceharvest's `spec_packed.py` packs any uniform q_len; only q_len 2, 3
+  and 6 are measured on the b70 `.so`. Turning on 6, 7 or 15 drafts with `B70_SPEC_PACKED=1` silently packs an
+  unchecked shape. `patches/combo-spec/patch_spec_packed_guard_032.py` sends other q_len values to the stock path.
+- **A copy detector that trusts the rightmost match.** In code, 4-grams repeat, so `rfind` of the last few tokens
+  keeps landing on a nearer repeat instead of the real source. Confirm a copy by comparing the newly generated
+  tokens with what follows the source; do not track the match offset.
+
 ## Build
 
 - **0.31 renamed a flag without listing it in the release summary:** `--enable-mamba-fine-grained-prefix-cache` →

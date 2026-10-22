@@ -1,8 +1,9 @@
-# Training a DFlash2 drafter for the 709-L (in progress)
+# Training a DFlash2 drafter for the 709-L (stopped: MTP-5 stays)
 
 The published DFlash2 drafter accepts 2-5% of its tokens on the 709-L (RESULTS.md), because it reads inner layers the
 merge rewrote. A drafter for a merge has to learn that merge's hidden states. This page records the staged attempt on
-our two B70s. Stage 0 is done and served-tested; Stage 2 is running.
+our two B70s. Stage 0 and Stage 2 are done and served-tested. Stage 2 failed its gate, so the seat keeps MTP-5
+(and, since 2026-10-21, the combined copy + MTP speculator in [patches/combo-spec/](../patches/combo-spec/README.md)).
 
 ## The plan in three stages
 
@@ -10,7 +11,7 @@ our two B70s. Stage 0 is done and served-tested; Stage 2 is running.
 |---|---|---|---|
 | 0 | only the input projection, the convolutions, the selector and the norms (325M of 1,924M parameters); the 5-layer body stays frozen | ~400 samples | does the published drafter's training transfer once its inputs are re-mapped to the merge? |
 | 1 | (skipped: serving the Stage 0 drafter answered its question, below) | | |
-| 2 | Stage 0's parameters plus the last two drafter layers, warm-started from Stage 0 | ~15k samples: the 709-L's real replies plus its own regenerations | served tokens per step against MTP-5 (running) |
+| 2 | Stage 0's parameters plus the last two drafter layers, warm-started from Stage 0 | ~15k samples: the 709-L's real replies plus its own regenerations | served tokens per step against MTP-5: **failed** (below) |
 
 Tooling: [SpecForge](https://github.com/sgl-project/specforge) in offline mode (`training.strategy: dflash`, not
 `dspark`: the `dflash` strategy exports the layout stock vLLM samples, so the off-by-one fix that DSpark-trained
@@ -72,7 +73,44 @@ What it says:
 - **The drafter costs KV room:** its own KV cache takes part of the pool, 416k to 289k tokens. One 262k request still
   fits.
 
-Stage 2, the full drafter at ~15k samples, is running on the two cards; its result goes in the next update.
+## Stage 2 result: the gate fails (`results/drafter/stage2-*`)
+
+Stage 0's trained parameters plus the last two drafter layers (965M of 1,924M parameters), warm-started from Stage 0,
+one epoch over about 14,800 samples (the 709-L's real replies plus its own regenerations, contexts up to 6,144 tokens),
+global batch 8, lr 5e-5 constant. It trained on both cards as two independent trainers with local SGD (below), in 9
+rounds of ~100 steps per card, about 9 hours including captures.
+
+| test split, teacher-forced accuracy | acc | loss |
+|---|---|---|
+| Stage 0 drafter | 50.3% | 2.872 |
+| after chunk 1 (~5k samples) | 55.7% | 2.533 |
+| after chunk 2 | 57.1% | |
+| **after chunk 3, final** | **58.0%** | **2.376** |
+
+Served, same bench and union library with packed verify:
+
+| | MTP-5 (prod) | Stage 0 | **Stage 2** | gate |
+|---|---|---|---|---|
+| short code, t/s | 130.8 | 68.2 | **77.7** | |
+| short code, tokens per step | 4.64 | 2.41 | **2.76** | > 4.65 |
+| 4 streams, summed t/s | 259.2 | 160.7 | **167.2** | |
+| decode 24k / 32k / 65k / 74k / 100k | 63.0 / 67.9 / 67.1 / 53.9 / 58.1 | 53.0 / 52.7 / 51.1 / 47.4 / 46.2 | **54.7 / 52.7 / 50.6 / 48.6 / 45.3** | |
+| tokens per step at 65k / 100k | 3.15 / 3.02 | 2.40 / 2.43 | **2.38 / 2.39** | > 3.0 |
+
+Acceptance per draft position over the whole bench: 72.4, 54.2, 44.3, 39.2, 36.1, 33.4, 31.4% (Stage 0: 67.5 ... 26.8%).
+Position 0 is still the highest, so the drafter is aligned with vLLM's readout. The page-boundary test passes at
+7.07 tokens per step; image and video pass.
+
+What it says:
+
+- **More data moved short context only.** 37x Stage 0's samples and two more trainable layers gave +7.7 points offline
+  and +15% served on short code. Depth did not move at all.
+- **Likely cause: the drafter never saw long context.** Training ran at `max_length: 4096` on contexts up to 6,144
+  tokens; the depth bench runs at 24k-100k. More short samples will not close that gap.
+- **The next lever would be long-context training**: prefill each sample at its real depth (32k-200k) and keep the
+  hidden states only for the last few thousand tokens. A full capture costs ~50 KB per token, about 10 GB for one 200k
+  sample, so tail-only capture is what makes it affordable. Even then it targets depth; short code still has to go
+  from 2.76 to 4.65 tokens per step. We stopped here.
 
 ## What tripped us (fix before running it yourself)
 
@@ -87,3 +125,15 @@ Stage 2, the full drafter at ~15k samples, is running on the two cards; its resu
   collides with the training job. We stopped the clients that use that card for the window.
 - **Put hidden-state captures on bulk storage.** They take about 50 KB per token for this model (five 5,120-wide
   layers in bf16).
+- **Two-card training over xccl does not work on this stack.** A plain `torchrun` with two ranks (one per card,
+  `CCL_TOPO_P2P_ACCESS=0`) died on its first cross-card `all_reduce` (oneCCL `atl_ofi` "Bad address") and took a
+  copy-engine reset on one card with it. vLLM's own tensor-parallel workers do run across both cards; plain torchrun
+  xccl does not. What worked: two independent single-card trainers, each on its half of the data, averaged on the CPU
+  after every round (local SGD). A 30-step validation round: each card alone 51.7% / 51.8%, the average 52.3%.
+- **One card runs out of memory at Stage 2's size** (965M trainable): it spilled ~27-30 GB into system RAM and hit
+  `DEVICE_LOST` at step ~140. Gradient checkpointing on the drafter layers plus SpecForge's
+  `optimizer_cpu_offload: true` (fp32 Adam state on the host) kept it at 25-26 GB on the card, 0.5 GB spill, and made
+  it faster (13.7 s/step).
+- **Slow array disks starve the trainer.** One card's captures sat on a drive that read 64-90 MB/s through Unraid's
+  md layer with mmap. Reading each capture with O_DIRECT in 16 MB blocks helped, but that card still ran ~23 s per
+  step against 15.4 on the other. Put captures on your fastest disk.

@@ -1,0 +1,2 @@
+don deep  23239 tok: decode  82.3 t/s (500 out, ttft 0.2s)
+deep spec: 5780.0 40300.0 30999.0 -> 6087.0 41895.0 31692.0

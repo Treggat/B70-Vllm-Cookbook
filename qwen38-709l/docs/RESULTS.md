@@ -197,5 +197,44 @@ Reading: the threshold is a real lever for the "agent chat mid-answer while a te
 on the big prompt (and 2× on the big chat's first token when four arrive together, since the chunks interleave). The
 1024/256 config buys another 1.8× decode during prefill for 1.5× slower cold prefill. It does not get the small chats
 their first token sooner when all four arrive at once: FCFS still prefills in arrival order, the chunks just interleave.
-We left the live seat on the default (no threshold), because single-stream first-token time is what we optimise first;
-`--long-prefill-token-threshold 512` is the switch to flip when the seat serves a team.
+We first left the live seat on the default (no threshold), because single-stream first-token time is what we optimise
+first. On 2026-10-21 we turned on `--long-prefill-token-threshold 512`, because the seat serves several agent chats at
+once. Checked live: a chat decoding while an 83k prompt prefills went from 2.2 to 10.7 t/s, its longest stall from 2.9
+to 0.6 s; short code unchanged (132.0); the big prompt's own prefill 1,326 → 1,097 t/s.
+
+## Combined copy + MTP speculator (0.32, 2026-10-21, `patches/combo-spec/`, raw in `results/combo-spec/`)
+
+One engine that verifies 15 copied drafts when the output copies its context and runs MTP-5 otherwise (design in
+[patches/combo-spec/README.md](../patches/combo-spec/README.md)). All through hearth, greedy unless noted. The edit
+bench is `bench/editbench.py`: E1 renames a variable in a 1.5k-token test file, E2 adds a parameter to a 3.3k-token
+module, E3 fixes an injected bug in a 3.6k-token script. Each task runs greedy and sampled, and the returned file must
+match exactly.
+
+| config | edits t/s (exact) | short code | deep 23k / 58k / 115k | rhbench short / 4 writers | crossing | 262k max-len |
+|---|---|---|---|---|---|---|
+| prod MTP-5 (packed verify) | 155 (6/6) | 131.7 | 84.2 / 82.1 / 66.5 | 132.2 / 272.3 | 3/3 | pass |
+| n-gram K=15 alone (2026-10-21 probe) | 267 (6/6) | 33.1 | 22.7 / 20.5 / 15.8 | 43.0 / 70.2 | 3/3 | – |
+| combined, first policy (match only; debug host sync on) | 227 (6/6) | 124.2 | 77.4 / 84.1 / 65.1 | 124.6 / 271.3 | 3/3 | pass |
+| combined, policy checks the match offset holds | 205 (6/6) | 130.5 | 76.2 / 84.0 / 64.1 | 132.5 / 279.0 | 3/3 | pass |
+| **combined, policy checks the source continues (live)** | **233 (6/6)** | **131.5** | 78.8 / 84.1 / 65.1 | 128.3 / 265.4 | 3/3 | pass |
+| live seat after promotion | **235 (6/6)**; E1 185, E2 242, E3 279 | 131.0 | – | 128.4 + 129.7 / 272.4 + 266.7 | 3/3 | – |
+
+Reading:
+- **Edits +50%, everything else at MTP-5.** On E3, where most of the file comes back unchanged, the live seat runs
+  279 t/s. On E1 (a rename every few lines) it runs 185, because each edit point costs a few MTP steps before the copy
+  resumes.
+- **Policy, version 1:** "the last 4 tokens occur earlier" fires on fresh code that repeats its own patterns. Short
+  code lost 5%: each false copy step pays a 16-row verify for an MTP-sized gain.
+- **Policy, version 2:** requiring the match offset to hold across two checks fixed fresh code. It also broke real
+  copies, because code repeats 4-grams and the rightmost match keeps jumping to a nearer repeat (edits dropped to 205).
+- **Policy, live version:** checking that the newly generated tokens equal what follows the source fixes both.
+- **23k single runs are noisy:** prod gave 84.2 on its own and 93.5 straight after the crossing test, because greedy
+  output shifts with prefix-cache state. The fair comparison is an A/B inside one load with the policy switched off by
+  a control file: 83.1 off, 82.3 on (−1%).
+- **Depth:** above 32k the policy never copies (a 16-row verify at 115k costs ~80 ms), and 58k/115k match prod.
+- **4 writers:** nearly identical to prod. Four requests rarely all copy at once, and the batch only copies when they
+  all do.
+- **Full MTP-5 on copy steps** (`B70_COMBO_MTP_IN_COPY=1`) instead of only its first pass: no measurable difference
+  on edits under the same (offset) policy, 207 with it vs 205 without. We kept first-pass-only; it has not been
+  measured on the live policy. (The first-policy row cannot be compared with it: that run also had a debug host sync
+  per copy step left on.)

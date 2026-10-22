@@ -64,7 +64,7 @@ the 709-L: **2-5% acceptance per draft token, about 3× slower than MTP-5** (RES
 layers of the target (5, 19, 33, 47, 61), and the merge changed every layer's weights by 19-31% against base
 Qwen3.8. The MTP head survives because it reads only the final hidden state, which the merge kept consistent with
 the LM head. A published drafter only helps the model it was trained on; for a merge, that means training one on
-the merge's own hidden states, which is in progress in [DRAFTER-TRAINING.md](DRAFTER-TRAINING.md). `apply_stack.sh` does not apply the DFlash2 patches.
+the merge's own hidden states. We tried that in [DRAFTER-TRAINING.md](DRAFTER-TRAINING.md): after ~15k samples it reached 2.76 tokens per step on short code against MTP-5's 4.64, so MTP-5 stays. `apply_stack.sh` does not apply the DFlash2 patches.
 
 [vcv]: https://github.com/Vcvzgbzz/b70-cookbook
 
@@ -123,7 +123,7 @@ See [AWQ.md](AWQ.md). Short version: TheUnderscore's W4A16 quant of the 709-L co
 - `--max-num-batched-tokens 3584`. Don't raise it on this build: 16384 made cold prefill 2–3× slower for us.
   Don't lower it for single-stream use either. If the seat serves several chats and one long cold prompt must not stall
   the others, add `--long-prefill-token-threshold 512` (decode during another chat's prefill 2.2 → 10 t/s, that
-  prefill 22% slower; the sweep is in RESULTS.md).
+  prefill 22% slower; the sweep is in RESULTS.md). Our live seat runs with it since 2026-10-21.
 - `--max-num-seqs 4`.
 
 **Prod vs test config:** the launcher reads `prod.env`/`prod.extra`, unless a file named `use-test` exists, in which

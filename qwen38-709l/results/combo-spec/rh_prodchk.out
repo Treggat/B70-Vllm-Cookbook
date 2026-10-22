@@ -1,0 +1,4 @@
+== rhbench prodchk
+short code: {'tps': [126.6, 138.2, 131.8], 'avg': 132.2, 'canary': [None, None, None], 'mtp': {'per_token': 0.731, 'tok_per_step': 4.65, 'preempt': 0.0}}
+4 writers: {'each': [58.9, 87.9, 38.2, 87.4], 'summed': 272.3, 'gen_over_wall': 172.0, 'wall': 14.2, 'canary': [None, None, None, None], 'mtp': {'per_token': 0.424, 'tok_per_step': 3.12, 'preempt': 0.0}}
+== done

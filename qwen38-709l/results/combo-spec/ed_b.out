@@ -1,0 +1,8 @@
+b E1 rename g:  191.1 t/s  (1475 out, prompt 1555, ttft 1.2s)  exact=True ratio=1.0000
+b E1 rename s:  189.3 t/s  (1475 out, prompt 1555, ttft 0.1s)  exact=True ratio=0.9999
+b E2 param  g:  205.0 t/s  (3349 out, prompt 3448, ttft 1.9s)  exact=True ratio=1.0000
+b E2 param  s:  211.0 t/s  (3349 out, prompt 3448, ttft 0.2s)  exact=True ratio=1.0000
+b E3 bugfix g:  224.7 t/s  (3589 out, prompt 3686, ttft 1.9s)  exact=True ratio=1.0000
+b E3 bugfix s:  222.7 t/s  (3589 out, prompt 3686, ttft 0.2s)  exact=True ratio=1.0000
+b EDIT avg: greedy 206.9 t/s, sampled 207.7 t/s, all 207.3 t/s; exact 6/6
+edit spec: 2.0 10.0 2.0 -> 1966.0 17680.0 14874.0

@@ -18,9 +18,11 @@ Most B70 write-ups cover base Qwen3.8 in GPTQ or EXL3. This one covers:
   chunked-prefill sweep for the "one big chat starves the small ones" case ([docs/RESULTS.md](docs/RESULTS.md))
 - what broke along the way ([docs/PITFALLS.md](docs/PITFALLS.md))
 - why the published DFlash2 drafter fails on a merge, and a staged attempt to train one for it on the B70s
-  ([docs/DRAFTER-TRAINING.md](docs/DRAFTER-TRAINING.md), in progress), and a kernel library that serves both
+  ([docs/DRAFTER-TRAINING.md](docs/DRAFTER-TRAINING.md); Stage 2 missed its gate, so MTP-5 stays), and a kernel library that serves both
   ([patches/kernels-union/](patches/kernels-union/README.md))
 - the seat on [Vcvzgbzz's](https://github.com/Vcvzgbzz/b70-cookbook) own test scripts, side by side with his numbers ([docs/RESULTS.md](docs/RESULTS.md))
+- one engine that switches each step between MTP-5 and 15 copied drafts: edits that return the whole file go from 155 to
+  235 t/s, exact, with everything else at MTP-5 speed ([patches/combo-spec/](patches/combo-spec/README.md))
 
 Before vLLM we ran the same model on llama.cpp SYCL with our own kernel patches. That work is in
 [b70-llamacpp-cookbook](https://github.com/Treggat/b70-llamacpp-cookbook).
