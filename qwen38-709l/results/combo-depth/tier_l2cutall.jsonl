@@ -1,0 +1,3 @@
+{"mode": "deep", "tag": "l2cutall", "prompt": 23239, "out": 500, "tps": 94.5, "tok_step": 3.78, "drafts_step": 5.68, "ms_step": 40.0}
+{"mode": "deep", "tag": "l2cutall", "prompt": 61314, "out": 500, "tps": 78.4, "tok_step": 3.56, "drafts_step": 5.0, "ms_step": 45.4}
+{"mode": "deep", "tag": "l2cutall", "prompt": 120355, "out": 500, "tps": 67.4, "tok_step": 3.7, "drafts_step": 5.0, "ms_step": 54.8}

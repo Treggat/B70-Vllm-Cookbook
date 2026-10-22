@@ -27,6 +27,11 @@
   keeps landing on a nearer repeat instead of the real source. Confirm a copy by comparing the newly generated
   tokens with what follows the source; do not track the match offset.
 
+- **A copy cutoff below your agent's system prompt.** We capped copy drafting at 32k tokens to keep a 16-token verify
+  cheap. DSH's system prompt and tools alone are ~40k, so the agent never got a single copy step while every direct
+  benchmark looked great. Measure through the real harness. The same goes for the worker's scan range
+  (`B70_COMBO_SCAN_CTX`): a source past it is invisible.
+
 ## Build
 
 - **0.31 renamed a flag without listing it in the release summary:** `--enable-mamba-fine-grained-prefix-cache` →

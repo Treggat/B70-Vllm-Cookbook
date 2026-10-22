@@ -238,3 +238,53 @@ Reading:
   on edits under the same (offset) policy, 207 with it vs 205 without. We kept first-pass-only; it has not been
   measured on the live policy. (The first-policy row cannot be compared with it: that run also had a debug host sync
   per copy step left on.)
+
+## Combined speculator by depth: MTP draft count, copy draft count, cutoff, packed 16, block verification (0.32, 2026-10-21 evening, raw in `results/combo-depth/`)
+
+The first combined seat copied only below 32k tokens. In an agent harness that never happens: our DSH's system prompt
+and tools alone are ~40k tokens, so every DSH request ran plain MTP-5. One card-A window, two loads, with the knobs
+switched at runtime through `B70_COMBO_CTL` (`bench/tierbench.py`, `bench/snap.py`, `patches/combo-spec/tests/pk16.py`):
+
+**MTP draft count by depth** (copy off; greedy "explain the last file" at 23k / 61k / 120k, t/s and ms per step; 4
+writers sampled at temperature 1.0):
+
+| MTP K | 23k | 61k | 120k | 4 writers summed (tok/step) |
+|---|---|---|---|---|
+| **5 (packed verify)** | **84.8** (39.5 ms) | **77.8** (45.5) | **67.4** (54.8) | 263.3 (2.85) |
+| 4 | 79.0 (38.7) | 74.0 (44.6) | 63.7 (53.6) | 254.1 (2.73) |
+| 3 | 77.6 (36.3) | 72.9 (41.2) | 64.2 (48.6) | 264.6 (2.64) |
+| 2 (packed) | 74.5 (33.1) | 70.5 (36.5) | 61.3 (41.7) | 253.3 (2.25) |
+
+Fewer drafts save less time per step than they lose in acceptance, at every depth. K 4 and 3 also lose packed verify
+(their verify lengths 5 and 4 do not pack). No MTP tiers.
+
+**Copy at depth** (the 3.6k-token E3 bugfix answer behind filler, greedy, every run exact):
+
+| | 47k | 94k |
+|---|---|---|
+| MTP-5 | 130.2 | 110.7 |
+| copy 10 | 168.3 | – |
+| copy 15 | 204.4 | (the scan stopped at 64k: no source found) |
+| **copy 15, packed q16, scan the whole window** | **216.6** (11.4 tok/step, 52.6 ms) | **171.0** (11.2, 65.6 ms) |
+
+Copy 15 wins at every depth, so there are no copy tiers either; the cutoff only has to go. Packed verify at q_len 16 is
+exact (`pk16.py`: identical to the stock path at 2k-115k) and saves ~3 ms per copy step. Lifting the cutoff cost nothing
+on non-copy work: deep 82.8-94.5 / 77.9-78.4 / 65.5-67.4 vs 84.8 / 77.8 / 67.4.
+
+**DSH agent turns** (tests workspace, effort medium, decode t/s from the seat's counters; generated code differs from
+chat to chat, so read the copy-step share and tokens per step more than single t/s):
+
+| turn | cutoff 32k (old prod) | cutoff lifted | + packed 16 + block (new prod) |
+|---|---|---|---|
+| write a new module (~40k context) | 95.4 (4.07 tok/step, 0% copy) | 107.5 (4.73, 8%) | 97.8 (4.20, 3%) |
+| rewrite the whole file | 121.6 (5.30, 0%) | 151.8 (7.40, 30%) | **166.6** (8.01, 38%) |
+| natural edit | 89.6 (3.99, 0%) | 116.1 (5.60, 17%) | – |
+| prose explanation, sampled (~55k) | 60.1 (2.70, 34% accepted) | 56.6 (2.60, 32%) | 63.3 (2.83, 37%) |
+
+Block verification (`rejection_sample_method: "block"`) kept greedy output exact (edit bench 6/6) and did nothing for
+the four writers (263.8 vs 263.3, 2.82 vs 2.85 tok/step); the sampled DSH prose turn came out 5-12% faster, a single
+run. We kept it: no cost seen anywhere.
+
+New prod (2026-10-21 10:04 PM): `B70_COMBO_MAX_CTX=262144 B70_COMBO_SCAN_CTX=262144`, packed verify for q_len 2/3/6/16,
+block verification. Checked after the reload: edit bench 235.7 (6/6), short code 130.9, crossing 3/3, the 94k copy edit
+171.1 (exact), 262k max-len pass (load 2), and copy steps now show up in DSH turns.
