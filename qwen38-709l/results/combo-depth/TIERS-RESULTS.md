@@ -1,8 +1,10 @@
-# 709L depth tiers, cutoff, packed-16, block verification: card-A window 2026-10-21 9:06-10:00 PM
-Through hearth unless noted. Runner tw.sh (steps), t_l1.sh / t_l2.sh, tierbench.py, snap.py (DSH turns). Raw: t_l1.log,
-t_l2.log, tier_*.jsonl, ed_l1base/ed_l2, rh_l1_mtp*, rh_l2, ml_l2, pk16.out. Prod restored 10:00 PM.
+# 709L depth tiers, cutoff, packed-16, block verification: one window on the first card, 2026-10-21 9:06-10:00 PM
+Through our router unless noted. Measured with `bench/tierbench.py`, `bench/snap.py` (agent turns) and
+`patches/combo-spec/tests/pk16.py`; the shell runner that loaded each config drove our own server and is not published.
+Raw: t_l1.log, t_l2.log, tier_*.jsonl, ed_l1base/ed_l2, rh_l1_mtp*, rh_l2, maxlen_l2.json, pk16.out. Prod restored 10:00 PM.
+The write-up is in [docs/RESULTS.md](../../docs/RESULTS.md#combined-speculator-at-every-depth).
 
-## Packed verify at q_len 11/16 (pk16.py, card A, B=1/2, ctx 2k/45k/115k)
+## Packed verify at q_len 11/16 (pk16.py, first card, B=1/2, ctx 2k/45k/115k)
 Identical to the stock per-position path (max diff 0.00000-0.00002, same as the q_len 6 control) -> PASS. 1.2-1.3x
 faster at depth (115k, B=1, one layer: q16 2.91 -> 2.40 ms), 1.4-2.0x at 2k.
 
@@ -28,7 +30,7 @@ whole window (B70_COMBO_SCAN_CTX=262144; the default 64k found no source at 94k)
 ## Cutoff (deep explain-the-file, greedy): copy allowed everywhere costs nothing
 MTP-5 84.8 / 77.8 / 67.4; cutoff lifted L1 82.8 / 77.9 / 65.5; L2 (+packed16, block) 94.5 / 78.4 / 67.4.
 
-## DSH turns (tests workspace, LLM:Fable-709L, effort medium; decode t/s from the seat's counters, copy-step share)
+## Agent-harness turns (our harness, effort medium; decode t/s from the seat's counters, copy-step share)
 | turn | A: prod (cutoff 32k) | B: cutoff lifted | C: B + packed16 + block |
 |---|---|---|---|
 | fresh write (~40k ctx) | 95.4, 4.07 tok/step, 0% | 107.5, 4.73, 8% | 97.8, 4.20, 3% |

@@ -88,6 +88,14 @@ image therefore also edits the image's copy. That happened to us. `apply_stack.s
 rewrites those paths to the tree being built. It also sets `B70_VLLM_ROOTS`, which SergiioB's backward-copy fix
 honors. Our own patches refuse to run without an explicit `VLLM_ROOT`.
 
+### Optional: the combined copy + MTP speculator
+
+Our live seat also runs [`patches/combo-spec/`](../patches/combo-spec/README.md): one engine that verifies 15 copied
+drafts when the output copies its context (a whole-file edit, a refactor) and runs MTP-5 otherwise. Edits that return
+the whole file go from 155 to 235 t/s, exact; everything else stays at MTP-5 speed (RESULTS.md). Apply its three
+scripts after `apply_stack.sh`, which does not apply them, then switch it on in `prod.env` (section 4). Every hook is a
+no-op with its switch unset, so a tree with the patches applied still serves plain MTP-5.
+
 ## 3. Model
 
 See [AWQ.md](AWQ.md). Short version: TheUnderscore's W4A16 quant of the 709-L comes in compressed-tensors
@@ -105,7 +113,10 @@ See [AWQ.md](AWQ.md). Short version: TheUnderscore's W4A16 quant of the 709-L co
   Offload only `embed_tokens`. Adding `visual` (the vision tower) to `--cpu-offload-params` made an image request take
   20.3 s instead of about 3 s. `apply_stack.sh` also keeps the MTP drafter's own embedding table off the offloader
   (see PITFALLS): the target's offloaded table is the one both end up using.
-- `--speculative-config '{"method":"mtp","num_speculative_tokens":5}'`.
+- `--speculative-config '{"method":"mtp","num_speculative_tokens":5}'` (the launcher's default). With the combined
+  speculator, `prod.env` overrides `SPEC` and sets its switches instead: the commented block in `prod.env.example`.
+  It costs about 10% of the KV pool (416,591 → 375,067 tokens), because the GDN layers keep a state slot per draft
+  position.
 - **No `--kv-offloading-size`.** The 0.31 line had `--kv-offloading-size 8`. vLLM's CPU KV tier stores blocks for
   this hybrid model but never finds them again: `bench/kvoff_probe.py` evicts a 55k-token prompt with 7 x 58k others
   and replays it, and the replay reports 0 cached tokens and a full re-prefill (36 s), on 0.32 exactly as Vcvzgbzz

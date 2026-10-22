@@ -1,6 +1,6 @@
 # gpt-oss-20b behind a coding agent: harness lessons
 
-We run gpt-oss-20b as the worker model of our agent harness (DSH). The lessons below are about how gpt-oss reads the
+We run gpt-oss-20b as the worker model of our own agent harness. The lessons below are about how gpt-oss reads the
 messages a harness puts around its tool calls. They should apply to any harness that drives gpt-oss through an
 OpenAI-compatible chat endpoint.
 

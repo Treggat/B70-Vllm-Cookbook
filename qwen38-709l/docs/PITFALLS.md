@@ -16,6 +16,8 @@
 - **A benchmark that doesn't contain its own answer.** Our depth test asked about argparse, but at 24k/32k argparse
   wasn't in the prompt. Make sure your retrieval prompt actually includes the text it asks about at every depth.
 
+## Speculative decoding
+
 - **Variable draft counts on the hybrid (GDN) target.** vLLM 0.32's GDN metadata builder sizes a pure spec step as
   `num_speculative_tokens + 1` tokens per request. With Dynamic SD, or anything else that verifies fewer drafts than
   the configured maximum, the shorter step looks like a truncated final group: it goes through the stateful prefill
@@ -26,11 +28,16 @@
 - **A copy detector that trusts the rightmost match.** In code, 4-grams repeat, so `rfind` of the last few tokens
   keeps landing on a nearer repeat instead of the real source. Confirm a copy by comparing the newly generated
   tokens with what follows the source; do not track the match offset.
-
 - **A copy cutoff below your agent's system prompt.** We capped copy drafting at 32k tokens to keep a 16-token verify
-  cheap. DSH's system prompt and tools alone are ~40k, so the agent never got a single copy step while every direct
+  cheap. Our agent harness's system prompt and tools alone are ~40k, so the agent never got a single copy step while every direct
   benchmark looked great. Measure through the real harness. The same goes for the worker's scan range
   (`B70_COMBO_SCAN_CTX`): a source past it is invisible.
+- **A drafter trained on the base model does not transfer to a merge.** The published DFlash2 drafter accepts 2-5% of
+  its tokens on the 709-L (45%+ on base Qwen3.8), because it reads inner layers the merge rewrote. MTP is fine: it
+  reads only the final hidden state. Measure acceptance before building anything around a drafter.
+- **riceharvest's attention `.so` only has the MTP shapes.** A DFlash2 drafter (head 128, non-causal, sliding window)
+  dies in warmup with "Chunk prefill kernel tuple not compiled for this configuration". Use the stock kernel, or
+  build one that includes that shape.
 
 ## Build
 
@@ -71,12 +78,6 @@
   whatever is running. Only scrape the seat that's already up.
 - **Do the VRAM math before raising KV.** CUDA-graph-style capture memory isn't counted by
   `gpu_memory_utilization`. Set `--kv-cache-memory-bytes` explicitly and leave about 1.5 GiB of headroom.
-- **A drafter trained on the base model does not transfer to a merge.** The published DFlash2 drafter accepts 2-5% of
-  its tokens on the 709-L (45%+ on base Qwen3.8), because it reads inner layers the merge rewrote. MTP is fine: it
-  reads only the final hidden state. Measure acceptance before building anything around a drafter.
-- **riceharvest's attention `.so` only has the MTP shapes.** A DFlash2 drafter (head 128, non-causal, sliding window)
-  dies in warmup with "Chunk prefill kernel tuple not compiled for this configuration". Use the stock kernel, or
-  build one that includes that shape.
 - **`--kv-offloading-size` does nothing useful for this hybrid model** (0.31 and 0.32): blocks go to the CPU tier and
   are never found again, so an evicted prompt re-prefills in full. It does pin N GiB of `/dev/shm`. Leave it out.
 - **The MTP drafter's weight load is where a host-RAM-starved box resets the GPU.** Both copy-engine resets we had

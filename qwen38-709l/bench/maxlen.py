@@ -2,7 +2,7 @@
 about (max_model_len - 2k) tokens asks for a reply longer than the space left, so generation runs into the window and
 the last MTP step is a partial speculative group at exactly max-model-len. PASS = the request ends cleanly (HTTP 200,
 finish_reason "length", prompt + completion == the window), the reply has no "!!!!" run or replacement characters, and
-the server answers a follow-up. Send it to the server DIRECTLY: a router that estimates token counts (hearth does) refuses
+the server answers a follow-up. Send it to the server DIRECTLY: a router that estimates token counts (ours does) refuses
 prompts this close to the window, and the test needs the exact edge.
 Usage: python maxlen.py [max_model_len=131072] [prompt_tokens=max_model_len-2000]   (endpoint/model from env, see common.py)"""
 import json, os, re, sys, time

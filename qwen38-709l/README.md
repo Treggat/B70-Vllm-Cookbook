@@ -21,39 +21,48 @@ Most B70 write-ups cover base Qwen3.8 in GPTQ or EXL3. This one covers:
   ([docs/DRAFTER-TRAINING.md](docs/DRAFTER-TRAINING.md); Stage 2 missed its gate, so MTP-5 stays), and a kernel library that serves both
   ([patches/kernels-union/](patches/kernels-union/README.md))
 - the seat on [Vcvzgbzz's](https://github.com/Vcvzgbzz/b70-cookbook) own test scripts, side by side with his numbers ([docs/RESULTS.md](docs/RESULTS.md))
-- one engine that switches each step between MTP-5 and 15 copied drafts: edits that return the whole file go from 155 to
-  235 t/s, exact, with everything else at MTP-5 speed ([patches/combo-spec/](patches/combo-spec/README.md))
+- one engine that switches each step between MTP-5 and 15 copied drafts, at every context depth: edits that return the
+  whole file go from 155 to 235 t/s, exact, with everything else at MTP-5 speed ([patches/combo-spec/](patches/combo-spec/README.md))
 
 Before vLLM we ran the same model on llama.cpp SYCL with our own kernel patches. That work is in
 [b70-llamacpp-cookbook](https://github.com/Treggat/b70-llamacpp-cookbook).
 
 ## Results
 
-Same benchmark script, same box, same day, through an OpenAI-compatible endpoint, thinking off. Single runs: treat
-about ±5% as noise.
+Our live seat on 2026-10-21: vLLM 0.32, the full stack below plus the combined speculator, 262k window, fp8 KV in a
+14.5 GiB pool. Through an OpenAI-compatible endpoint, thinking off, single runs (treat about ±5% as noise). Conditions,
+older configs and raw files: [docs/RESULTS.md](docs/RESULTS.md).
 
-| | vLLM 0.30 + cookbook | vLLM 0.31 + cookbook | **0.31 + cookbook + riceharvest layer** |
-|---|---|---|---|
-| short code, t/s (avg of 3) | 113.9 | 119.4 | **131.6** (+16%) |
-| 4 streams, summed t/s | 221.3 | 236.6 | **265.0** (+20%) |
-| 75k-token read, first token (cold) | 66.9 s | 66.8 s | **53.8 s** (−20%) |
-| 75k prefill | 1,133 t/s | 1,134 | **1,408** (+24%) |
-| 75k decode | 47.7 t/s | 47.8 | **61.4** (+29%) |
-| KV pool | 268k tokens | 268k | **389k** (+45%, 4 × ~97k)¹ |
-| MTP acceptance (code) | 72% | 75% | 73% |
+| | live seat | MTP-5 alone |
+|---|---|---|
+| short code, one stream | **130.9 t/s** | 131.7 |
+| whole-file edits (3 tasks, greedy and sampled, all 6 exact) | **235.7 t/s** | 155 |
+| whole-file edit behind 94k tokens of context | **171.1 t/s** | 110.7 |
+| 4 streams, summed | about 265–275 t/s | same |
+| decode after a cold 100k prompt | 56–60 t/s² | 56–60 |
+| first token, cold 100k prompt | about 90 s (est.)¹ | 75 s |
+| KV pool | 375,067 tokens: one 262k chat, or 4 of ~93k | 416,591 |
 
-¹ The speed numbers in that column were measured with a 13 GiB pool (349k tokens). We raised it to 14.5 GiB afterwards and stress-tested 4 × 95k chats at once (0 preemptions).
+¹ 75 s was measured before we turned on `--long-prefill-token-threshold 512`, which keeps other chats decoding during a
+big prefill (2.2 → 10.7 t/s) and makes that prefill about 22% slower. Not re-measured.
 
-At 100k context (0.31 → 0.31 + riceharvest): first token 97.6 s → 75.8 s, decode 40.6 → 58.4 t/s.
+² Measured with MTP-5 alone. The combined speculator matched MTP-5 at depth wherever we checked (23k–120k).
 
-**vLLM 0.32 (2026-10-19), same stack:** parity within noise on every row of the bench (short code 131.7 t/s, 4 streams
-267.2 summed, 100k first token 75.9 s, 100k decode 56.1 t/s), the 131k boundary test passes, 4 × 95k chats at once
-still 0 preemptions. Table in [docs/RESULTS.md](docs/RESULTS.md).
-All three configs pass the vision, video and page-boundary tests (`bench/crossing.py`). Every run, including the per-patch ones, passes the corruption canary with 0 preemptions.
+How we got here, each step measured on the same box ([docs/RESULTS.md](docs/RESULTS.md)):
+
+- **riceharvest's b70 layer on vLLM 0.31:** short code +16% (119 → 132 t/s), 4 streams +20%, first token at 75k −20%,
+  decode at 75k +29%, KV pool +45%. Per-patch numbers show where each gain comes from.
+- **vLLM 0.31 → 0.32, same stack** (2026-10-19), and **131k → 262k window:** parity within noise on every row.
+- **Combined copy + MTP speculator** (2026-10-21): whole-file edits +50%, first below 32k tokens, then at every depth.
+- **DFlash2:** the published drafter is about 3× slower than MTP-5 on this merge; the drafter we trained for it missed
+  its gate, so MTP-5 stays.
+
+Every config passes the vision, video and page-boundary tests (`bench/crossing.py`), and every run passes the
+corruption canary with 0 preemptions.
 
 ## Quick start
 
-Run these from this folder (`qwen38-709l/`).
+Run these on the Linux box with the B70, from this folder (`qwen38-709l/`).
 
 ```sh
 sh scripts/build_venv.sh /opt/b70/vllm032                         # vLLM 0.32.0 XPU from source, own venv
@@ -66,21 +75,39 @@ cp serve/prod.env.example serve/prod.env; cp serve/prod.extra.example serve/prod
 VENV=/opt/b70/vllm032 MODEL=<out dir> sh serve/serve-709l.sh 8000
 ```
 
-Then check it before trusting it: `cd bench && python crossing.py && python bench.py mine`, and once per engine change
+That serves plain MTP-5. For the combined speculator, apply its patches to the same venv, uncomment its block in
+`serve/prod.env` and restart:
+
+```sh
+P=/opt/b70/vllm032/venv/bin/python
+VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/combo-spec/patch_gdn_varlen_spec_032.py
+VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/combo-spec/patch_combo_spec_032.py
+VLLM032_ROOT=/opt/b70/vllm032 $P patches/combo-spec/patch_spec_packed_guard_032.py
+```
+
+Then check it before trusting it, from `bench/` with `BASE_URL` pointing at the server (see `bench/common.py`):
+`python crossing.py && python bench.py mine`, `python editbench.py mine` for the speculator, and once per engine change
 `python maxlen.py` (sent to the server directly, see the script).
 
 ## Layout
 
 | path | what |
 |---|---|
-| `patches/` | our four vLLM patches (memory-query fallback, BF16 MTP `fc`, video sent as `image_url`, SergiioB's MTP boundary fix re-based onto 0.32) |
+| `patches/*.py` | our four vLLM patches (memory-query fallback, BF16 MTP `fc`, video sent as `image_url`, SergiioB's MTP boundary fix re-based onto 0.32); `apply_stack.sh` applies them |
+| `patches/combo-spec/` | the combined copy + MTP speculator: scheduler policy, speculator, GDN and packed-verify fixes, tests ([README](patches/combo-spec/README.md)) |
+| `patches/dflash2/` | Vcvzgbzz's DFlash2 drafter patches re-based onto 0.32, for the drafter measurements (not in the live stack) |
+| `patches/kernels-union/` | a kernel library config that serves both MTP and DFlash2 shapes ([README](patches/kernels-union/README.md)) |
 | `scripts/build_venv.sh` | vLLM 0.32.0 XPU source build in its own venv (indexes, pins, a flag check of the serve line) |
 | `scripts/apply_stack.sh` | clones the upstream cookbooks at pinned commits, points their patches at one tree, applies the whole stack fail-closed |
 | `scripts/ct2awq.py` | compressed-tensors pack-quantized W4A16 → AutoAWQ gemm, bit-identical |
 | `scripts/make_draft_vocab.py` | Vcvzgbzz's 98,304-row draft trim as a JSON id list for riceharvest's patch |
 | `serve/` | launcher + the measured config (`prod.env.example`, `prod.extra.example`) |
-| `bench/` | speed/sanity bench, page-boundary test, max-model-len boundary test, 4 × long-chat KV stress, KV-offload probe |
-| `results/` | raw JSON for every run in the tables (generated text stripped) |
+| `bench/bench.py`, `bench/crossing.py` | speed and sanity bench (short code, 4 writers, depth, greedy hashes); page-boundary corruption test |
+| `bench/maxlen.py`, `bench/stress4.py`, `bench/kvoff_probe.py` | max-model-len boundary test; 4 long chats at once; does the CPU KV offload tier ever hit |
+| `bench/starve.py` | decode of one chat while another's long cold prompt prefills (the chunked-prefill sweep) |
+| `bench/editbench.py`, `bench/tierbench.py`, `bench/snap.py` | whole-file edit speed with an exact-match check; decode and edits at depth; spec-decode counters around agent turns |
+| `bench/common.py` | endpoint settings shared by the bench scripts (`BASE_URL`, `MODEL`, `API_KEY`, `METRICS_URL`) |
+| `results/` | raw output for every number in the docs, one folder per topic (generated text stripped) |
 
 ## Credits
 

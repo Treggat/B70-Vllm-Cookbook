@@ -2,10 +2,10 @@
 Compares spec_packed._packed (one decode query per KV head, per-row causal mask in the b70 kernel) with the stock
 per-position path (_orig) on the 709-L shapes: Hq 24, Hkv 4, head 256, fp8 e4m3 paged KV, page 896, B=1 and B=2.
 q_len 6 is the control (known good in prod). Run on a free card with the live venv:
-  ZE_AFFINITY_MASK=0 B70_SPEC_PACKED=1 B70_SPEC_PACKED_QLENS=any python pk16.py
+  VLLM032_ROOT=<venv dir> ZE_AFFINITY_MASK=0 B70_SPEC_PACKED=1 B70_SPEC_PACKED_QLENS=any python pk16.py
 Pass = packed vs stock max abs diff at q_len 11/16 within ~2x of the q_len-6 control at every depth."""
 import math, os, sys, torch
-sys.path.insert(0, "/appdata/vllm032-709l/rh-runtime")
+sys.path.insert(0, os.path.join(os.environ.get("VLLM032_ROOT") or sys.exit("set VLLM032_ROOT (the venv dir)"), "rh-runtime"))
 os.environ["B70_SPEC_PACKED"] = "1"
 os.environ["B70_SPEC_PACKED_QLENS"] = "any"
 import vllm_xpu_kernels.flash_attn_interface as fai

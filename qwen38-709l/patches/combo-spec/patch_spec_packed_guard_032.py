@@ -12,10 +12,10 @@ Widen it only after a kcheck of that q_len, packed vs unpacked.
 
 apply.sh copies rh-runtime/ fresh from the 031rh tree, so this must run AFTER that copy (it does: listed after
 b70/patch_spec_packed.py). Idempotent (marker), fail-closed (exact anchors), leaves a .bak of the unguarded file.
-Target: $VLLM032_ROOT/rh-runtime/spec_packed.py (default /appdata/vllm032-709l)."""
+Target: $VLLM032_ROOT/rh-runtime/spec_packed.py (VLLM032_ROOT = the venv dir given to scripts/apply_stack.sh)."""
 import os, pathlib, py_compile, shutil, sys
 
-ROOT = os.environ.get("VLLM032_ROOT", "/appdata/vllm032-709l")
+ROOT = os.environ.get("VLLM032_ROOT") or sys.exit("set VLLM032_ROOT to the venv dir given to scripts/apply_stack.sh")
 p = pathlib.Path(ROOT) / "rh-runtime" / "spec_packed.py"
 MARK = "B70_SPEC_PACKED_QLENS"
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""2026-10-21 B70_COMBO_SPEC: the 709L combined copy + MTP speculator for vLLM 0.32 (design: vllm032/combo-spec/DESIGN.md).
+"""2026-10-21 B70_COMBO_SPEC: the 709L combined copy + MTP speculator for vLLM 0.32 (design: README.md in this folder).
 
 Installs two new modules and hooks four files. Everything is gated on B70_COMBO_SPEC=1 at runtime: unset, the
 hooks are no-ops and the seat runs stock MTP.

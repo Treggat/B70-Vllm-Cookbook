@@ -89,7 +89,8 @@ absolute GitHub URLs to this repo.
   files instead.
 - No large binaries: no weights, no `.so` files, no datasets. Link to where they come from and give a sha256.
 - Every file in a recipe is either listed in its README's Layout table or sits inside a folder that is.
-- Don't leave TODOs, commented-out experiments or `.bak` files in the tree.
+- Don't leave TODOs, commented-out experiments or `.bak` files in the tree. (A documented optional block in an
+  `*.example` config is fine: say what it needs and when to turn it on.)
 
 ## Changing the repo
 

@@ -5,9 +5,11 @@
 - every recipe folder has its row on the front page and the standard pages
 - every file in a recipe is covered by its README's Layout table (docs/ is linked from the page itself)
 - no private hosts, local paths, internal names, secrets, .bak files or big binaries
+- the real copy of every *.example config is gitignored
 
 Prints one line per problem and exits 1, or prints OK.
 """
+import fnmatch
 import os
 import re
 import subprocess
@@ -23,7 +25,7 @@ RECIPE_PAGES = ["README.md", "docs/RECIPE.md", "docs/PITFALLS.md"]
 # (pattern, why). Matched against every text file, case-sensitive unless (?i).
 BANNED = [
     (r"\b192\.168\.\d+\.\d+|\b10\.\d+\.\d+\.\d+\b", "private IP address"),
-    (r"(?i)\b[A-Z]:\\(Users|AI)\\|/mnt/user/|/pc/workspace|/root/\.dsh", "local path"),
+    (r"(?i)\b[A-Z]:\\(Users|AI)\\|/mnt/user/|/appdata/|/pc/workspace|/root/\.dsh", "local path"),
     (r"(?i)\bAI\.Tower\b|\bBIGBOI\b", "private host name"),
     (r"(?i)\bhearth\b", "internal tool name (say 'our router', or link the project and explain it)"),
     (r"\bDSH\b", "internal tool name (say 'our agent harness')"),
@@ -119,6 +121,13 @@ def main():
         if ext == ".md":
             check_links(f, text, problems)
 
+    # every shipped *.example must have its real copy gitignored, so a local config can't be committed by accident
+    for f in all_files:
+        if f.endswith(".example"):
+            real = f[: -len(".example")]
+            if subprocess.run(["git", "check-ignore", "-q", real], cwd=ROOT).returncode != 0:
+                problems.append(f"{f}: {real} is not gitignored")
+
     for r in recipes:
         if f"]({r}/README.md)" not in front:
             problems.append(f"README.md: no front-page row linking {r}/README.md")
@@ -130,15 +139,17 @@ def main():
         if listed is None:
             problems.append(f"{r}/README.md: no '## Layout' table")
             continue
+        rels = [f[len(r) + 1:] for f in all_files if f.startswith(r + "/")]
         for p in listed:
-            if not os.path.exists(os.path.join(ROOT, r, p.rstrip("/"))):
+            if "*" in p:
+                if not fnmatch.filter(rels, p):
+                    problems.append(f"{r}/README.md: Layout lists {p}, which matches nothing")
+            elif not os.path.exists(os.path.join(ROOT, r, p.rstrip("/"))):
                 problems.append(f"{r}/README.md: Layout lists {p}, which does not exist")
         covered = [p.rstrip("/") for p in listed] + ["README.md", "docs", ".gitignore"]
-        for f in all_files:
-            if not f.startswith(r + "/"):
-                continue
-            rel = f[len(r) + 1:]
-            if not any(rel == c or rel.startswith(c + "/") for c in covered):
+        for rel in rels:
+            if not any(rel == c or rel.startswith(c + "/") or ("*" in c and fnmatch.fnmatch(rel, c))
+                       for c in covered):
                 problems.append(f"{r}/README.md: Layout table does not cover {rel}")
 
     for p in problems:
