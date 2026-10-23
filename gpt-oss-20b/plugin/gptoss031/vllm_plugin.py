@@ -1,4 +1,4 @@
-"""vLLM 0.31 general plugin for gpt-oss: harmony tool-call grammar, effort mapping and cap, HarmonyError guard.
+"""vLLM 0.31 / 0.32 general plugin for gpt-oss: harmony tool-call grammar, effort mapping and cap, HarmonyError guard.
 
 Loaded only by a server whose launcher puts this folder on PYTHONPATH (the entry point is in
 gptoss031-0.1.0.dist-info); the patches live in memory and nothing in site-packages changes. Run vLLM with

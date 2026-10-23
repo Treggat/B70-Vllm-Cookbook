@@ -1,9 +1,10 @@
-# gpt-oss-20b on one Intel Arc Pro B70 (vLLM 0.31 XPU), plus an anti-loop fine-tune
+# gpt-oss-20b on one Intel Arc Pro B70 (vLLM 0.32 XPU), plus an anti-loop fine-tune
 
 [← B70 vLLM Cookbook](../README.md)
 
 A recipe for serving OpenAI's **[gpt-oss-20b](https://huggingface.co/openai/gpt-oss-20b)** (MXFP4) on **one Arc Pro
-B70 (32 GB)** with vLLM 0.31.0 XPU at 16 concurrent streams, with reliable tool calls. It also covers how we trained
+B70 (32 GB)** with vLLM 0.32.0 XPU (0.31.0 until 2026-10-19; each number below says which) at 16 concurrent streams,
+with reliable tool calls. It also covers how we trained
 gpt-oss-20b out of its repetition loops on **two** B70s with Liquid AI's [Antidoom][antidoom], and what we learned
 running it as the model behind a coding agent.
 
@@ -25,8 +26,8 @@ scripts here also rebuild it from the public base model and Liquid AI's public p
 ## Results
 
 Our own evals on one box (two B70s; serving on one of them), October 2026. Stock = `openai/gpt-oss-20b`. Variant B =
-stock plus our Antidoom round 2 LoRA (attention only) merged in. Both served by the same vLLM 0.31 build, plugin and
-flags. Sample sizes are in the table. They are small, so read single-digit differences as noise unless a test is
+stock plus our Antidoom round 2 LoRA (attention only) merged in. Both served by the same vLLM build (0.31.0 at the
+time), plugin and flags; the move to 0.32 re-ran the gates on B (below). Sample sizes are in the table. They are small, so read single-digit differences as noise unless a test is
 given.
 
 | | stock | **variant B** |
@@ -52,7 +53,9 @@ aborted: the soak's own timeout killed them in flight at the end.)
 **Engine speed**, measured 2026-10-14 on stock weights, vLLM 0.31.0, one B70, XPU graphs on, short prompts:
 1 stream 106–117 tok/s, 4 streams 257 tok/s summed, 16 streams 698 tok/s summed. Eager mode (no graphs) did about
 43 tok/s on one stream. B has the same tensors and shapes, so we did not re-measure speed. It writes shorter replies:
-median 305 completion tokens on the loop set at medium, stock 418.
+median 305 completion tokens on the loop set at medium, stock 418. On vLLM 0.32.0 with the fp8 KV cache and the
+rebuilt kernels (`bench/bench_kv.py`, low effort, 700-token replies, 2026-10-19): 117 / 312 / 826 tok/s at 1 / 4 / 16
+streams, against 117 / 308 / 821 on 0.31 the day before with the same script.
 
 **fp8 KV cache** (`serve/gpt-oss.extra.example` since 2026-10-18): the KV pool doubles from 643,585 to 1,287,170
 tokens at the same decode speed. 16 agent-sized contexts of 69k each all stay cached (bf16: 0.1%), so their next turn
@@ -61,6 +64,13 @@ our optional rebuilt kernels ([kernels/](kernels/README.md); output byte-identic
 medium and high, graded 83.9%, tool_flow 0 format faults, PTC 56/72. A 69-minute 16-stream soak on fp8 (339 chat
 replies, 465 long reads, 625 tool calls) had 0 errors and 0 NaN replies. Details in
 [docs/RECIPE.md](docs/RECIPE.md#kv-cache-fp8).
+
+**vLLM 0.31 → 0.32** (2026-10-19, `results/vllm032/`): same pins (torch 2.14.0+xpu, triton 3.8.0+xpu,
+vllm-xpu-kernels 0.1.15.4), xgrammar 0.2.7 → 0.2.8, the same plugin (self-test 31/31 on both). Gates on B with fp8 KV
+and the rebuilt kernels, 0.31 the day before in parentheses: loops 1/200 at medium and 1/200 at high (1 / 1), graded
+82.9% (83.3%; 3 items of 700), tool_flow 2 × 16 sessions 0 format faults and 0 HTTP errors (0 / 0), PTC 51/72 (0.31
+the same evening: 48 to 55, which is the probe's noise band), KV pool 1,287,170 tokens (same), 51k-token cold read
+10.1 s to first token (10.0 s). We serve on 0.32 since that day.
 
 **What did not work:** round 3 tried to also train out a "narrated tool call" habit (the model writes the call or a
 made-up result as text). Three variants cut it on our replay set (27/30 → 11, 1 and 9 of 30) but each broke
@@ -74,15 +84,15 @@ dropped. Changing two harness messages instead took B from 27/30 to 2/30 with no
 Run these from this folder (`gpt-oss-20b/`). Serving needs one B70; training needs two.
 
 ```sh
-# 1. vLLM 0.31.0 XPU venv: the same build as the Qwen page (check oss-harmony afterwards, see docs/RECIPE.md)
-sh ../qwen38-709l/scripts/build_venv.sh /opt/b70/vllm031
+# 1. vLLM 0.32.0 XPU venv: the same build as the Qwen page (check oss-harmony afterwards, see docs/RECIPE.md)
+sh ../qwen38-709l/scripts/build_venv.sh /opt/b70/vllm032
 
 # 2. check the plugin against that venv (offline, no GPU): must end "31/31 passed"
-PYTHONPATH=$PWD/plugin GPTOSS_MODEL_DIR=/models/gpt-oss-20b /opt/b70/vllm031/venv/bin/python plugin/selftest.py
+PYTHONPATH=$PWD/plugin GPTOSS_MODEL_DIR=/models/gpt-oss-20b /opt/b70/vllm032/venv/bin/python plugin/selftest.py
 
 # 3. serve (XPU graphs and fp8 KV cache on via the .extra)
 cp serve/gpt-oss.extra.example serve/gpt-oss.extra
-VENV=/opt/b70/vllm031 MODEL=/models/gpt-oss-20b CARD=0 sh serve/serve-gpt-oss.sh 8000
+VENV=/opt/b70/vllm032 MODEL=/models/gpt-oss-20b CARD=0 sh serve/serve-gpt-oss.sh 8000
 
 # 4. check it before trusting it
 python bench/tool_flow.py http://localhost:8000 gpt-oss --sessions 16 --turns 8 --extra '{"reasoning_effort":"medium"}'
@@ -108,7 +118,7 @@ with `MODEL=` pointing at it.
 | `bench/ptc_probe.py` | one `run_code` call per task, with awkward strings inside the Python; checks JSON and syntax |
 | `bench/chat_check.py` | no-tool chat check for empty answers and commentary-channel leaks (round 3 gate) |
 | `antidoom/` | XPU trainer wrapper, MXFP4 merge, miner wrapper, prompt builders, pair filters, variant B config |
-| `results/` | the headline numbers as CSV/JSON (no prompts, no generations) |
+| `results/` | the headline numbers as CSV/JSON (no prompts, no generations); `vllm032/` holds the 0.32 gate logs |
 
 ## Credits
 
@@ -123,8 +133,8 @@ with `MODEL=` pointing at it.
 - **[riceharvest/b70-qwen38-cookbook](https://github.com/riceharvest/b70-qwen38-cookbook)** (MIT): the fast fp8
   conversion, scale fold and zero-sum guard that `kernels/` builds on (his patches are included unchanged under his
   license).
-- **[Vcvzgbzz/b70-cookbook](https://github.com/Vcvzgbzz/b70-cookbook)** (MIT): the vLLM 0.31 XPU build line our venv
-  follows. More B70 credits are on the [Qwen page](../qwen38-709l/README.md#credits).
+- **[Vcvzgbzz/b70-cookbook](https://github.com/Vcvzgbzz/b70-cookbook)** (MIT): the vLLM XPU build line our venv
+  follows (0.31, then 0.32). More B70 credits are on the [Qwen page](../qwen38-709l/README.md#credits).
 - Eval sets: [GSM8K](https://huggingface.co/datasets/openai/gsm8k), [MATH-500](https://huggingface.co/datasets/HuggingFaceH4/MATH-500),
   [MMLU](https://huggingface.co/datasets/cais/mmlu), [CommonsenseQA](https://huggingface.co/datasets/tau/commonsense_qa).
 - **Claude** (Anthropic; Claude Opus 5.5 and Claude Fable 5.1, through Claude Code): ported the trainer and the

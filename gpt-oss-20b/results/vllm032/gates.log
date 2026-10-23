@@ -1,0 +1,120 @@
+[02:39:43 PM] START gates for gpt-oss-antidoom via the test server
+[02:39:43 PM] warm-up
+[02:43:36 PM] bench_kv pool,greedy,speed,long
+[vllm032-fast5] warm-up
+   Paris
+[vllm032-fast5] pool
+   {'pool_tokens': 1287170, 'max_concurrency_at_max_len': 9.82033096926714, 'num_gpu_blocks': '20770', 'cache_dtype': 'fp8', 'skip_layers': '[]', 'offload_size': 'None'}
+[vllm032-fast5] greedy
+  greedy vs bf16-base: 5/20 identical
+[vllm032-fast5] speed
+  speed x1: summed 116.8 tok/s, per stream [116.8]
+  speed x4: summed 311.6 tok/s, per stream [77.9, 77.9, 77.9, 77.9]
+  speed x16: summed 825.7 tok/s, per stream [51.7, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6]
+[vllm032-fast5] long
+  long 51193 tok: ttft 10.12 s, decode 113.7 tok/s, needle True
+[vllm032-fast5] done
+[02:44:57 PM] measure_loops medium
+[199/200] ok   stop 990 tok 19.6s LiquidAI/ifstruct_generated
+[200/200] ok   length 4000 tok 103.2s codeparrot/apps
+loops-medium-200.jsonl: 200 done, 0 errors
+  loop rate      1/200 = 0.5%
+  hit max_tokens 7/200 = 3.5%  (loop AND capped: 0)
+  median tokens  282
+    codeparrot/apps                                           1/14 
+    cais/mmlu                                                 0/14 
+    meta-math/MetaMathQA                                      0/14 
+    openai/gsm8k                                              0/14 
+    allenai/math_qa                                           0/15 
+    DigitalLearningGmbH/MATH-lighteval                        0/15 
+    Post-training-Data-Flywheel/AutoIF-instruct-61k           0/15 
+    pubmed_qa                                                 0/14 
+    tau/commonsense_qa                                        0/14 
+    mlabonne/ultrachat_200k_sft                               0/14 
+    theblackcat102/evol-codealpaca-v1                         0/14 
+    LiquidAI/ifstruct_generated                               0/15 
+    mlabonne/lmsys-arena-human-preference-55k-sharegpt        0/14 
+    openbmb/UltraInteract_sft                                 0/14 
+[02:51:44 PM] PAUSE before 'measure_loops high': real callers on the live seat -> waiting, waiting for 3 quiet minutes
+[03:29:04 PM] START gates for gpt-oss-antidoom via the test server
+[03:29:04 PM] warm-up
+[03:31:53 PM] measure_loops medium: done before the 2:57 PM host crash (1/200), skipped on resume
+[03:31:53 PM] measure_loops high
+[199/200] ok   stop 898 tok 14.8s LiquidAI/ifstruct_generated
+[200/200] ok   length 4000 tok 68.6s codeparrot/apps
+loops-high-200.jsonl: 200 done, 0 errors
+  loop rate      1/200 = 0.5%
+  hit max_tokens 6/200 = 3.0%  (loop AND capped: 0)
+  median tokens  316
+    Post-training-Data-Flywheel/AutoIF-instruct-61k           1/15 
+    meta-math/MetaMathQA                                      0/14 
+    cais/mmlu                                                 0/14 
+    openai/gsm8k                                              0/14 
+    allenai/math_qa                                           0/15 
+    pubmed_qa                                                 0/14 
+    tau/commonsense_qa                                        0/14 
+    DigitalLearningGmbH/MATH-lighteval                        0/15 
+    mlabonne/ultrachat_200k_sft                               0/14 
+    theblackcat102/evol-codealpaca-v1                         0/14 
+    codeparrot/apps                                           0/14 
+    LiquidAI/ifstruct_generated                               0/15 
+    mlabonne/lmsys-arena-human-preference-55k-sharegpt        0/14 
+    openbmb/UltraInteract_sft                                 0/14 
+[03:37:17 PM] grade_eval medium
+[676/700] ok csqa
+[677/700] ok csqa
+[678/700] ok csqa
+[679/700] ok csqa
+[680/700] ok csqa
+[681/700] ok csqa
+[682/700] ok csqa
+[683/700] -- csqa
+[684/700] ok csqa
+[685/700] ok csqa
+[686/700] ok csqa
+[687/700] ok csqa
+[688/700] -- csqa
+[689/700] -- csqa
+[690/700] ok csqa
+[691/700] ok csqa
+[692/700] ok csqa
+[693/700] ok csqa
+[694/700] ok csqa
+[695/700] ok csqa
+[696/700] ok csqa
+[697/700] ok csqa
+[698/700] ok csqa
+[699/700] ok csqa
+[700/700] ok csqa
+[03:44:51 PM] tool_flow 1/2
+[s5]  18.4s t1:read t2:grep t3:write t4:grep t5:read t6:write t7:grep t8:read
+[s12]  18.5s t1:write t2:write t3:bash t4:grep t5:bash t6:bash t7:bash t8:bash
+[s3]  19.4s t1:write t2:bash t3:bash t4:read t5:bash t6:bash t7:bash t8:bash
+[s8]  19.8s t1:grep t2:write t3:write t4:grep t5:read t6:write t7:read t8:bash
+[s15]  20.3s t1:write t2:bash t3:read t4:bash t5:bash t6:bash t7:edit t8:write
+[s10]  23.2s t1:grep t2:write t3:write t4:bash t5:bash t6:final(stop)
+[s4]  24.6s t1:bash t2:bash t3:bash t4:write t5:write t6:bash t7:final(stop)
+TOTAL gpt-oss-antidoom {"reasoning_effort": "medium"}: sessions 16, turns 105, calls 96, bad_name 0, ctrl_leak 0, bad_json 0, http_err 0, bang 0, done 9
+[03:45:16 PM] tool_flow 2/2
+[s1]   9.8s t1:read t2:write t3:bash t4:final(stop)
+[s0]  13.6s t1:write t2:write t3:bash t4:grep t5:bash t6:grep t7:grep t8:bash
+[s11]  15.4s t1:grep t2:read t3:edit t4:grep t5:read t6:bash t7:bash t8:bash
+[s4]  16.3s t1:grep t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:write
+[s12]  17.2s t1:write t2:write t3:bash t4:grep t5:read t6:write t7:write t8:grep
+[s3]  21.8s t1:write t2:bash t3:bash t4:read t5:edit t6:write t7:write t8:write
+[s10]  27.5s t1:write t2:write t3:read t4:grep t5:bash t6:bash t7:bash t8:bash
+TOTAL gpt-oss-antidoom {"reasoning_effort": "medium"}: sessions 16, turns 90, calls 80, bad_name 0, ctrl_leak 0, bad_json 0, http_err 0, bang 0, done 10
+[03:45:45 PM] ptc_probe 6 rounds
+   task 8: code is not valid Python: invalid syntax (line 4)
+   task 10: code is not valid Python: invalid syntax (line 7)
+   task 1: code is not valid Python: invalid syntax (line 5)
+   task 2: code is not valid Python: unterminated string literal (detected at line 4) (line 4)
+   task 5: code is not valid Python: invalid syntax (line 3)
+   task 12: code never calls tools
+   task 1: code is not valid Python: invalid syntax. Perhaps you forgot a comma? (line 4)
+   task 7: code never calls tools
+   task 8: code is not valid Python: invalid syntax (line 4)
+   task 10: code is not valid Python: unexpected character after line continuation character (line 5)
+   task 12: code never calls tools
+   task 1: code is not valid Python: invalid syntax (line 5)
+[03:47:02 PM] END gates

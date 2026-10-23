@@ -53,15 +53,15 @@ library.
 ## Build
 
 ```sh
-WORK=/scratch/xk-gptoss VENV=/opt/b70/vllm031 ./build.sh
+WORK=/scratch/xk-gptoss VENV=/opt/b70/vllm032 ./build.sh
 ```
 
 It needs Docker, an 18 GB memory cap for the build container (two compiler jobs; ours peaked around 10 GB), and about
 40 minutes. It installs Intel's oneAPI DPC++ 2026.0 compiler into `$WORK/oneapi`. The result is about 42 MB (stock is
 307 MB, because it covers every model's head sizes).
 
-We built with `VENV` set, so CMake used our vLLM 0.31 venv's torch, inside a plain Ubuntu 24.04 image that only
-supplied cmake and ninja. Without `VENV`, the script uses the `vllm/vllm-openai-xpu:v0.31.0` image's own Python, the
+We built with `VENV` set, so CMake used our vLLM 0.31 venv's torch (0.32 pins the same torch, and the same library
+serves our 0.32 venv), inside a plain Ubuntu 24.04 image that only supplied cmake and ninja. Without `VENV`, the script uses the `vllm/vllm-openai-xpu:v0.31.0` image's own Python, the
 way riceharvest builds his. We haven't run that route ourselves.
 
 ## Install

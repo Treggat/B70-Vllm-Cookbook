@@ -11,11 +11,13 @@
 - Linux with the `xe` driver. As on the [Qwen page](../../qwen38-709l/docs/RECIPE.md), we ran vLLM from a venv on a
   mounted volume inside a container that already had the Level Zero / compute runtime.
 
-## 1. Build vLLM 0.31.0
+## 1. Build vLLM 0.32.0
 
 Use [`../qwen38-709l/scripts/build_venv.sh`](../../qwen38-709l/scripts/build_venv.sh). It builds an editable source
-install of v0.31.0 for XPU with torch 2.14.0+xpu, triton 3.8.0+xpu and vllm-xpu-kernels 0.1.15.4, which is the stack
-we served gpt-oss on. None of the Qwen patch stack is needed here.
+install of v0.32.0 for XPU with torch 2.14.0+xpu, triton 3.8.0+xpu and vllm-xpu-kernels 0.1.15.4. We served gpt-oss
+on 0.31.0 with the same pins from 2026-10-14 (the script's previous commit builds that tag) and on 0.32.0 since
+2026-10-19, with the same plugin and flags; the only package that moved is xgrammar (0.2.7 → 0.2.8). None of the
+Qwen patch stack is needed here.
 
 Our own gpt-oss venv was built from the same tag and pins by a slightly different script: it ran
 `pip install -r requirements/xpu.txt` and then `pip install --no-build-isolation -e .`. Whichever way you build it,
@@ -23,14 +25,20 @@ check two things afterwards, because the tool-call path depends on them:
 
 ```sh
 $VENV/venv/bin/python -m pip list | grep -i -E '^(vllm|torch|triton|xgrammar|oss-harmony|openai-harmony) '
-# want: oss-harmony >= 0.0.11 (v0.31.0's requirements/xpu.txt pins it), xgrammar (we had 0.2.7),
+# want: oss-harmony >= 0.0.11 (both tags' requirements/xpu.txt pin it), xgrammar (0.2.7 on 0.31, 0.2.8 on 0.32),
 #       and NO openai-harmony: both install a module called openai_harmony (vLLM #55128)
 $VENV/venv/bin/python -c "import openai_harmony, xgrammar, vllm; print(vllm.__version__)"
 ```
 
 The launcher also runs our
 [`patch_meminfo_fallback.py`](../../qwen38-709l/patches/patch_meminfo_fallback.py) on the tree (idempotent). Under
-some Level Zero drivers the kernels' memory query reads 0 GiB free and vLLM refuses to start.
+some Level Zero drivers the kernels' memory query reads 0 GiB free and vLLM refuses to start. The launcher passes the
+tree path explicitly: our first 0.32 build carried a copy of the patch with the old venv's path baked in, and it
+reported success after re-checking the 0.31 tree.
+
+If you use the rebuilt attention library ([`kernels/`](../kernels/README.md)), copy it into the new venv after the
+build and keep the stock one as `.stock`: 0.32 pins the same vllm-xpu-kernels 0.1.15.4, so the 0.31 build fits as
+is, but nothing copies it for you.
 
 ## 2. The plugin (`plugin/`)
 
@@ -50,6 +58,9 @@ appears. Measured on 0.31 with `bench/tool_flow.py`, 16 streaming multi-turn ses
 | none | 167 | 4 streams killed by `HarmonyError`, 7 tool names leaked or invalid |
 | vLLM 0.31 upstream (`--tool-strict-level function`) | 75 | 1 HTTP 500: xgrammar "grammar rejected tokens [200012]" (`<|call|>`) |
 | **ours** (`gptoss031`, upstream's off with `--tool-strict-level auto`) | 168 | **0** |
+
+Not re-measured on 0.32: the plugin's grammar stayed on, and its 0.32 gate (2 × 16 sessions, 176 calls) had 0
+format faults and 0 HTTP errors (`results/vllm032/flow-1.out`, `flow-2.out`).
 
 The difference: upstream ends a tool call on `["<|end|>", ""]`, ours on `""` (the stop token) only. With `<|end|>`
 allowed there, the grammar is complete after `<|end|>` and only the EOS `<|return|>` is legal next, so the model
@@ -96,7 +107,8 @@ test above; with the grammar on, the guard is a safety net for what the grammar 
 
 `plugin/selftest.py` runs 31 offline tests with the venv's vllm, xgrammar and openai_harmony and the gpt-oss tokenizer
 (no GPU, no model load): the grammar token by token as vLLM's xgrammar backend builds it, the hook points, effort
-mapping, the guard, and that the entry point is found. Run it after every vLLM upgrade.
+mapping, the guard, and that the entry point is found. Run it after every vLLM upgrade: 31/31 on 0.31.0 and 0.32.0
+(the hook points did not move).
 
 ## 3. Serve (`serve/`)
 
@@ -125,8 +137,29 @@ mapping, the guard, and that the entry point is found. Run it after every vLLM u
 Speed, 2026-10-14, stock weights, short prompts, graphs on: 1 stream 106–117 tok/s, 4 streams 257 summed, 16 streams
 698 summed. The same model on the older vLLM 0.26 image did 109–119 / 261 / 702, so 0.31 is on par. (The 2026-10-18
 fp8 measurements below use a different script with low effort and 700-token replies, so their 118 / 308 / 820 is not
-a speedup over these.) First load takes
+a speedup over these.) On 0.32, same script as the fp8 measurements, variant B, fp8 KV, rebuilt kernels: 117 / 312 /
+826 (0.31 the day before: 117 / 308 / 821; `results/vllm032/bench.out`). First load takes
 about 2.5–3 minutes on our box (a cold reload measured 144–169 s); later requests are warm.
+
+### Moving to 0.32
+
+2026-10-19, `results/vllm032/`. A fresh venv from the same build steps at v0.32.0, the rebuilt attention library
+copied in, the same plugin, cap and `.extra`. Gates on variant B with the fp8 KV cache, 0.31 with the same kernels the
+day before in parentheses:
+
+| gate | 0.32 | raw |
+|---|---|---|
+| KV pool | 1,287,170 tokens (same) | `bench.out` |
+| decode, 1 / 4 / 16 streams, summed tok/s | 117 / 312 / 826 (117 / 308 / 821) | `bench.out` |
+| 51k-token cold read: first token, decode | 10.1 s, 114 tok/s (10.0 s) | `bench.out` |
+| loops, 200 held-out prompts, medium / high | 1 / 1 (1 / 1) | `loops-medium.out`, `loops-high.out` |
+| graded accuracy, 700 items, medium | 82.9% (83.3%; 3 items) | `grade-medium.out` |
+| tool_flow, 2 × 16 sessions, format faults / HTTP errors | 0 / 0 (0 / 0) | `flow-1.out`, `flow-2.out` |
+| PTC probe, 72 calls | 51 (48 to 55 the same evening on 0.31) | `ptc6.out` |
+| plugin self-test | 31/31 | |
+
+`gates.log` is the whole run. We promoted the live server the same afternoon; rolling back is one path in the
+launcher's `VENV`.
 
 If a launcher or proxy sits in front of the server, keep its concurrency limit at or above `--max-num-seqs` so it
 doesn't queue requests vLLM could take.
@@ -201,4 +234,5 @@ python bench/ptc_probe.py http://localhost:8000 gpt-oss --rounds 3 --extra '{"re
 
 `bang` counts replies with more than 50 `!`. A reply of only `!!!!` is what a NaN looks like from the outside (token
 id 0). We saw it once on the older 0.26 image, about an hour into a 16-stream run (see
-[PITFALLS.md](PITFALLS.md#serving)). Two 4-hour 16-stream soaks on 0.31 (stock, then B) had none.
+[PITFALLS.md](PITFALLS.md#serving)). Two 4-hour 16-stream soaks on 0.31 (stock, then B) had none, and neither did
+the 0.32 gates (about 1,300 requests).

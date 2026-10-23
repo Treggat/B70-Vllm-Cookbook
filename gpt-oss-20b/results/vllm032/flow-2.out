@@ -1,0 +1,17 @@
+[s15]   5.5s t1:write t2:bash t3:final(stop)
+[s2]   7.1s t1:grep t2:write t3:grep t4:final(stop)
+[s9]   7.1s t1:write t2:bash t3:final(stop)
+[s13]   7.5s t1:read t2:write t3:bash t4:final(stop)
+[s7]   7.6s t1:read t2:write t3:bash t4:final(stop)
+[s5]   8.3s t1:read t2:edit t3:bash t4:bash t5:final(stop)
+[s6]   8.3s t1:bash t2:write t3:write t4:edit t5:bash t6:final(stop)
+[s14]   8.5s t1:grep t2:read t3:write t4:grep t5:final(stop)
+[s8]   8.5s t1:grep t2:read t3:write t4:final(stop)
+[s1]   9.8s t1:read t2:write t3:bash t4:final(stop)
+[s0]  13.6s t1:write t2:write t3:bash t4:grep t5:bash t6:grep t7:grep t8:bash
+[s11]  15.4s t1:grep t2:read t3:edit t4:grep t5:read t6:bash t7:bash t8:bash
+[s4]  16.3s t1:grep t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:write
+[s12]  17.2s t1:write t2:write t3:bash t4:grep t5:read t6:write t7:write t8:grep
+[s3]  21.8s t1:write t2:bash t3:bash t4:read t5:edit t6:write t7:write t8:write
+[s10]  27.5s t1:write t2:write t3:read t4:grep t5:bash t6:bash t7:bash t8:bash
+TOTAL gpt-oss-antidoom {"reasoning_effort": "medium"}: sessions 16, turns 90, calls 80, bad_name 0, ctrl_leak 0, bad_json 0, http_err 0, bang 0, done 10
