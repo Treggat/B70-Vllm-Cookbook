@@ -36,7 +36,13 @@ KEYS = {"drafts": "vllm:spec_decode_num_drafts_total", "dtok": "vllm:spec_decode
 
 def snap():
     t = urllib.request.urlopen(MET, timeout=20).read().decode()
-    return {k: float(re.search(r"^" + re.escape(n) + r"\{[^}]*\} ([0-9.e+]+)$", t, re.M).group(1)) for k, n in KEYS.items()}
+    out = {}
+    for k, n in KEYS.items():
+        m = re.search(r"^" + re.escape(n) + r"(?:\{[^}]*\})? ([0-9.e+]+)$", t, re.M)
+        if m is None:
+            sys.exit(f"prose_ab: {n} is not in {MET} (speculative decoding off, or METRICS_URL points at another server?)")
+        out[k] = float(m.group(1))
+    return out
 
 
 def run(prompt, mode, seed, mt):

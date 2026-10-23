@@ -88,7 +88,7 @@ def _init(model, device):
         _log("OFF: torch.ops._xpu_C.int4_gemm_w4a16 missing")
         return None
     try:
-        art = torch.load(path, map_location="cpu", weights_only=False)
+        art = torch.load(path, map_location="cpu", weights_only=True)   # tensors, numbers and strings only
     except Exception as e:  # noqa: BLE001
         _log(f"OFF: cannot load {path!r}: {e!r}")
         return None
@@ -185,27 +185,12 @@ def top_tokens(model, hidden_states: torch.Tensor) -> torch.Tensor:
     """greedy draft token ids [n] (full-vocab ids) for hidden_states [n, 5120]"""
     st = _STATE[id(model)]
     h = hidden_states.reshape(-1, hidden_states.shape[-1]).to(torch.float16)
-    n_rows, N = h.shape[0], st["n"]
-    z = h @ st["Q"]                                                               # [n, r]
-    s = _int4_mm(z, st["Pq"], st["Ps"], st["Pz"], st["Pg"])                       # [n, rows]
-    b = st["blk"]
-    if b:                                                                         # rows of the top N/b blocks
-        top = torch.topk(s.view(n_rows, -1, b).amax(-1), N // b, dim=-1, sorted=False).indices
-        cand = (top[:, :, None] * b + st["blk_ar"]).reshape(n_rows, N)
-    else:
-        cand = torch.topk(s, N, dim=-1, sorted=False).indices                     # [n, N]
-    flat = cand.reshape(-1)
-    # rescoring = the head's own int4 GEMM on the gathered candidate rows: rows_q[flat] is [n*N, 640] contiguous, so
-    # its .t() is the head's NT layout [640, n*N]; every request's h meets every gathered column, keep its own N
-    qT = st["rows_q"].index_select(0, flat).t()
-    sT = st["rows_s"].index_select(0, flat).t().contiguous()                      # [40, n*N]
-    lg = _int4_mm(h, qT, sT, st["qz"], st["g"], cache=False).view(n_rows, n_rows, N)
-    exact = torch.diagonal(lg, dim1=0, dim2=1).t()                                # [n, N]
+    cand, exact = _candidates(st, h)                                              # [n, N] each, NaN already -inf
     # tie-break on the lowest row among the maxima, like the stock argmax over the full head: topk(sorted=False)
     # gives the candidates in no fixed order, so argmax-first-in-list could pick a different tied row per run.
-    # NaN -> -inf first: the drafter's warm-up feeds garbage hidden states, an all-NaN row has no maximum, and the
-    # sentinel row would index past the head (seat-B load crash 2026-10-22 9:26 PM); the clamp is the backstop.
-    exact = torch.nan_to_num(exact, nan=float("-inf"))
+    # A row that came back all -inf (the drafter's warm-up feeds garbage hidden states; an all-NaN row had no
+    # maximum and the sentinel row indexed past the head, seat-B load crash 2026-10-22 9:26 PM) has every candidate
+    # at the maximum and takes its lowest row; the clamp is the backstop.
     top = exact == exact.max(dim=1, keepdim=True).values
     best = torch.where(top, cand, torch.full_like(cand, st["rows"])).min(dim=1).values.clamp(max=st["rows"] - 1)
     return st["ids"][best].view(hidden_states.shape[:-1])

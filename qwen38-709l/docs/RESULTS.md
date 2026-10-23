@@ -159,8 +159,8 @@ gathered rows is 17 us and uses the stock head's numerics.
 | | stock head | shortlist | change |
 |---|---|---|---|
 | short code (avg of 9) | 129.9 t/s | **134.6** | **+3.6%** (rerun 130.6 -> 135.0) |
-| decode behind 23k / 61k / 120k, ms per step | 40.1 / 46.2 / 56.4 | **38.7 / 44.5 / 54.3** | **-3.5 / -3.7 / -3.7%** (rerun x3: -3.3 / -3.3% at 23k / 58k) |
-| tokens per step at 23k / 58k (rerun, x3 each) | 3.25 / 3.54 | 3.22 / 3.53 | -0.7 / -0.3% |
+| decode behind 23k / 61k / 120k, ms per step | 40.1 / 46.2 / 56.4 | **38.7 / 44.5 / 54.3** | **-3.5 / -3.7 / -3.7%** (rerun x3: -3.3 / -3.3% at 23k / 61k) |
+| tokens per step at 23k / 61k (rerun, x3 each) | 3.25 / 3.54 | 3.22 / 3.53 | -0.7 / -0.3% |
 | 4 writers sampled, summed (x2) | 258.4 avg | 260.3 avg | noise |
 | edits, greedy and sampled | 233.8, 6/6 exact | **239.0, 6/6 exact** | +2.2% |
 | crossing | 3/3 | 3/3 | |
@@ -190,8 +190,8 @@ through our router; prod down 3 min 16 s):
 | | before | **after (live)** | change |
 |---|---|---|---|
 | short code (avg of 9) | 129.6 | **134.9** | **+4.1%** |
-| decode behind 23k / 58k, ms per step (x3) | 39.8 / 45.7 | **38.5 / 44.1** | **-3.4 / -3.4%** |
-| decode behind 23k / 58k, t/s | 83.6 / 81.8 | 93.0 / 84.2 | +11 / +3% (23k carries tokens-per-step noise) |
+| decode behind 23k / 61k, ms per step (x3) | 39.8 / 45.7 | **38.5 / 44.1** | **-3.4 / -3.4%** |
+| decode behind 23k / 61k, t/s | 83.6 / 81.8 | 93.0 / 84.2 | +11 / +3% (23k carries tokens-per-step noise) |
 | 4 writers sampled, summed (x2) | 263.8, 265.3 | 264.9, 270.6 | +1.2% |
 | edits, greedy and sampled | 237.1, 6/6 exact | **242.6, 6/6 exact** | +2.3% |
 | crossing / vision / greedy code x5 | 3/3 / correct / 5x one transcript | 3/3 / correct / 5x the same transcript | |

@@ -26,10 +26,12 @@ for mode in ("G", "S", "T"):
     print(f"{mode:4s} {ta:14.3f} {tb:12.3f} {100 * (tb / ta - 1):+7.2f}% | {va:9.1f} {vb:8.1f} {100 * (vb / va - 1):+7.2f}% | {na}/{nb}")
     if mode == "G":
         ka = {r["prompt"]: r for r in a}; kb = {r["prompt"]: r for r in b}
-        ch = [100 * ((1 + kb[p]["accepted"] / kb[p]["drafts"]) / (1 + ka[p]["accepted"] / ka[p]["drafts"]) - 1) for p in ka if p in kb]
+        tps = lambda r: 1 + r["accepted"] / max(r["drafts"], 1)   # same zero guard as agg()
+        ch = [100 * (tps(kb[p]) / tps(ka[p]) - 1) for p in ka if p in kb]
         same = sum(ka[p]["text_sha"] == kb[p]["text_sha"] for p in ka if p in kb)
-        print(f"     G paired per prompt: mean {st.mean(ch):+.2f}%, median {st.median(ch):+.2f}%, min {min(ch):+.2f}%, "
-              f"max {max(ch):+.2f}%; identical texts {same}/{len(ch)}")
+        if ch:
+            print(f"     G paired per prompt: mean {st.mean(ch):+.2f}%, median {st.median(ch):+.2f}%, min {min(ch):+.2f}%, "
+                  f"max {max(ch):+.2f}%; identical texts {same}/{len(ch)}")
     if mode == "S":
         s1 = agg([r for r in a if r["seed"] == 1])[0]; s2 = agg([r for r in a if r["seed"] == 2])[0]
         print(f"     S noise yardstick (base seed 1 vs seed 2): {100 * (s2 / s1 - 1):+.2f}%")

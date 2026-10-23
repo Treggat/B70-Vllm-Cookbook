@@ -79,7 +79,7 @@ def main():
     del Wf, raw
     W = BF.dequant_int4(qw, sc, gs)                                       # fp32 [98816, 5120]
     print(f'seat head rebuilt on CPU in {time.time() - t0:.0f}s', flush=True)
-    art = torch.load(a.artifact, weights_only=False)
+    art = torch.load(a.artifact, weights_only=True)
 
     def model_with(q=qw, s=sc, i=ids):
         m = FakeModel(); m._b70_lmhead_int4 = (q, s, qz, gs); m._b70_draft_vocab_ids = i; return m
