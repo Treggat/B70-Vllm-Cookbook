@@ -1,0 +1,12 @@
+tile-w2g deep  23239 tok:   61.9 t/s,  2.82 tok/step,  7.04 drafts/step,  45.0 ms/step
+tile-w2g deep  61314 tok:   65.3 t/s,  3.46 tok/step,  7.03 drafts/step,  52.7 ms/step
+tile-w2g deep 120355 tok:   47.1 t/s,  3.11 tok/step,  7.37 drafts/step,  65.9 ms/step
+tile-w2g deep 209798 tok:   36.2 t/s,  3.04 tok/step,  7.02 drafts/step,  83.6 ms/step
+4 writers: {'each': [32.3, 30.4, 36.5, 34.6], 'summed': 133.8
+'tok_per_step': 1.82
+avg of 9: 90.5 t/s
+W2G_DONE
+w2g E2 param  s:  233.1 t/s  (3349 out, prompt 3448, ttft 0.1s)  exact=True ratio=1.0000
+w2g E3 bugfix g:  278.6 t/s  (3589 out, prompt 3686, ttft 1.9s)  exact=True ratio=1.0000
+w2g E3 bugfix s:  274.1 t/s  (3589 out, prompt 3686, ttft 0.2s)  exact=True ratio=1.0000
+w2g EDIT avg: greedy 227.9 t/s, sampled 225.4 t/s, all 226.6 t/s; exact 6/6

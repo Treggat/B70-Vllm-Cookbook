@@ -1,0 +1,329 @@
+devices 1 Intel(R) Graphics [0xe223] uuid 868023e2-0000-0000-0600-000000000000
+B=1 R= 6 lens=[6] rows=  6 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    16.0 us  cold    44.6 us  x48  2.14 ms    247 GB/s state
+B=1 R= 6 lens=[6] rows=  6 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.0 us  cold    30.7 us  x48  1.47 ms    359 GB/s state  vs installed 1.45x
+B=1 R= 6 lens=[6] rows=  6 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    14.6 us  cold    30.5 us  x48  1.46 ms    361 GB/s state  vs installed 1.46x
+B=1 R= 6 lens=[6] rows=  6 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    19.6 us  x48  0.94 ms    561 GB/s state  vs installed 2.27x
+B=1 R= 6 lens=[6] rows=  6 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.9 us  cold    19.3 us  x48  0.92 ms    572 GB/s state  vs installed 2.32x
+B=1 R= 6 lens=[6] rows=  6 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    22.2 us  x48  1.07 ms    495 GB/s state  vs installed 2.01x
+B=1 R= 6 lens=[6] rows=  6 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    21.8 us  x48  1.05 ms    505 GB/s state  vs installed 2.04x
+B=1 R= 6 lens=[6] rows=  6 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    19.6 us  x48  0.94 ms    561 GB/s state  vs installed 2.27x
+B=1 R= 6 lens=[6] rows=  6 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    19.4 us  x48  0.93 ms    568 GB/s state  vs installed 2.30x
+B=1 R= 6 lens=[6] rows=  6 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    22.1 us  x48  1.06 ms    499 GB/s state  vs installed 2.02x
+B=1 R= 6 lens=[6] rows=  6 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.9 us  cold    22.1 us  x48  1.06 ms    497 GB/s state  vs installed 2.02x
+B=1 R= 6 lens=[6] rows=  6 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    11.0 us  x48  0.53 ms   1003 GB/s state  vs installed 4.06x
+B=1 R= 6 lens=[6] rows=  6 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.6 us  cold    10.9 us  x48  0.53 ms   1006 GB/s state  vs installed 4.08x
+B=2 R= 6 lens=[6, 6] rows= 12 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    43.4 us  cold    62.1 us  x48  2.98 ms    354 GB/s state
+B=2 R= 6 lens=[6, 6] rows= 12 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    43.5 us  cold    62.2 us  x48  2.99 ms    354 GB/s state  vs installed 1.00x
+B=2 R= 6 lens=[6, 6] rows= 12 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    43.3 us  cold    62.0 us  x48  2.97 ms    355 GB/s state  vs installed 1.00x
+B=2 R= 6 lens=[6, 6] rows= 12 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    22.9 us  cold    38.3 us  x48  1.84 ms    574 GB/s state  vs installed 1.62x
+B=2 R= 6 lens=[6, 6] rows= 12 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.0 us  cold    35.5 us  x48  1.70 ms    620 GB/s state  vs installed 1.75x
+B=2 R= 6 lens=[6, 6] rows= 12 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.8 us  cold    38.8 us  x48  1.86 ms    567 GB/s state  vs installed 1.60x
+B=2 R= 6 lens=[6, 6] rows= 12 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    26.8 us  cold    41.3 us  x48  1.98 ms    533 GB/s state  vs installed 1.50x
+B=2 R= 6 lens=[6, 6] rows= 12 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    23.0 us  cold    38.6 us  x48  1.85 ms    570 GB/s state  vs installed 1.61x
+B=2 R= 6 lens=[6, 6] rows= 12 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.0 us  cold    35.3 us  x48  1.70 ms    623 GB/s state  vs installed 1.76x
+B=2 R= 6 lens=[6, 6] rows= 12 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.8 us  cold    38.9 us  x48  1.87 ms    566 GB/s state  vs installed 1.60x
+B=2 R= 6 lens=[6, 6] rows= 12 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    26.9 us  cold    41.5 us  x48  1.99 ms    530 GB/s state  vs installed 1.50x
+B=2 R= 6 lens=[6, 6] rows= 12 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.6 us  cold    19.7 us  x48  0.95 ms   1117 GB/s state  vs installed 3.15x
+B=2 R= 6 lens=[6, 6] rows= 12 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.8 us  cold    19.6 us  x48  0.94 ms   1122 GB/s state  vs installed 3.17x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   131.8 us  cold   125.5 us  x48  6.03 ms    351 GB/s state
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   132.1 us  cold   125.9 us  x48  6.04 ms    350 GB/s state  vs installed 1.00x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   132.2 us  cold   125.7 us  x48  6.04 ms    350 GB/s state  vs installed 1.00x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    72.1 us  cold    74.3 us  x48  3.57 ms    593 GB/s state  vs installed 1.69x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    68.4 us  cold    74.3 us  x48  3.57 ms    592 GB/s state  vs installed 1.69x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    74.4 us  cold    76.1 us  x48  3.65 ms    579 GB/s state  vs installed 1.65x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    69.2 us  cold    75.5 us  x48  3.62 ms    583 GB/s state  vs installed 1.66x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    72.3 us  cold    74.0 us  x48  3.55 ms    595 GB/s state  vs installed 1.70x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    68.5 us  cold    74.4 us  x48  3.57 ms    592 GB/s state  vs installed 1.69x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    74.5 us  cold    76.5 us  x48  3.67 ms    576 GB/s state  vs installed 1.64x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    69.1 us  cold    75.5 us  x48  3.62 ms    583 GB/s state  vs installed 1.66x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.7 us  cold    30.6 us  x48  1.47 ms   1438 GB/s state  vs installed 4.10x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.6 us  cold    30.6 us  x48  1.47 ms   1439 GB/s state  vs installed 4.10x
+B=2 R= 6 lens=[6, 3] rows=  9 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    19.8 us  cold    43.2 us  x48  2.07 ms    401 GB/s state
+B=2 R= 6 lens=[6, 3] rows=  9 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    19.7 us  cold    42.9 us  x48  2.06 ms    403 GB/s state  vs installed 1.01x
+B=2 R= 6 lens=[6, 3] rows=  9 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    18.6 us  cold    42.4 us  x48  2.03 ms    408 GB/s state  vs installed 1.02x
+B=2 R= 6 lens=[6, 3] rows=  9 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    28.9 us  x48  1.39 ms    599 GB/s state  vs installed 1.50x
+B=2 R= 6 lens=[6, 3] rows=  9 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.7 us  cold    27.6 us  x48  1.33 ms    626 GB/s state  vs installed 1.56x
+B=2 R= 6 lens=[6, 3] rows=  9 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.5 us  cold    30.5 us  x48  1.46 ms    568 GB/s state  vs installed 1.42x
+B=2 R= 6 lens=[6, 3] rows=  9 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.1 us  cold    31.3 us  x48  1.50 ms    552 GB/s state  vs installed 1.38x
+B=2 R= 6 lens=[6, 3] rows=  9 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.9 us  cold    29.1 us  x48  1.40 ms    595 GB/s state  vs installed 1.49x
+B=2 R= 6 lens=[6, 3] rows=  9 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    27.8 us  x48  1.33 ms    623 GB/s state  vs installed 1.55x
+B=2 R= 6 lens=[6, 3] rows=  9 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.5 us  cold    30.4 us  x48  1.46 ms    568 GB/s state  vs installed 1.42x
+B=2 R= 6 lens=[6, 3] rows=  9 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.2 us  cold    31.5 us  x48  1.51 ms    550 GB/s state  vs installed 1.37x
+B=2 R= 6 lens=[6, 3] rows=  9 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.0 us  cold    17.0 us  x48  0.82 ms   1019 GB/s state  vs installed 2.54x
+B=2 R= 6 lens=[6, 3] rows=  9 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    18.0 us  cold    17.0 us  x48  0.82 ms   1017 GB/s state  vs installed 2.54x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    44.9 us  cold    75.1 us  x48  3.61 ms    398 GB/s state
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    44.5 us  cold    75.2 us  x48  3.61 ms    397 GB/s state  vs installed 1.00x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    44.8 us  cold    74.8 us  x48  3.59 ms    399 GB/s state  vs installed 1.00x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.5 us  cold    50.4 us  x48  2.42 ms    592 GB/s state  vs installed 1.49x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.9 us  cold    49.0 us  x48  2.35 ms    610 GB/s state  vs installed 1.53x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    26.2 us  cold    52.8 us  x48  2.53 ms    566 GB/s state  vs installed 1.42x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    27.4 us  cold    51.0 us  x48  2.45 ms    586 GB/s state  vs installed 1.47x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.7 us  cold    50.5 us  x48  2.43 ms    591 GB/s state  vs installed 1.49x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.8 us  cold    48.7 us  x48  2.34 ms    613 GB/s state  vs installed 1.54x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    26.3 us  cold    52.9 us  x48  2.54 ms    565 GB/s state  vs installed 1.42x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    27.4 us  cold    51.1 us  x48  2.45 ms    585 GB/s state  vs installed 1.47x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    27.3 us  x48  1.31 ms   1096 GB/s state  vs installed 2.75x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    27.3 us  x48  1.31 ms   1095 GB/s state  vs installed 2.75x
+GDNROWS PASS
+devices 1 Intel(R) Graphics [0xe223] uuid 868023e2-0000-0000-0600-000000000000
+B=1 R= 3 lens=[3] rows=  3 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    15.8 us  cold    20.6 us  x48  0.99 ms    305 GB/s state
+B=1 R= 3 lens=[3] rows=  3 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.3 us  cold    17.4 us  x48  0.83 ms    362 GB/s state  vs installed 1.19x
+B=1 R= 3 lens=[3] rows=  3 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.2 us  cold    17.4 us  x48  0.84 ms    361 GB/s state  vs installed 1.18x
+B=1 R= 3 lens=[3] rows=  3 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    18.2 us  cold    12.3 us  x48  0.59 ms    512 GB/s state  vs installed 1.68x
+B=1 R= 3 lens=[3] rows=  3 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.7 us  cold    12.3 us  x48  0.59 ms    511 GB/s state  vs installed 1.68x
+B=1 R= 3 lens=[3] rows=  3 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    14.3 us  x48  0.68 ms    441 GB/s state  vs installed 1.45x
+B=1 R= 3 lens=[3] rows=  3 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    13.3 us  x48  0.64 ms    472 GB/s state  vs installed 1.55x
+B=1 R= 3 lens=[3] rows=  3 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    12.4 us  x48  0.60 ms    506 GB/s state  vs installed 1.66x
+B=1 R= 3 lens=[3] rows=  3 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.0 us  cold    12.4 us  x48  0.59 ms    509 GB/s state  vs installed 1.67x
+B=1 R= 3 lens=[3] rows=  3 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    14.6 us  x48  0.70 ms    430 GB/s state  vs installed 1.41x
+B=1 R= 3 lens=[3] rows=  3 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    13.4 us  x48  0.64 ms    470 GB/s state  vs installed 1.54x
+B=1 R= 3 lens=[3] rows=  3 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.4 us  cold     8.9 us  x48  0.43 ms    704 GB/s state  vs installed 2.31x
+B=1 R= 3 lens=[3] rows=  3 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold     9.0 us  x48  0.43 ms    701 GB/s state  vs installed 2.30x
+B=2 R= 3 lens=[3, 3] rows=  6 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    15.4 us  cold    31.7 us  x48  1.52 ms    397 GB/s state
+B=2 R= 3 lens=[3, 3] rows=  6 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    14.9 us  cold    31.5 us  x48  1.51 ms    400 GB/s state  vs installed 1.01x
+B=2 R= 3 lens=[3, 3] rows=  6 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.2 us  cold    32.0 us  x48  1.54 ms    393 GB/s state  vs installed 0.99x
+B=2 R= 3 lens=[3, 3] rows=  6 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    23.2 us  x48  1.11 ms    542 GB/s state  vs installed 1.37x
+B=2 R= 3 lens=[3, 3] rows=  6 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.6 us  cold    20.8 us  x48  1.00 ms    605 GB/s state  vs installed 1.52x
+B=2 R= 3 lens=[3, 3] rows=  6 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.4 us  cold    24.3 us  x48  1.16 ms    519 GB/s state  vs installed 1.31x
+B=2 R= 3 lens=[3, 3] rows=  6 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.9 us  cold    23.6 us  x48  1.13 ms    533 GB/s state  vs installed 1.34x
+B=2 R= 3 lens=[3, 3] rows=  6 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.9 us  cold    23.2 us  x48  1.11 ms    543 GB/s state  vs installed 1.37x
+B=2 R= 3 lens=[3, 3] rows=  6 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    20.8 us  x48  1.00 ms    605 GB/s state  vs installed 1.52x
+B=2 R= 3 lens=[3, 3] rows=  6 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.8 us  cold    24.7 us  x48  1.18 ms    510 GB/s state  vs installed 1.29x
+B=2 R= 3 lens=[3, 3] rows=  6 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    23.6 us  x48  1.13 ms    532 GB/s state  vs installed 1.34x
+B=2 R= 3 lens=[3, 3] rows=  6 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.6 us  cold    16.6 us  x48  0.79 ms    760 GB/s state  vs installed 1.91x
+B=2 R= 3 lens=[3, 3] rows=  6 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.8 us  cold    16.0 us  x48  0.77 ms    784 GB/s state  vs installed 1.98x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    27.4 us  cold    58.0 us  x48  2.78 ms    434 GB/s state
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    27.5 us  cold    58.0 us  x48  2.78 ms    434 GB/s state  vs installed 1.00x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    27.3 us  cold    57.8 us  x48  2.78 ms    435 GB/s state  vs installed 1.00x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    41.1 us  x48  1.97 ms    612 GB/s state  vs installed 1.41x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.8 us  cold    41.6 us  x48  2.00 ms    605 GB/s state  vs installed 1.39x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.0 us  cold    43.9 us  x48  2.11 ms    573 GB/s state  vs installed 1.32x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    19.6 us  cold    42.8 us  x48  2.05 ms    588 GB/s state  vs installed 1.35x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    41.1 us  x48  1.97 ms    613 GB/s state  vs installed 1.41x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.5 us  cold    41.6 us  x48  2.00 ms    604 GB/s state  vs installed 1.39x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    20.8 us  cold    44.0 us  x48  2.11 ms    572 GB/s state  vs installed 1.32x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    19.7 us  cold    42.8 us  x48  2.06 ms    588 GB/s state  vs installed 1.35x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    18.9 us  cold    24.6 us  x48  1.18 ms   1025 GB/s state  vs installed 2.36x
+B=4 R= 3 lens=[3, 3, 3, 3] rows= 12 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.4 us  cold    24.5 us  x48  1.17 ms   1029 GB/s state  vs installed 2.37x
+B=2 R= 3 lens=[3, 1] rows=  4 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    15.4 us  cold    21.4 us  x48  1.03 ms    441 GB/s state
+B=2 R= 3 lens=[3, 1] rows=  4 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    14.8 us  cold    21.2 us  x48  1.02 ms    446 GB/s state  vs installed 1.01x
+B=2 R= 3 lens=[3, 1] rows=  4 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    14.2 us  cold    21.0 us  x48  1.01 ms    449 GB/s state  vs installed 1.02x
+B=2 R= 3 lens=[3, 1] rows=  4 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    17.1 us  x48  0.82 ms    553 GB/s state  vs installed 1.25x
+B=2 R= 3 lens=[3, 1] rows=  4 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.0 us  cold    15.8 us  x48  0.76 ms    597 GB/s state  vs installed 1.35x
+B=2 R= 3 lens=[3, 1] rows=  4 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.6 us  cold    19.5 us  x48  0.94 ms    484 GB/s state  vs installed 1.10x
+B=2 R= 3 lens=[3, 1] rows=  4 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.4 us  cold    17.3 us  x48  0.83 ms    546 GB/s state  vs installed 1.24x
+B=2 R= 3 lens=[3, 1] rows=  4 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.0 us  cold    16.9 us  x48  0.81 ms    559 GB/s state  vs installed 1.27x
+B=2 R= 3 lens=[3, 1] rows=  4 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.6 us  cold    15.8 us  x48  0.76 ms    598 GB/s state  vs installed 1.36x
+B=2 R= 3 lens=[3, 1] rows=  4 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.8 us  cold    19.4 us  x48  0.93 ms    487 GB/s state  vs installed 1.10x
+B=2 R= 3 lens=[3, 1] rows=  4 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.8 us  cold    17.3 us  x48  0.83 ms    545 GB/s state  vs installed 1.23x
+B=2 R= 3 lens=[3, 1] rows=  4 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    14.3 us  x48  0.69 ms    660 GB/s state  vs installed 1.50x
+B=2 R= 3 lens=[3, 1] rows=  4 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    14.2 us  x48  0.68 ms    664 GB/s state  vs installed 1.50x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    16.6 us  cold    36.6 us  x48  1.76 ms    473 GB/s state
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.5 us  cold    36.8 us  x48  1.77 ms    470 GB/s state  vs installed 0.99x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.5 us  cold    35.8 us  x48  1.72 ms    483 GB/s state  vs installed 1.02x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.9 us  cold    27.3 us  x48  1.31 ms    635 GB/s state  vs installed 1.34x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.5 us  cold    27.0 us  x48  1.29 ms    642 GB/s state  vs installed 1.36x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.8 us  cold    31.3 us  x48  1.50 ms    552 GB/s state  vs installed 1.17x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.9 us  cold    26.4 us  x48  1.27 ms    654 GB/s state  vs installed 1.38x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    27.2 us  x48  1.31 ms    636 GB/s state  vs installed 1.35x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.5 us  cold    26.9 us  x48  1.29 ms    644 GB/s state  vs installed 1.36x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.8 us  cold    31.3 us  x48  1.50 ms    552 GB/s state  vs installed 1.17x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.9 us  cold    26.4 us  x48  1.27 ms    655 GB/s state  vs installed 1.39x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    21.1 us  x48  1.01 ms    821 GB/s state  vs installed 1.74x
+B=4 R= 3 lens=[3, 1, 1, 2] rows=  7 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.8 us  cold    21.2 us  x48  1.02 ms    815 GB/s state  vs installed 1.72x
+B=1 R= 6 lens=[6] rows=  6 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    30.8 us  x48  1.48 ms    357 GB/s state
+B=1 R= 6 lens=[6] rows=  6 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    15.5 us  cold    30.9 us  x48  1.48 ms    357 GB/s state  vs installed 1.00x
+B=1 R= 6 lens=[6] rows=  6 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    14.8 us  cold    30.7 us  x48  1.47 ms    358 GB/s state  vs installed 1.00x
+B=1 R= 6 lens=[6] rows=  6 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    19.6 us  x48  0.94 ms    562 GB/s state  vs installed 1.57x
+B=1 R= 6 lens=[6] rows=  6 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    19.2 us  x48  0.92 ms    572 GB/s state  vs installed 1.60x
+B=1 R= 6 lens=[6] rows=  6 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.8 us  cold    22.4 us  x48  1.07 ms    493 GB/s state  vs installed 1.38x
+B=1 R= 6 lens=[6] rows=  6 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.0 us  cold    22.2 us  x48  1.06 ms    497 GB/s state  vs installed 1.39x
+B=1 R= 6 lens=[6] rows=  6 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.0 us  cold    19.6 us  x48  0.94 ms    563 GB/s state  vs installed 1.57x
+B=1 R= 6 lens=[6] rows=  6 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    19.4 us  x48  0.93 ms    566 GB/s state  vs installed 1.58x
+B=1 R= 6 lens=[6] rows=  6 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.4 us  cold    22.4 us  x48  1.07 ms    492 GB/s state  vs installed 1.38x
+B=1 R= 6 lens=[6] rows=  6 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.5 us  cold    22.3 us  x48  1.07 ms    493 GB/s state  vs installed 1.38x
+B=1 R= 6 lens=[6] rows=  6 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.0 us  cold    10.9 us  x48  0.52 ms   1012 GB/s state  vs installed 2.83x
+B=1 R= 6 lens=[6] rows=  6 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    18.0 us  cold    10.8 us  x48  0.52 ms   1018 GB/s state  vs installed 2.85x
+B=2 R= 6 lens=[6, 6] rows= 12 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    32.8 us  cold    59.7 us  x48  2.87 ms    369 GB/s state
+B=2 R= 6 lens=[6, 6] rows= 12 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    33.1 us  cold    59.9 us  x48  2.88 ms    367 GB/s state  vs installed 1.00x
+B=2 R= 6 lens=[6, 6] rows= 12 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    37.3 us  cold    58.1 us  x48  2.79 ms    379 GB/s state  vs installed 1.03x
+B=2 R= 6 lens=[6, 6] rows= 12 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    19.5 us  cold    37.3 us  x48  1.79 ms    591 GB/s state  vs installed 1.60x
+B=2 R= 6 lens=[6, 6] rows= 12 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    32.4 us  cold    35.3 us  x48  1.69 ms    624 GB/s state  vs installed 1.69x
+B=2 R= 6 lens=[6, 6] rows= 12 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.4 us  cold    38.2 us  x48  1.83 ms    577 GB/s state  vs installed 1.57x
+B=2 R= 6 lens=[6, 6] rows= 12 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    24.4 us  cold    40.4 us  x48  1.94 ms    545 GB/s state  vs installed 1.48x
+B=2 R= 6 lens=[6, 6] rows= 12 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    19.4 us  cold    37.4 us  x48  1.79 ms    589 GB/s state  vs installed 1.60x
+B=2 R= 6 lens=[6, 6] rows= 12 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    22.0 us  cold    35.1 us  x48  1.68 ms    628 GB/s state  vs installed 1.70x
+B=2 R= 6 lens=[6, 6] rows= 12 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    22.4 us  cold    38.2 us  x48  1.84 ms    576 GB/s state  vs installed 1.56x
+B=2 R= 6 lens=[6, 6] rows= 12 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    24.5 us  cold    40.5 us  x48  1.94 ms    544 GB/s state  vs installed 1.48x
+B=2 R= 6 lens=[6, 6] rows= 12 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.1 us  cold    19.5 us  x48  0.93 ms   1131 GB/s state  vs installed 3.07x
+B=2 R= 6 lens=[6, 6] rows= 12 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    19.5 us  x48  0.94 ms   1129 GB/s state  vs installed 3.06x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   132.8 us  cold   125.3 us  x48  6.02 ms    351 GB/s state
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   133.1 us  cold   125.8 us  x48  6.04 ms    350 GB/s state  vs installed 1.00x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   132.9 us  cold   125.7 us  x48  6.04 ms    350 GB/s state  vs installed 1.00x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    73.1 us  cold    73.2 us  x48  3.52 ms    601 GB/s state  vs installed 1.71x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    68.2 us  cold    73.3 us  x48  3.52 ms    601 GB/s state  vs installed 1.71x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    76.2 us  cold    76.0 us  x48  3.65 ms    580 GB/s state  vs installed 1.65x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    72.3 us  cold    75.1 us  x48  3.60 ms    587 GB/s state  vs installed 1.67x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    73.0 us  cold    73.3 us  x48  3.52 ms    601 GB/s state  vs installed 1.71x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    68.0 us  cold    73.1 us  x48  3.51 ms    603 GB/s state  vs installed 1.71x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    76.3 us  cold    76.0 us  x48  3.65 ms    579 GB/s state  vs installed 1.65x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    72.4 us  cold    75.2 us  x48  3.61 ms    585 GB/s state  vs installed 1.67x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.7 us  cold    31.1 us  x48  1.49 ms   1418 GB/s state  vs installed 4.04x
+B=4 R= 6 lens=[6, 6, 6, 6] rows= 24 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.8 us  cold    31.2 us  x48  1.50 ms   1414 GB/s state  vs installed 4.02x
+B=2 R= 6 lens=[6, 3] rows=  9 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    18.7 us  cold    42.5 us  x48  2.04 ms    407 GB/s state
+B=2 R= 6 lens=[6, 3] rows=  9 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    18.7 us  cold    42.5 us  x48  2.04 ms    407 GB/s state  vs installed 1.00x
+B=2 R= 6 lens=[6, 3] rows=  9 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    18.7 us  cold    42.2 us  x48  2.03 ms    410 GB/s state  vs installed 1.01x
+B=2 R= 6 lens=[6, 3] rows=  9 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    29.8 us  x48  1.43 ms    581 GB/s state  vs installed 1.43x
+B=2 R= 6 lens=[6, 3] rows=  9 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.4 us  cold    28.4 us  x48  1.36 ms    609 GB/s state  vs installed 1.49x
+B=2 R= 6 lens=[6, 3] rows=  9 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    31.1 us  x48  1.49 ms    556 GB/s state  vs installed 1.36x
+B=2 R= 6 lens=[6, 3] rows=  9 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.1 us  cold    31.8 us  x48  1.53 ms    544 GB/s state  vs installed 1.34x
+B=2 R= 6 lens=[6, 3] rows=  9 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.3 us  cold    29.5 us  x48  1.41 ms    587 GB/s state  vs installed 1.44x
+B=2 R= 6 lens=[6, 3] rows=  9 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.4 us  cold    28.4 us  x48  1.36 ms    610 GB/s state  vs installed 1.50x
+B=2 R= 6 lens=[6, 3] rows=  9 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    31.1 us  x48  1.49 ms    556 GB/s state  vs installed 1.37x
+B=2 R= 6 lens=[6, 3] rows=  9 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.4 us  cold    31.6 us  x48  1.51 ms    548 GB/s state  vs installed 1.35x
+B=2 R= 6 lens=[6, 3] rows=  9 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.6 us  cold    17.1 us  x48  0.82 ms   1013 GB/s state  vs installed 2.49x
+B=2 R= 6 lens=[6, 3] rows=  9 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.5 us  cold    16.8 us  x48  0.81 ms   1028 GB/s state  vs installed 2.52x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    39.3 us  cold    73.9 us  x48  3.55 ms    404 GB/s state
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    39.3 us  cold    73.4 us  x48  3.52 ms    407 GB/s state  vs installed 1.01x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    41.6 us  cold    75.0 us  x48  3.60 ms    398 GB/s state  vs installed 0.99x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.7 us  cold    50.0 us  x48  2.40 ms    598 GB/s state  vs installed 1.48x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.8 us  cold    49.8 us  x48  2.39 ms    600 GB/s state  vs installed 1.48x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    28.9 us  cold    52.5 us  x48  2.52 ms    569 GB/s state  vs installed 1.41x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    26.1 us  cold    51.4 us  x48  2.46 ms    582 GB/s state  vs installed 1.44x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    21.8 us  cold    50.1 us  x48  2.40 ms    597 GB/s state  vs installed 1.48x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.8 us  cold    50.0 us  x48  2.40 ms    598 GB/s state  vs installed 1.48x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    28.9 us  cold    52.4 us  x48  2.52 ms    570 GB/s state  vs installed 1.41x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    26.1 us  cold    51.5 us  x48  2.47 ms    581 GB/s state  vs installed 1.44x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.5 us  cold    26.9 us  x48  1.29 ms   1110 GB/s state  vs installed 2.75x
+B=4 R= 6 lens=[6, 3, 1, 5] rows= 15 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.2 us  cold    27.2 us  x48  1.30 ms   1100 GB/s state  vs installed 2.72x
+B=1 R=16 lens=[16] rows= 16 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot    52.5 us  cold    80.1 us  x48  3.85 ms    334 GB/s state
+B=1 R=16 lens=[16] rows= 16 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot    52.2 us  cold    80.2 us  x48  3.85 ms    333 GB/s state  vs installed 1.00x
+B=1 R=16 lens=[16] rows= 16 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot    50.8 us  cold    80.5 us  x48  3.87 ms    332 GB/s state  vs installed 0.99x
+B=1 R=16 lens=[16] rows= 16 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    23.8 us  cold    45.1 us  x48  2.16 ms    593 GB/s state  vs installed 1.78x
+B=1 R=16 lens=[16] rows= 16 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.1 us  cold    45.4 us  x48  2.18 ms    589 GB/s state  vs installed 1.76x
+B=1 R=16 lens=[16] rows= 16 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    31.7 us  cold    52.8 us  x48  2.53 ms    507 GB/s state  vs installed 1.52x
+B=1 R=16 lens=[16] rows= 16 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    31.7 us  cold    48.9 us  x48  2.35 ms    547 GB/s state  vs installed 1.64x
+B=1 R=16 lens=[16] rows= 16 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    23.7 us  cold    45.1 us  x48  2.16 ms    593 GB/s state  vs installed 1.78x
+B=1 R=16 lens=[16] rows= 16 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    25.1 us  cold    45.3 us  x48  2.17 ms    591 GB/s state  vs installed 1.77x
+B=1 R=16 lens=[16] rows= 16 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    31.8 us  cold    52.6 us  x48  2.52 ms    509 GB/s state  vs installed 1.52x
+B=1 R=16 lens=[16] rows= 16 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    31.7 us  cold    49.0 us  x48  2.35 ms    546 GB/s state  vs installed 1.63x
+B=1 R=16 lens=[16] rows= 16 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    17.6 us  cold    17.2 us  x48  0.82 ms   1558 GB/s state  vs installed 4.67x
+B=1 R=16 lens=[16] rows= 16 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    16.3 us  cold    17.1 us  x48  0.82 ms   1561 GB/s state  vs installed 4.68x
+B=2 R=16 lens=[16, 16] rows= 32 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   194.4 us  cold   177.5 us  x48  8.52 ms    301 GB/s state
+B=2 R=16 lens=[16, 16] rows= 32 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   195.0 us  cold   177.5 us  x48  8.52 ms    301 GB/s state  vs installed 1.00x
+B=2 R=16 lens=[16, 16] rows= 32 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   194.7 us  cold   177.4 us  x48  8.51 ms    301 GB/s state  vs installed 1.00x
+B=2 R=16 lens=[16, 16] rows= 32 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    96.1 us  cold    97.0 us  x48  4.65 ms    551 GB/s state  vs installed 1.83x
+B=2 R=16 lens=[16, 16] rows= 32 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    92.4 us  cold    91.1 us  x48  4.37 ms    587 GB/s state  vs installed 1.95x
+B=2 R=16 lens=[16, 16] rows= 32 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    99.4 us  cold    99.8 us  x48  4.79 ms    536 GB/s state  vs installed 1.78x
+B=2 R=16 lens=[16, 16] rows= 32 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    96.2 us  cold    95.1 us  x48  4.56 ms    562 GB/s state  vs installed 1.87x
+B=2 R=16 lens=[16, 16] rows= 32 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    96.2 us  cold    96.9 us  x48  4.65 ms    552 GB/s state  vs installed 1.83x
+B=2 R=16 lens=[16, 16] rows= 32 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    92.4 us  cold    91.3 us  x48  4.38 ms    586 GB/s state  vs installed 1.94x
+B=2 R=16 lens=[16, 16] rows= 32 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    99.3 us  cold   100.0 us  x48  4.80 ms    535 GB/s state  vs installed 1.77x
+B=2 R=16 lens=[16, 16] rows= 32 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    96.0 us  cold    94.9 us  x48  4.56 ms    563 GB/s state  vs installed 1.87x
+B=2 R=16 lens=[16, 16] rows= 32 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    33.7 us  cold    38.9 us  x48  1.87 ms   1373 GB/s state  vs installed 4.56x
+B=2 R=16 lens=[16, 16] rows= 32 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    33.9 us  cold    39.2 us  x48  1.88 ms   1365 GB/s state  vs installed 4.53x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   412.9 us  cold   384.7 us  x48 18.47 ms    278 GB/s state
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   412.6 us  cold   384.3 us  x48 18.45 ms    278 GB/s state  vs installed 1.00x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   413.1 us  cold   385.0 us  x48 18.48 ms    278 GB/s state  vs installed 1.00x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   216.2 us  cold   203.1 us  x48  9.75 ms    527 GB/s state  vs installed 1.89x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   213.9 us  cold   200.3 us  x48  9.61 ms    534 GB/s state  vs installed 1.92x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   212.3 us  cold   200.2 us  x48  9.61 ms    534 GB/s state  vs installed 1.92x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot   205.3 us  cold   195.6 us  x48  9.39 ms    547 GB/s state  vs installed 1.97x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   216.0 us  cold   202.5 us  x48  9.72 ms    528 GB/s state  vs installed 1.90x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   215.6 us  cold   198.1 us  x48  9.51 ms    540 GB/s state  vs installed 1.94x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   211.9 us  cold   200.6 us  x48  9.63 ms    533 GB/s state  vs installed 1.92x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot   205.4 us  cold   195.3 us  x48  9.38 ms    548 GB/s state  vs installed 1.97x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    57.9 us  cold    63.0 us  x48  3.02 ms   1697 GB/s state  vs installed 6.10x
+B=4 R=16 lens=[16, 16, 16, 16] rows= 64 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    58.0 us  cold    63.1 us  x48  3.03 ms   1695 GB/s state  vs installed 6.10x
+B=2 R=16 lens=[16, 8] rows= 24 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   143.3 us  cold   131.6 us  x48  6.31 ms    311 GB/s state
+B=2 R=16 lens=[16, 8] rows= 24 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   143.2 us  cold   131.9 us  x48  6.33 ms    310 GB/s state  vs installed 1.00x
+B=2 R=16 lens=[16, 8] rows= 24 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   131.6 us  cold   132.3 us  x48  6.35 ms    309 GB/s state  vs installed 0.99x
+B=2 R=16 lens=[16, 8] rows= 24 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    64.8 us  cold    71.9 us  x48  3.45 ms    569 GB/s state  vs installed 1.83x
+B=2 R=16 lens=[16, 8] rows= 24 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    62.8 us  cold    68.6 us  x48  3.29 ms    596 GB/s state  vs installed 1.92x
+B=2 R=16 lens=[16, 8] rows= 24 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    65.3 us  cold    73.3 us  x48  3.52 ms    558 GB/s state  vs installed 1.79x
+B=2 R=16 lens=[16, 8] rows= 24 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    64.6 us  cold    72.5 us  x48  3.48 ms    564 GB/s state  vs installed 1.81x
+B=2 R=16 lens=[16, 8] rows= 24 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    64.5 us  cold    71.8 us  x48  3.45 ms    570 GB/s state  vs installed 1.83x
+B=2 R=16 lens=[16, 8] rows= 24 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    62.7 us  cold    68.3 us  x48  3.28 ms    599 GB/s state  vs installed 1.93x
+B=2 R=16 lens=[16, 8] rows= 24 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    65.1 us  cold    73.4 us  x48  3.52 ms    557 GB/s state  vs installed 1.79x
+B=2 R=16 lens=[16, 8] rows= 24 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    64.6 us  cold    72.3 us  x48  3.47 ms    566 GB/s state  vs installed 1.82x
+B=2 R=16 lens=[16, 8] rows= 24 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    24.4 us  cold    29.5 us  x48  1.42 ms   1385 GB/s state  vs installed 4.45x
+B=2 R=16 lens=[16, 8] rows= 24 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    24.3 us  cold    29.5 us  x48  1.42 ms   1385 GB/s state  vs installed 4.46x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   264.6 us  cold   238.7 us  x48 11.46 ms    290 GB/s state
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   264.6 us  cold   238.5 us  x48 11.45 ms    290 GB/s state  vs installed 1.00x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   264.5 us  cold   239.5 us  x48 11.50 ms    289 GB/s state  vs installed 1.00x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   138.0 us  cold   129.5 us  x48  6.22 ms    534 GB/s state  vs installed 1.84x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   139.6 us  cold   129.3 us  x48  6.21 ms    535 GB/s state  vs installed 1.85x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   137.0 us  cold   129.6 us  x48  6.22 ms    534 GB/s state  vs installed 1.84x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot   132.6 us  cold   125.8 us  x48  6.04 ms    550 GB/s state  vs installed 1.90x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   138.0 us  cold   130.2 us  x48  6.25 ms    531 GB/s state  vs installed 1.83x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   141.3 us  cold   127.5 us  x48  6.12 ms    543 GB/s state  vs installed 1.87x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   137.0 us  cold   129.8 us  x48  6.23 ms    533 GB/s state  vs installed 1.84x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot   132.8 us  cold   125.4 us  x48  6.02 ms    552 GB/s state  vs installed 1.90x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    40.7 us  cold    48.0 us  x48  2.30 ms   1443 GB/s state  vs installed 4.98x
+B=4 R=16 lens=[16, 8, 1, 15] rows= 40 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    40.6 us  cold    47.7 us  x48  2.29 ms   1450 GB/s state  vs installed 5.00x
+B=1 R=24 lens=[24] rows= 24 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   136.8 us  cold   128.2 us  x48  6.15 ms    307 GB/s state
+B=1 R=24 lens=[24] rows= 24 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   136.7 us  cold   128.1 us  x48  6.15 ms    307 GB/s state  vs installed 1.00x
+B=1 R=24 lens=[24] rows= 24 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   133.6 us  cold   129.0 us  x48  6.19 ms    305 GB/s state  vs installed 0.99x
+B=1 R=24 lens=[24] rows= 24 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    65.4 us  cold    71.9 us  x48  3.45 ms    547 GB/s state  vs installed 1.78x
+B=1 R=24 lens=[24] rows= 24 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    64.2 us  cold    69.6 us  x48  3.34 ms    565 GB/s state  vs installed 1.84x
+B=1 R=24 lens=[24] rows= 24 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot    64.5 us  cold    71.5 us  x48  3.43 ms    550 GB/s state  vs installed 1.79x
+B=1 R=24 lens=[24] rows= 24 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot    65.2 us  cold    72.9 us  x48  3.50 ms    539 GB/s state  vs installed 1.76x
+B=1 R=24 lens=[24] rows= 24 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    65.2 us  cold    71.7 us  x48  3.44 ms    549 GB/s state  vs installed 1.79x
+B=1 R=24 lens=[24] rows= 24 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    64.0 us  cold    69.8 us  x48  3.35 ms    563 GB/s state  vs installed 1.84x
+B=1 R=24 lens=[24] rows= 24 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot    64.5 us  cold    71.6 us  x48  3.44 ms    549 GB/s state  vs installed 1.79x
+B=1 R=24 lens=[24] rows= 24 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot    65.0 us  cold    72.8 us  x48  3.50 ms    540 GB/s state  vs installed 1.76x
+B=1 R=24 lens=[24] rows= 24 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    27.3 us  cold    32.2 us  x48  1.54 ms   1222 GB/s state  vs installed 3.98x
+B=1 R=24 lens=[24] rows= 24 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    27.5 us  cold    32.4 us  x48  1.56 ms   1213 GB/s state  vs installed 3.95x
+B=2 R=24 lens=[24, 24] rows= 48 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   309.7 us  cold   282.4 us  x48 13.55 ms    279 GB/s state
+B=2 R=24 lens=[24, 24] rows= 48 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   309.7 us  cold   282.1 us  x48 13.54 ms    279 GB/s state  vs installed 1.00x
+B=2 R=24 lens=[24, 24] rows= 48 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   308.4 us  cold   281.8 us  x48 13.53 ms    279 GB/s state  vs installed 1.00x
+B=2 R=24 lens=[24, 24] rows= 48 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   153.7 us  cold   143.8 us  x48  6.90 ms    547 GB/s state  vs installed 1.96x
+B=2 R=24 lens=[24, 24] rows= 48 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   150.9 us  cold   143.5 us  x48  6.89 ms    548 GB/s state  vs installed 1.97x
+B=2 R=24 lens=[24, 24] rows= 48 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   156.5 us  cold   149.5 us  x48  7.18 ms    526 GB/s state  vs installed 1.89x
+B=2 R=24 lens=[24, 24] rows= 48 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot   149.7 us  cold   142.5 us  x48  6.84 ms    552 GB/s state  vs installed 1.98x
+B=2 R=24 lens=[24, 24] rows= 48 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   153.8 us  cold   144.2 us  x48  6.92 ms    545 GB/s state  vs installed 1.96x
+B=2 R=24 lens=[24, 24] rows= 48 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   152.0 us  cold   144.3 us  x48  6.92 ms    545 GB/s state  vs installed 1.96x
+B=2 R=24 lens=[24, 24] rows= 48 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   156.9 us  cold   149.8 us  x48  7.19 ms    525 GB/s state  vs installed 1.89x
+B=2 R=24 lens=[24, 24] rows= 48 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot   150.2 us  cold   142.5 us  x48  6.84 ms    552 GB/s state  vs installed 1.98x
+B=2 R=24 lens=[24, 24] rows= 48 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    43.9 us  cold    50.5 us  x48  2.42 ms   1557 GB/s state  vs installed 5.59x
+B=2 R=24 lens=[24, 24] rows= 48 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    43.9 us  cold    50.4 us  x48  2.42 ms   1561 GB/s state  vs installed 5.61x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   621.2 us  cold   592.4 us  x48 28.43 ms    266 GB/s state
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   621.9 us  cold   593.7 us  x48 28.50 ms    265 GB/s state  vs installed 1.00x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   620.2 us  cold   591.3 us  x48 28.38 ms    266 GB/s state  vs installed 1.00x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   323.0 us  cold   308.4 us  x48 14.80 ms    510 GB/s state  vs installed 1.92x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   322.0 us  cold   303.8 us  x48 14.58 ms    518 GB/s state  vs installed 1.95x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   310.4 us  cold   299.1 us  x48 14.36 ms    526 GB/s state  vs installed 1.98x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot   300.6 us  cold   291.3 us  x48 13.98 ms    540 GB/s state  vs installed 2.03x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   322.8 us  cold   307.9 us  x48 14.78 ms    511 GB/s state  vs installed 1.92x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   322.5 us  cold   306.1 us  x48 14.69 ms    514 GB/s state  vs installed 1.94x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   310.5 us  cold   299.4 us  x48 14.37 ms    525 GB/s state  vs installed 1.98x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot   300.1 us  cold   292.1 us  x48 14.02 ms    539 GB/s state  vs installed 2.03x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    86.4 us  cold    86.0 us  x48  4.13 ms   1829 GB/s state  vs installed 6.89x
+B=4 R=24 lens=[24, 24, 24, 24] rows= 96 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    86.6 us  cold    86.8 us  x48  4.17 ms   1812 GB/s state  vs installed 6.82x
+B=2 R=24 lens=[24, 12] rows= 36 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   232.2 us  cold   207.1 us  x48  9.94 ms    289 GB/s state
+B=2 R=24 lens=[24, 12] rows= 36 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   232.0 us  cold   206.1 us  x48  9.89 ms    290 GB/s state  vs installed 1.00x
+B=2 R=24 lens=[24, 12] rows= 36 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   230.6 us  cold   205.9 us  x48  9.88 ms    290 GB/s state  vs installed 1.01x
+B=2 R=24 lens=[24, 12] rows= 36 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   115.1 us  cold   109.0 us  x48  5.23 ms    548 GB/s state  vs installed 1.90x
+B=2 R=24 lens=[24, 12] rows= 36 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   114.4 us  cold   107.8 us  x48  5.17 ms    554 GB/s state  vs installed 1.92x
+B=2 R=24 lens=[24, 12] rows= 36 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   117.4 us  cold   112.1 us  x48  5.38 ms    533 GB/s state  vs installed 1.85x
+B=2 R=24 lens=[24, 12] rows= 36 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot   115.4 us  cold   109.3 us  x48  5.25 ms    547 GB/s state  vs installed 1.89x
+B=2 R=24 lens=[24, 12] rows= 36 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   116.0 us  cold   109.1 us  x48  5.24 ms    548 GB/s state  vs installed 1.90x
+B=2 R=24 lens=[24, 12] rows= 36 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   114.3 us  cold   108.5 us  x48  5.21 ms    551 GB/s state  vs installed 1.91x
+B=2 R=24 lens=[24, 12] rows= 36 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   117.3 us  cold   112.2 us  x48  5.39 ms    533 GB/s state  vs installed 1.85x
+B=2 R=24 lens=[24, 12] rows= 36 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot   115.2 us  cold   110.0 us  x48  5.28 ms    543 GB/s state  vs installed 1.88x
+B=2 R=24 lens=[24, 12] rows= 36 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    32.6 us  cold    38.0 us  x48  1.83 ms   1572 GB/s state  vs installed 5.45x
+B=2 R=24 lens=[24, 12] rows= 36 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    32.6 us  cold    37.7 us  x48  1.81 ms   1587 GB/s state  vs installed 5.50x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 installed         ref       d_out 0.00e+00 d_state 0.00e+00  hot   391.1 us  cold   362.6 us  x48 17.41 ms    278 GB/s state
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 v0-g256           exact     d_out 0.00e+00 d_state 0.00e+00  hot   390.7 us  cold   362.5 us  x48 17.40 ms    278 GB/s state  vs installed 1.00x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 v0-g128           exact     d_out 0.00e+00 d_state 0.00e+00  hot   390.9 us  cold   362.1 us  x48 17.38 ms    278 GB/s state  vs installed 1.00x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 mr4-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   200.0 us  cold   189.6 us  x48  9.10 ms    531 GB/s state  vs installed 1.91x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 mr8-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   210.9 us  cold   198.5 us  x48  9.53 ms    507 GB/s state  vs installed 1.83x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 mr2-g256          exact     d_out 0.00e+00 d_state 0.00e+00  hot   199.1 us  cold   189.6 us  x48  9.10 ms    531 GB/s state  vs installed 1.91x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 vec4-g256         exact     d_out 0.00e+00 d_state 0.00e+00  hot   193.0 us  cold   183.5 us  x48  8.81 ms    549 GB/s state  vs installed 1.98x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 mr4-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   201.5 us  cold   189.5 us  x48  9.10 ms    531 GB/s state  vs installed 1.91x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 mr8-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   210.1 us  cold   198.1 us  x48  9.51 ms    508 GB/s state  vs installed 1.83x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 mr2-g128          exact     d_out 0.00e+00 d_state 0.00e+00  hot   199.0 us  cold   190.2 us  x48  9.13 ms    529 GB/s state  vs installed 1.91x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 vec4-g128         exact     d_out 0.00e+00 d_state 0.00e+00  hot   193.2 us  cold   183.8 us  x48  8.82 ms    548 GB/s state  vs installed 1.97x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 probe-final-g256  exact     d_out 0.00e+00 d_state 0.00e+00  hot    60.2 us  cold    66.1 us  x48  3.17 ms   1524 GB/s state  vs installed 5.49x
+B=4 R=24 lens=[24, 12, 1, 23] rows= 60 probe-final-g128  exact     d_out 0.00e+00 d_state 0.00e+00  hot    60.1 us  cold    65.8 us  x48  3.16 ms   1531 GB/s state  vs installed 5.51x
+GDNROWS PASS

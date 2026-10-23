@@ -1,0 +1,12 @@
+[03:29:42 PM] == bench base
+4 writers: {'each': [51.4, 81.6, 44.5, 82.9], 'summed': 260.5
+'tok_per_step': 2.83
+avg of 9: 130.5 t/s
+base code rep1: 601 tok in 4.5s -> base-code-1.txt
+base code rep2: 700 tok in 5.2s -> base-code-2.txt
+base prose rep1: 700 tok in 11.1s -> base-prose-1.txt
+base prose rep2: 700 tok in 10.6s -> base-prose-2.txt
+vllm:spec_decode_num_drafts_total{engine="0",model_name="qwen38-709l"} 1997.0
+vllm:spec_decode_num_draft_tokens_total{engine="0",model_name="qwen38-709l"} 10375.0
+vllm:spec_decode_num_accepted_tokens_total{engine="0",model_name="qwen38-709l"} 5967.0
+[03:31:15 PM] bench base done

@@ -1,0 +1,4 @@
+w8192u deep  23239 tok: decode  72.9 t/s (500 out, ttft 0.2s)
+w8192u deep  58204 tok: decode  77.5 t/s (500 out, ttft 0.3s)
+w8192u deep 114801 tok: decode  56.4 t/s (500 out, ttft 0.5s)
+deep spec: 850.0 4250.0 3093.0 -> 1809.0 9045.0 5103.0

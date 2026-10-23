@@ -1,0 +1,17 @@
+      1 B70 gdnrows: first spec batch on the gdnrows kernel: 4 reqs, 64 rows, cache_indices (4, 16)
+      2 B70 gdnrows: loaded <venv dir>/gdnrows/libgdnrows256.so variant 2
+[03:43:34 PM] == bench gdn
+4 writers: {'each': [49.2, 87.5, 44.2, 82.5], 'summed': 263.4
+'tok_per_step': 2.79
+avg of 9: 135.0 t/s
+gdn code rep1: 700 tok in 5.1s -> gdn-code-1.txt
+gdn code rep2: 700 tok in 5.0s -> gdn-code-2.txt
+gdn prose rep1: 700 tok in 10.6s -> gdn-prose-1.txt
+gdn prose rep2: 700 tok in 10.7s -> gdn-prose-2.txt
+vllm:spec_decode_num_drafts_total{engine="0",model_name="qwen38-709l"} 2029.0
+vllm:spec_decode_num_draft_tokens_total{engine="0",model_name="qwen38-709l"} 10575.0
+vllm:spec_decode_num_accepted_tokens_total{engine="0",model_name="qwen38-709l"} 6033.0
+[03:45:06 PM] bench gdn done
+      1 B70 gdnrows: first spec batch on the gdnrows kernel: 4 reqs, 64 rows, cache_indices (4, 16)
+      2 B70 gdnrows: loaded <venv dir>/gdnrows/libgdnrows256.so variant 2
+0

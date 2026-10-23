@@ -1,0 +1,33 @@
+[03:47:56 PM] == t0 short code
+prompt 1: 133.5  (600 tok)
+prompt 2: 135.4  (386 tok)
+prompt 3: 121.0  (328 tok)
+avg of 3: 130.0 t/s
+[03:48:07 PM] == t0 4 writers x2
+== rhbench confk-t0-four1
+4 writers: {'each': [49.5, 83.3, 39.9, 80.6], 'summed': 253.3, 'gen_over_wall': 178.4, 'wall': 17.1, 'canary': [None, None, None, None], 'mtp': {'per_token': 0.352, 'tok_per_step': 2.76, 'preempt': 0.0}}
+== done
+== rhbench confk-t0-four2
+4 writers: {'each': [51.9, 85.1, 41.5, 83.8], 'summed': 262.2, 'gen_over_wall': 188.0, 'wall': 15.7, 'canary': [None, None, None, None], 'mtp': {'per_token': 0.387, 'tok_per_step': 2.93, 'preempt': 0.0}}
+== done
+[03:48:41 PM] == t0 greedy
+== rhbench confk-t0
+greedy: [('b4928eb11a94', 'same', None), ('9c150bf7d5df', 'differs at char 86', None), ('5cc5ab5d1860', 'same', None)]
+== done
+[03:48:48 PM] == t0 deep
+confk-t0 deep  23239 tok:   75.7 t/s,  3.02 tok/step,  5.18 drafts/step,  39.7 ms/step
+confk-t0 deep  61314 tok:   81.5 t/s,  3.75 tok/step,  5.07 drafts/step,  45.7 ms/step
+confk-t0 deep 120355 tok:   65.8 t/s,  3.65 tok/step,  5.00 drafts/step,  55.0 ms/step
+confk-t0 deep 209798 tok:   52.7 t/s,  3.69 tok/step,  5.07 drafts/step,  69.6 ms/step
+[03:53:55 PM] == t0 edits
+confk-t0 E1 rename g:  178.3 t/s  (1475 out, prompt 1555, ttft 0.9s)  exact=True ratio=1.0000
+confk-t0 E1 rename s:  175.4 t/s  (1475 out, prompt 1555, ttft 0.1s)  exact=True ratio=1.0000
+confk-t0 E2 param  g:  247.6 t/s  (3349 out, prompt 3448, ttft 1.8s)  exact=True ratio=1.0000
+confk-t0 E2 param  s:  244.0 t/s  (3349 out, prompt 3448, ttft 0.2s)  exact=True ratio=1.0000
+confk-t0 E3 bugfix g:  282.1 t/s  (3589 out, prompt 3686, ttft 1.9s)  exact=True ratio=1.0000
+confk-t0 E3 bugfix s:  279.2 t/s  (3589 out, prompt 3686, ttft 0.2s)  exact=True ratio=1.0000
+confk-t0 EDIT avg: greedy 236.0 t/s, sampled 232.9 t/s, all 234.4 t/s; exact 6/6
+[B70 confk] mtp steps 3039 trimmed 0 no-signal 153 pushed 3595 polled 3589 dropped 6 unmatched 0
+[B70 confk] mtp steps 3111 trimmed 0 no-signal 156 pushed 3851 polled 3843 dropped 6 unmatched 0
+[B70 confk] mtp steps 3183 trimmed 0 no-signal 159 pushed 4107 polled 4099 dropped 6 unmatched 0
+[03:55:17 PM] == t0 done

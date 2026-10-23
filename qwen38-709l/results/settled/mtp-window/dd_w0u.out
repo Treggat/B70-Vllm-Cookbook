@@ -1,0 +1,4 @@
+w0u deep  23239 tok: decode  84.5 t/s (500 out, ttft 0.2s)
+w0u deep  58204 tok: decode  83.2 t/s (500 out, ttft 0.3s)
+w0u deep 114801 tok: decode  64.1 t/s (500 out, ttft 0.5s)
+deep spec: 857.0 4285.0 3086.0 -> 1703.0 8515.0 5242.0

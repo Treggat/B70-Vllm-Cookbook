@@ -24,6 +24,7 @@ Newest first within each topic. Older sections stay as they were measured, with 
 - [Sharing the card: chunked-prefill sweep](#sharing-the-card-chunked-prefill-sweep)
 - [Against Vcvzgbzz's own tests](#against-vcvzgbzzs-own-tests)
 - [Quality checks](#quality-checks)
+- [What we tried and dropped](#what-we-tried-and-dropped): where a decode step's time goes, and five settled experiments
 
 ## Current seat (2026-10-23)
 
@@ -499,6 +500,162 @@ above). His headline 160 / 216 t/s is the DFlash2 column, which needs a drafter 
 
 Our own bench reads lower at depth (58-67 t/s) because it is a harder test: cold prompts, temperature 0.3 and a
 prose answer, against his cached prompt, greedy decoding and "explain the last file function by function".
+
+## What we tried and dropped
+
+2026-10-21 to 10-23, all on 0.32 with the live stack of the day. Each one is settled with numbers, so nobody has to
+try it again without a new mechanism. Raw files in `results/settled/`.
+
+- [Where a decode step's time goes](#where-a-decode-steps-time-goes) (the profile the rest rests on)
+- [A sliding window for the MTP head](#a-sliding-window-for-the-mtp-head)
+- [A 64-row verify tile](#a-64-row-verify-tile)
+- [Sibling-tree speculation](#sibling-tree-speculation)
+- [A per-step draft count from the drafter's confidence](#a-per-step-draft-count-from-the-drafters-confidence)
+- [A multi-row GDN kernel](#a-multi-row-gdn-kernel) (works, not in the live stack)
+
+### Where a decode step's time goes
+
+2026-10-22, second card, torch profiler, `results/settled/profile/`. The XPU profiler sees nothing inside a graph
+replay (a K = 5 step showed 35 launches and 0.2 ms of device time against a 40 ms step), so the kernel split comes
+from a second load with graphs off (`--compilation-config '{"cudagraph_mode":"NONE"}'`; the dotted
+`-O.cudagraph_mode` form is silently ignored on 0.32). Eager steps are launch-bound (93 ms), but the kernel durations
+are the production kernels, and the graphed step time says how much replay already hides.
+
+Device time per decode step (`pt_ea.out`, `pt_eb.out`, `pt_ec.out`, `pt_ed.out`; `slices.out` has the step times):
+
+| rows (requests x q_len) | context | device busy | int4 GEMM | attention | GDN gated-delta | GDN conv1d | rest |
+|---|---|---|---|---|---|---|---|
+| 1 x 3 (K = 2) | 23k | 28.8 ms | 23.8 | 3.3 | 0.94 | 0.33 | 0.4 |
+| **1 x 6 (K = 5, the live step)** | 23k | **32.3 ms** | **24.7** | **4.9** | **1.83** | **0.51** | 0.4 |
+| 1 x 6 | 63k | 37.6 ms | 24.8 | 10.0 | 1.83 | 0.51 | 0.4 |
+| 1 x 6 | ~0.3k | 27.6 ms | 24.4 | 0.44 | 1.85 | 0.52 | 0.4 |
+| 4 x 6 = 24 (4 writers) | ~0.3k | 40.8 ms | 31.3 | 0.45 | 7.79 | 0.82 | 0.4 |
+
+- **The GEMMs are the floor: 24 ms of every step, 76% at 23k.** 304 `gemm_kernel` launches stream the whole 27B int4
+  weight set once per step: 14-15 GB in 24 ms is about 600 GB/s, the card's memory bandwidth. It moves +0.3 ms per
+  extra verify row and not at all with context. Only fewer bytes per step could shrink it (TP2 and lighter quants,
+  both settled no-gos on this model).
+- **Attention is the context cost:** 4.9 ms at 23k, 10.0 at 63k (so about 19 at 120k), 0.44 at short context; about
+  0.5 ms per verify row at 23k and 1 ms at 63k, all in the two fmha kernels (split-KV decode + reduce).
+- **GDN is exactly linear in rows: 0.31 ms per row, 48 launches regardless.** The gated-delta kernel costs 0.94 /
+  1.83 / 3.75 / 7.79 ms at 3 / 6 / 12 / 24 rows: a serial row loop inside the kernel, not launch overhead. 6% of a
+  single-stream step, 21% of a 4-writer step.
+- **The graphed step is fully kernel-bound.** The 39.9 ms live step is these 32.3 ms plus the target LM head
+  (2.17 ms, fp8 GEMM over 248,320 x 5,120), the five MTP draft passes (about 5.6 ms) and rejection sampling, which
+  launch after the step's profiler annotation closes. 32.3 + 7.8 = 40.2 ms of device work for a 39.9 ms step: there
+  is no host-side slack to win, and graph replay already removes the 35-44 ms of launch gaps the eager step shows.
+- **One MTP draft pass at 23k** (passes 2 to 5): fc 51 us, qkv 69, o_proj 34, gate_up 161, down 80, **draft head
+  440** (int4, 98,816 rows, 261 MB), GEMMs 835 us at 575 GB/s, attention 172 us. The head is 54% of the bytes a pass
+  moves, which is why the [shortlist](#shortlist-draft-head) was the one lever left. The per-draft slope of a step
+  is one pass (about 0.96 ms) plus one extra target verify row (about 0.7 ms: GEMM 0.3, GDN 0.31, rest 0.1).
+
+So on this hybrid a verify row costs 0.5 to 3 ms depending on context, not the attention kernel's 0.06 ms per row
+per layer. That number decides the next three entries.
+
+### A sliding window for the MTP head
+
+2026-10-21, `results/settled/mtp-window/`. A patch gave the MTP layer's attention a sliding window (8,192 or 2,048
+tokens; the layer's KV spec, prefix caching and the target untouched, so only acceptance could change). Short code
+did not move (130.8 / 131.2 / 131.6 t/s for off / 2,048 / 8,192, `sc_*.out`). Decode behind 23k / 58k / 115k
+(`dd_*.out`, tokens per step from the counters):
+
+| window | 23k | 58k | 115k | tokens per step over the three |
+|---|---|---|---|---|
+| off (live) | 84.5 t/s | 83.2 | 64.1 | 3.55 |
+| 8,192 | 72.9 | 77.5 | 56.4 (-12%) | 3.10 (-13%) |
+| 2,048 | 75.3 | 65.1 | 60.3 (-6%) | 2.97 (-16%) |
+
+The drafter needs the whole context to draft well at depth; the window saves nothing on the attention side that
+acceptance does not take back. Crossing 3/3 in every arm (`cr_*.out`). Dropped.
+
+### A 64-row verify tile
+
+2026-10-22, `results/settled/verify-tile/`. riceharvest's attention kernel carries a 64-row packed-verify tile next
+to the 8-row one the live seat uses (his notes call it "slower in serving"). We rebuilt the kernel from source on a
+PC (DPC++ 2026.0, the same vllm-xpu-kernels 0.1.15.4 tree) and it reproduced his `.so` **bit-identically** on every
+MTP shape (`kcheck-tile1-REPORT.txt`), so the kernel is reproducible. Then the tile question (`ktile.out`, one
+attention layer, one request, packed verify, microseconds; exactness passed for every tile, split count, batch,
+context and q_len):
+
+| context | q_len (rows) | 8-row tile, heuristic splits | 64-row tile, 32 splits |
+|---|---|---|---|
+| 45k | 6 (36) | 467 | 497 |
+| 45k | 10 (60) | 669 | 530 (-21%) |
+| 115k | 6 (36) | 1,121 | 1,074 |
+| 115k | 10 (60) | 1,623 | 1,151 (-29%) |
+
+The wide tile streams each KV tile once for all rows, so its cost barely grows with rows (36 -> 60 rows: +7% against
++45% on the 8-row path at 115k), but one work-group then walks a whole KV split, so it wants few, long splits: about
+4 work-groups per Xe core (32 splits at one request, 16 at two); 64 or 128 splits cost 10-30%, 8 splits 50%. A
+32-row tile was 25-34% slower than the 8-row path at every split count. In the seat at the live q_len 6 (K = 5) the
+two tiles are at parity (`seat-8row.out`, `seat-64row.out`: 39.9 / 46.0 / 55.7 vs 40.2 / 46.1 / 55.9 ms per step at
+23k / 61k / 120k, 4 writers 260.1 vs 259.8, short code 131.2 vs 129.6). Nothing to promote on its own; its value was
+for longer verifies, which the next entry closed.
+
+### Sibling-tree speculation
+
+2026-10-22, `results/settled/tree/`. One sibling path beside the MTP-5 chain: when the chain's first draft is
+rejected, a second row carries the drafter's second choice, so that step can still emit a token instead of falling
+back to the target's sample (the drafter's rank-2 matched 44-51% of first-draft rejections in a probe). q_len 8, a
+per-row ancestor mask added to the decode kernel (bit-exact against a reference on every tree shape), slot and GDN
+state fix-ups on the vLLM side.
+
+The rows alone, with no wins taken (`window1-tree-on.out` vs `window1-tree-off.out`, same load):
+
+| ms per step (tokens per step) | 23k | 61k | 120k | 4 writers | short code |
+|---|---|---|---|---|---|
+| chain, K = 5 (live) | 39.8 (3.29) | 45.1 (3.51) | 54.2 (3.63) | 255.7 | 129.2 |
+| + 2 tree rows | 44.1 (3.25) | 51.9 (3.54) | 65.0 (3.62) | - | - |
+| + 2 tree rows, single-sequence GDN, no pre-copies (`window2-b-*.out`) | 42.7 | 50.0 | 62.6 | - | 124.3 |
+
+Two extra rows cost +11% / +15% / +20% of the step, of which 1.6-2.3 ms is the two-sequence GDN path plus 96 per-layer
+state pre-copies and the rest is the price of the rows themselves (the profile above). With the wins on
+(`window2-g-wins-on.out`): rank-2 matched 38% of first-draft rejections and a win fired on 15% of tree steps at the
+same step time, but tokens per step **fell** (2.82 / 3.46 / 3.11 / 3.04 against 3.25 / 3.54 / 3.64 / 3.74 at 23k /
+61k / 120k / 210k) and short code dropped to 90.5, because the win path's K/V, GDN-slot and hidden-state copies emit
+wrong tokens (the greedy code transcript leaves the chain's about 150 tokens in; a correct win must reproduce it
+exactly). Not pursued further: even a correct win path has a ceiling of about +5% tokens per step (15% of steps x 1
+token) against +11-20% step time, because every extra row pays the serial GDN cost in all 48 layers. On this model,
+longer or wider speculation only pays where the rows are nearly free, which is nowhere.
+
+### A per-step draft count from the drafter's confidence
+
+2026-10-22, `results/settled/conf-k/`. The idea: verify K = 2 instead of K = 5 on steps where the drafter's
+position-0 confidence is low (deep prose), saving about 4 ms per step. vLLM 0.32's own version
+(`enable_adaptive_verification`) refuses to start on this model: the base attention class gates it on
+`not is_ssm()` and the GDN backend is an SSM backend, so the runner raises before any knob is read. Our own policy in
+the combined speculator's scheduler hook ran one observe-only arm on the live card (`observe-only.out`: short code
+130.0, 4 writers 253.3 / 262.2, decode 39.7 / 45.7 / 55.0 / 69.6 ms per step at 23k / 61k / 120k / 210k, edits 6/6
+exact, all at parity with the day's live numbers) and recorded, for every K = 5 verify, the confidence the scheduler
+would have had and how many drafts were accepted (`stats-*.json`). Under async scheduling the scheduler fixes K before
+the confidence of those drafts exists; the newest it has is 2-3 draft rounds old, and that lagged signal carries
+almost no information: on deep prose the mean accepted count is 2.0-2.3 in the low confidence buckets against 2.6 in
+the top one. Every cut from 0.3 to 0.9 predicts a loss (-0.3% to -4.9% at 23k, less at depth). An exact per-step
+choice needs the decision on the device inside the verify graph, which is the same GDN-builder work adaptive
+verification lacks. Dropped as a policy.
+
+### A multi-row GDN kernel
+
+2026-10-22, `results/settled/gdn-rows/`. The stock `gated_delta_rule_spec` kernel's cost is linear in rows because of
+its state stores (4 scalar half stores per column, 270-400 GB/s). Rebuilt with the state I/O vectorized to one 8-byte
+access per lane, plus the rows of a request staged in local memory:
+
+| rows (requests x per request) | installed, cold us per layer | new | speedup |
+|---|---|---|---|
+| 1 x 6 | 30.8 | 19.2 | 1.60x |
+| 4 x 6 (4 writers) | 125.3 | 73.3 | 1.71x |
+| 1 x 16 (a copy step) | 80.1 | 45.4 | 1.78x |
+| 4 x 16 | 384.7 | 200.3 | 1.97x |
+
+Output and the whole state pool **bit-identical** to the installed kernel on 240 of 240 cases (`kernel-test.out`);
+the new kernel moves state at 600 GB/s, the memory floor. In one fused op with the conv1d (`fused-op-test.out`)
+1.24-1.86x. In the seat on the second card, as a side library hooked into the GDN op: short code 130.5 / 129.8 ->
+135.0 / 134.1 t/s (+3.5%, two loads each; `seat-*.out`), greedy code identical to the live seat's text; the 4-writer
+batch step dropped about 1 ms (43.2 -> 42.2 ms), a third of what the per-layer numbers project, with the summed t/s
+inside the noise. The 4-writer lines in those seat files are **not** the kernel's: the bench that produced them
+ignored its endpoint override and measured the live seat on the first card instead (fixed since; the short-code and
+greedy lines did go to the test seat). Status: exact, safe, +3.5% on single-stream copy-heavy work, not promoted.
+Promoting it means shipping the library with the tree or upstreaming the vectorized stores into vllm-xpu-kernels.
 
 ## Quality checks
 

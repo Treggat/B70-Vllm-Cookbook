@@ -1,0 +1,6 @@
+tile-b5 deep  23239 tok:   75.4 t/s,  3.02 tok/step,  5.18 drafts/step,  39.9 ms/step
+tile-b5 deep  61314 tok:   77.0 t/s,  3.54 tok/step,  5.00 drafts/step,  46.0 ms/step
+tile-b5 deep 120355 tok:   66.3 t/s,  3.70 tok/step,  5.00 drafts/step,  55.7 ms/step
+4 writers: {'each': [50.4, 83.6, 44.0, 82.0], 'summed': 260.1
+'tok_per_step': 2.86
+avg of 9: 131.2 t/s

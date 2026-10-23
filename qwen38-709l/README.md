@@ -28,6 +28,9 @@ Most B70 write-ups cover base Qwen3.8 in GPTQ or EXL3. This one covers:
 - probabilistic MTP drafts: sampled prose +14-18% tokens per step, 4 writers +8%, greedy unchanged, and why that
   applies to every ordinary request on the seat ([docs/RESULTS.md](docs/RESULTS.md#probabilistic-mtp-drafting))
 - a fixed-prompt prose bench next to the code benches, because prose is where MTP is weakest (`bench/prose_ab.py`)
+- where a decode step's time goes on this model, and five experiments settled with numbers: a sliding window for
+  the MTP head, a 64-row verify tile, sibling-tree speculation, a per-step draft count from the drafter's
+  confidence, and a 1.7x GDN kernel ([docs/RESULTS.md](docs/RESULTS.md#what-we-tried-and-dropped))
 
 Before vLLM we ran the same model on llama.cpp SYCL with our own kernel patches. That work is in
 [b70-llamacpp-cookbook](https://github.com/Treggat/b70-llamacpp-cookbook).
@@ -79,6 +82,11 @@ How we got here, each step measured on the same box ([docs/RESULTS.md](docs/RESU
   sampled decode behind 61k / 120k +17% / +14%; greedy requests unchanged.
 - **DFlash2:** the published drafter is about 3× slower than MTP-5 on this merge; the drafter we trained for it missed
   its gate, so MTP-5 stays.
+- **Dropped, with numbers** ([what we tried](docs/RESULTS.md#what-we-tried-and-dropped)): a sliding window for the MTP
+  head (-13 to -16% acceptance at depth), sibling-tree speculation (+11-20% step time for a +5% ceiling: every verify
+  row costs 0.5-3 ms on this hybrid), a per-step draft count from a confidence the scheduler only sees 2-3 rounds
+  late, and a 64-row verify tile that is at parity at K = 5. A bit-exact 1.7x GDN kernel works but is not in the
+  live stack.
 
 Every config passes the vision, video and page-boundary tests (`bench/crossing.py`), and every run passes the
 corruption canary with 0 preemptions.

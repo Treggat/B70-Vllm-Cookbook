@@ -1,0 +1,16 @@
+devices 1 uuid 868023e2-0000-0000-0c00-000000000000 variant 2
+B=4 lens=[6, 6, 6, 6] R=16 reorder=True: exact (out,z,conv,ssm [True, True, True, True])  stock  157.6 us  fused   90.7 us  (1.74x)
+B=4 lens=[6, 6, 6, 6] R=16 reorder=False: exact (out,z,conv,ssm [True, True, True, True])  stock  153.6 us  fused   89.8 us  (1.71x)
+B=2 lens=[6, 6] R=16 reorder=True: exact (out,z,conv,ssm [True, True, True, True])  stock   76.4 us  fused   56.4 us  (1.36x)
+B=2 lens=[6, 6] R=16 reorder=False: exact (out,z,conv,ssm [True, True, True, True])  stock   71.4 us  fused   53.8 us  (1.33x)
+B=1 lens=[6] R=16 reorder=True: exact (out,z,conv,ssm [True, True, True, True])  stock   43.6 us  fused   32.7 us  (1.33x)
+B=1 lens=[6] R=16 reorder=False: exact (out,z,conv,ssm [True, True, True, True])  stock   43.5 us  fused   32.6 us  (1.33x)
+B=1 lens=[16] R=16 reorder=True: exact (out,z,conv,ssm [True, True, True, True])  stock  109.7 us  fused   76.0 us  (1.44x)
+B=1 lens=[16] R=16 reorder=False: exact (out,z,conv,ssm [True, True, True, True])  stock  108.8 us  fused   75.4 us  (1.44x)
+B=4 lens=[6, 3, 1, 6] R=16 reorder=True: exact (out,z,conv,ssm [True, True, True, True])  stock  106.6 us  fused   69.9 us  (1.53x)
+B=4 lens=[6, 3, 1, 6] R=16 reorder=False: exact (out,z,conv,ssm [True, True, True, True])  stock  101.3 us  fused   68.4 us  (1.48x)
+B=4 lens=[16, 16, 16, 16] R=16 reorder=True: exact (out,z,conv,ssm [True, True, True, True])  stock  419.3 us  fused  227.7 us  (1.84x)
+B=4 lens=[16, 16, 16, 16] R=16 reorder=False: exact (out,z,conv,ssm [True, True, True, True])  stock  419.9 us  fused  226.2 us  (1.86x)
+B=1 lens=[3] R=3 reorder=True: exact (out,z,conv,ssm [True, True, True, True])  stock   25.6 us  fused   20.7 us  (1.24x)
+B=1 lens=[3] R=3 reorder=False: exact (out,z,conv,ssm [True, True, True, True])  stock   25.5 us  fused   20.6 us  (1.24x)
+GDNFUSED PASS
