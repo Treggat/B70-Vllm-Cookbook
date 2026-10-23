@@ -7,8 +7,10 @@ configs with no riceharvest switch on).
 
 Newest first within each topic. Older sections stay as they were measured, with a note where something replaced them.
 
-- [Current seat](#current-seat-2026-10-21)
+- [Current seat](#current-seat-2026-10-23)
 - [Speculative decoding](#speculative-decoding)
+  - [Probabilistic MTP drafting](#probabilistic-mtp-drafting) (live)
+  - [Shortlist draft head](#shortlist-draft-head) (live)
   - [Combined speculator at every depth](#combined-speculator-at-every-depth) (live)
   - [Combined copy + MTP speculator, first version](#combined-copy--mtp-speculator-first-version)
   - [DFlash2 drafter on the 709-L](#dflash2-drafter-on-the-709-l)
@@ -22,37 +24,183 @@ Newest first within each topic. Older sections stay as they were measured, with 
 - [Sharing the card: chunked-prefill sweep](#sharing-the-card-chunked-prefill-sweep)
 - [Against Vcvzgbzz's own tests](#against-vcvzgbzzs-own-tests)
 - [Quality checks](#quality-checks)
+- [What we tried and dropped](#what-we-tried-and-dropped): where a decode step's time goes, and five settled experiments
 
-## Current seat (2026-10-21)
+## Current seat (2026-10-23)
 
-What our live seat runs, and the checks it passed after its last reload (2026-10-21 10:04 PM). Each line links the
+What our live seat runs, and the checks it passed after its last reload (2026-10-23 1:32 AM). Each line links the
 section with the full numbers and raw files.
 
 - **Engine:** vLLM 0.32.0 with the stack in [RECIPE.md](RECIPE.md), the 709-L AWQ W4A16, fp8 KV in a 14.5 GiB pool,
   `--max-model-len 262144` (375,067 tokens of KV with the combined speculator on), 4 streams,
   `--long-prefill-token-threshold 512`.
-- **Speculative decoding:** the [combined copy + MTP speculator](../patches/combo-spec/README.md) at every depth:
-  MTP-5 by default, 15 copied drafts when the output copies its context, block verification.
+- **Speculative decoding:** the [combined copy + MTP speculator](../patches/combo-spec/README.md) at every depth
+  (MTP-5 by default, 15 copied drafts when the output copies its context, block verification), with the
+  [shortlist draft head](../patches/shortlist/README.md) (N = 128) and **probabilistic drafts**
+  (`draft_sample_method: "probabilistic"`).
 
 | check | result | section |
 |---|---|---|
-| edit bench (3 whole-file edits, greedy + sampled) | 235.7 t/s, 6/6 exact | [combined speculator at every depth](#combined-speculator-at-every-depth) |
-| whole-file edit behind 94k of context | 171.1 t/s, exact | same |
-| short code | 130.9 t/s | same |
+| short code (avg of 9) | 135.0 t/s | [probabilistic drafting](#probabilistic-mtp-drafting) |
+| edit bench (3 whole-file edits, greedy + sampled) | 238.8 t/s, 6/6 exact | same |
+| prose, one stream, the model's default sampling (20 requests) | 63.6 t/s, 2.19 tokens per step | same |
+| prose, thinking on at effort medium (10) | 74.9 t/s, 2.59 | same |
+| prose, greedy (10) | 66.4 t/s, 2.24 | same |
+| 4 writers sampled, summed (x2) | 292.4, 284.5 t/s | same |
+| decode behind 61k / 120k, sampled, 3 seeds | 83.3 / 65.1 t/s (3.77 / 3.52 tokens per step) | same |
+| decode behind 23k / 61k, greedy, ms per step (x3) | 38.3-39.1 / 44.0-44.2 | same |
 | page-boundary test (`bench/crossing.py`) | 3/3 | same |
-| 262k max-model-len test (`bench/maxlen.py`) | pass | same |
+| image and video | correct | same |
+| greedy code x5 | one transcript, the one the seat already produced before | same |
+| whole-file edit behind 94k of context | 171.1 t/s, exact (2026-10-21, not re-measured) | [combined speculator at every depth](#combined-speculator-at-every-depth) |
+| 262k max-model-len test (`bench/maxlen.py`) | pass (2026-10-21) | same |
 | a chat decoding while an 83k prompt prefills | 10.7 t/s, longest stall 0.6 s (2.2 t/s, 2.9 s without the threshold) | [sharing the card](#sharing-the-card-chunked-prefill-sweep) |
 
 Not re-measured on this exact config:
 
-- **Decode at depth** (58–85 t/s from 23k to 120k, depending on the test) and **4 writers** (about 265–275 t/s summed)
-  come from plain MTP-5 runs on 0.32. The combined speculator matched them wherever we checked
-  ([at every depth](#combined-speculator-at-every-depth)).
+- **Decode after a cold 100k prompt, greedy** (56–60 t/s) comes from plain MTP-5 runs on 0.32; the combined
+  speculator matched them wherever we checked ([at every depth](#combined-speculator-at-every-depth)), and the
+  shortlist cut every measured step time by 3.4% ([shortlist](#shortlist-draft-head)).
 - **First token at 100k** was about 75 s before the prefill threshold went on. The threshold makes one big cold prefill
   about 22% slower (1,326 → 1,097 t/s at 83k, [sweep](#sharing-the-card-chunked-prefill-sweep)), so expect about
   90 s now.
 
 ## Speculative decoding
+
+### Probabilistic MTP drafting
+
+0.32, 2026-10-23, live since 1:32 AM. Raw in `results/prob-draft/` (`offline/` the replay, `seat-ab/` the A/B on the
+second card, `promotion/` the live seat before and after). This is the live config.
+
+vLLM's default `draft_sample_method` is `greedy`: each MTP draft is the argmax of the drafter's distribution q, and a
+request that samples accepts it with probability p(draft). With `probabilistic`, the draft is sampled from q and
+accepted with probability sum min(p, q), which recovers nearly all the acceptance that sampling costs. Greedy requests
+skip draft sampling and do not change. Two things had to be fixed first ([combo-spec](../patches/combo-spec/README.md),
+[shortlist](../patches/shortlist/README.md#probabilistic-drafts)): the copied drafts needed one-hot draft-logit rows,
+and the shortlist head needed to feed the sampler a logits row instead of stepping aside.
+
+**What the server actually samples with:** our clients send no sampling fields, and with no `--generation-config`
+flag vLLM fills them from the model's `generation_config.json`: temperature 1.0, top-k 20, top-p 0.95. So every
+ordinary chat and agent turn on this seat is a sampled request; only our greedy benches are not.
+
+**Offline replay** (`offline/held_K5.log`: 86,010 teacher-forced K = 5 chain starts from 8 held-out sessions of our
+own traffic, the seat's int4 draft head, the target's stored top-20 at temperature 1.0 / top-k 20 / top-p 0.95):
+chain tokens per step greedy -> probabilistic: all 4.693 -> 4.796 (+2.2%), code +1.8%, prose +4.0%; the gain grows as
+acceptance falls (+10% on the one session at 3.0 tokens per step). At temperature 0.6 the gains halve.
+
+**Seat A/B** on the second card (`seat-ab/base.out`, `prob.out`, `compare-*.out`, `prose_pd-*.jsonl`; base = the live
+config of the day, greedy drafts):
+
+| | greedy drafts | probabilistic | change |
+|---|---|---|---|
+| prose, default sampling, 20 requests: tokens per step / decode t/s | 1.891 / 54.8 | **2.240 / 64.4** | **+18.5% / +17.7%** (seed-to-seed noise 4.2%) |
+| prose, thinking on (medium), 10 | 2.278 / 65.7 | **2.578 / 74.0** | **+13.2% / +12.5%** |
+| prose, greedy, 10 | 2.256 / 66.5 | 2.268 / 66.6 | +0.5% / +0.1% |
+| 4 writers sampled, summed (x2) | 260.2, 260.6 | **279.2, 275.6** | **+7.0%** |
+| greedy decode behind 23k / 61k / 120k, ms per step | 38.7 / 44.8 / 54.3 | 38.7 / 44.7 / 54.5 | no step-time cost |
+| short code, greedy (avg of 9) | 133.3 | 133.8 | +0.4% |
+| edits, greedy and sampled (6 exact) | 238.7 (6/6) | 233.9 (6/6) | -2.0% (one-hot rows on copy steps) |
+| crossing, greedy code x5 | 3/3, 5/5 identical | 3/3, 5/5 identical to base | |
+
+The served gain on prose is about 4x the offline estimate because served sampled prose starts at 1.9 tokens per
+step, far below the replay's 4.2, and the gain rises as acceptance falls. Sampled prose now matches greedy prose.
+
+**Live seat, before and after** (`promotion/live-pre.out`, `live-post.out`, `live-compare.out`, `live-verify.out`,
+`prose_live-*.jsonl`, `tier_live-*.jsonl`; all through our router; prod was down 5 min 50 s for the reload):
+
+| | before (shortlist, greedy drafts) | **after (live)** | change |
+|---|---|---|---|
+| prose, default sampling (20): tokens per step / t/s | 1.909 / 55.8 | **2.186 / 63.6** | **+14.5% / +14.0%** (noise 3.3%) |
+| prose, thinking on (10) | 2.338 / 67.9 | **2.590 / 74.9** | **+10.8% / +10.2%** |
+| prose, greedy (10) | 2.252 / 67.0 | 2.237 / 66.4 | -0.7% / -0.9% |
+| decode behind 61k, sampled, 3 seeds | 3.54 / 2.97 / 3.14 (mean 3.22), 70.9 t/s | **3.77 / 3.80 / 3.73 (3.77), 83.3 t/s** | **+17%**, every seed up |
+| decode behind 120k, sampled, 3 seeds | 2.90 / 3.06 / 3.33 (3.10), 57.0 t/s | **3.37 / 3.49 / 3.70 (3.52), 65.1 t/s** | **+14%**, every seed up |
+| 4 writers sampled, summed (x2) | 265.0, 270.2 | **292.4, 284.5** | **+7.8%** |
+| short code, greedy (avg of 9) | 135.0 | 135.0 | same |
+| greedy decode behind 23k / 61k, ms per step (x3) | 38.2-38.6 / 44.1-44.2 | 38.3-39.1 / 44.0-44.2 | no step-time cost |
+| edits, greedy and sampled | 240.7, 6/6 exact | 238.8, **6/6 exact** | -0.8% |
+| crossing / vision / greedy code x5 | 3/3 / correct / 4x one transcript + 1x the other | 3/3 / correct / 5x one transcript | both transcripts are ones the seat produced before |
+
+Seven agent turns through our harness before and after (served tokens per step from the seat's counters,
+`promotion/live-harness-turns.log`; every reply read in full, no breakage): the four prose turns went from 2.37 to
+2.70 tokens per step (+14%), the three code turns 4.11 / 6.57 / 5.84 -> 4.34 / 6.72 / 6.66. One caveat on that
+measurement: our harness has cross-chat memory, which surfaced the "before" chat's replies to the "after" chat on two
+of the prose turns, so those two are not independent samples (turns 4 and 7 were unaffected and gained 11%).
+
+The sampled-depth runs are single seeded texts per depth and showed copy steps on one of them, so the A/B's depth
+rows were inconclusive; the three-seed runs on the live seat settle it. Edits lose about 1-2% on the sampled copy
+path (the one-hot rows) and stay exact.
+
+### Shortlist draft head
+
+0.32, 2026-10-22, live since 10:16 PM that day. Raw in `results/shortlist/` (`offline/` the replay and the artifact
+gate, `microbench/` the head step on the card, `seat-ab/` the A/Bs on the second card, `promotion/` the live seat
+before and after). Design and build: [patches/shortlist/README.md](../patches/shortlist/README.md).
+
+The MTP drafter reads its whole int4 draft head (98,816 x 5,120, 261 MB) once per draft pass to take an argmax. The
+shortlist scores every row with a covariance-weighted rank-512 factorization, keeps 128 candidates and rescores only
+those with the real head. Offline (`offline/artifact_r512_eval.log`): -0.11% chain tokens per step. Plain SVD and
+frequency-trimmed heads fail (`offline/sweep1_int4.log`, [README](../patches/shortlist/README.md#why-weighted-and-why-not-a-trimmed-head)).
+
+**Head step on the card** (`microbench/kbench-int4-rescore.out`, captured graph, microseconds per call):
+
+| streams | stock int4 head GEMM + scatter + argmax | shortlist N = 128 | saved |
+|---|---|---|---|
+| 1 | 490 | **162** | 328 |
+| 2 | 495 | 164 | 331 |
+| 4 | 502 | 169 | 333 |
+
+0.33 ms per draft pass = about 1.65 ms per K = 5 step. The first version rescored the candidates with an fp32
+dequantize (205 / 237 / 297 us, `microbench/kbench-fp32-rescore.out`); rescoring with the head's own int4 GEMM on the
+gathered rows is 17 us and uses the stock head's numerics.
+
+**Seat A/B** on the second card, same day (`seat-ab/base.out`, `sl.out`, `tier_sl-*.jsonl`; a determinism rerun with
+3 depth runs and 5 greedy code runs per arm in `det-base.out`, `det-sl.out`):
+
+| | stock head | shortlist | change |
+|---|---|---|---|
+| short code (avg of 9) | 129.9 t/s | **134.6** | **+3.6%** (rerun 130.6 -> 135.0) |
+| decode behind 23k / 61k / 120k, ms per step | 40.1 / 46.2 / 56.4 | **38.7 / 44.5 / 54.3** | **-3.5 / -3.7 / -3.7%** (rerun x3: -3.3 / -3.3% at 23k / 61k) |
+| tokens per step at 23k / 61k (rerun, x3 each) | 3.25 / 3.54 | 3.22 / 3.53 | -0.7 / -0.3% |
+| 4 writers sampled, summed (x2) | 258.4 avg | 260.3 avg | noise |
+| edits, greedy and sampled | 233.8, 6/6 exact | **239.0, 6/6 exact** | +2.2% |
+| crossing | 3/3 | 3/3 | |
+| acceptance over the bench | 66.5% | 67.3% | |
+| greedy code, distinct transcripts of 5 | 2 | 2, **the same two** | the shortlist adds no greedy behaviour the seat did not have |
+
+The greedy code prompt flips between two transcripts on the stock head too (2 of 5 runs), at a token where the
+target's top two are 0.016 nats apart: speculative decoding is lossless in distribution, but how tokens group into
+verify steps changes the numerics, so an exact near-tie can go either way under greedy. Byte-identical greedy output
+is not a usable gate once drafts change ([PITFALLS](PITFALLS.md#speculative-decoding)).
+
+**Prose A/B** on the second card, pre-shortlist vs shortlist (`seat-ab/prose-base.out`, `prose-sl.out`,
+`prose_base.jsonl`, `prose_sl.jsonl`; `bench/prose_ab.py`, 10 fixed prompts):
+
+| mode | tokens per step | decode t/s |
+|---|---|---|
+| greedy, thinking off (600 tokens) | 2.337 -> 2.276 (**-2.6%**; -2.3% on the 6 of 10 identical texts) | 66.1 -> 67.1 (+1.5%) |
+| the model's default sampling, 2 seeds (500) | 1.943 -> 1.941 (-0.1%) | 53.9 -> 56.2 (+4.2%) |
+| thinking on, effort medium (1,000) | 2.350 -> 2.278 (**-3.1%**, per-prompt sd 11.6) | 65.0 -> 65.7 (+1.1%) |
+
+So the shortlist does cost 2-3% acceptance on short-context greedy and thinking prose, where the offline replay
+(code-heavy traffic) said -0.1%, and nothing on sampled prose. No mode is slower.
+
+**Live seat, before and after** (`promotion/live-pre.out`, `live-post.out`, `live-verify.out`, `tier_live-*.jsonl`;
+through our router; prod down 3 min 16 s):
+
+| | before | **after (live)** | change |
+|---|---|---|---|
+| short code (avg of 9) | 129.6 | **134.9** | **+4.1%** |
+| decode behind 23k / 61k, ms per step (x3) | 39.8 / 45.7 | **38.5 / 44.1** | **-3.4 / -3.4%** |
+| decode behind 23k / 61k, t/s | 83.6 / 81.8 | 93.0 / 84.2 | +11 / +3% (23k carries tokens-per-step noise) |
+| 4 writers sampled, summed (x2) | 263.8, 265.3 | 264.9, 270.6 | +1.2% |
+| edits, greedy and sampled | 237.1, 6/6 exact | **242.6, 6/6 exact** | +2.3% |
+| crossing / vision / greedy code x5 | 3/3 / correct / 5x one transcript | 3/3 / correct / 5x the same transcript | |
+| acceptance over the bench | 68.0% | 66.9% | -1.1 points |
+
+Agent turns through our harness, one each before and after: write 3.87 -> 4.19 tokens per step, whole-file rewrite
+6.91 -> 6.63, small edit 5.19 -> 4.37, prose 2.89 -> 2.62. Single turns of different generated text cannot separate
+acceptance from content; the fixed-prompt prose A/B above is the clean measurement.
 
 ### Combined speculator at every depth
 
@@ -352,6 +500,162 @@ above). His headline 160 / 216 t/s is the DFlash2 column, which needs a drafter 
 
 Our own bench reads lower at depth (58-67 t/s) because it is a harder test: cold prompts, temperature 0.3 and a
 prose answer, against his cached prompt, greedy decoding and "explain the last file function by function".
+
+## What we tried and dropped
+
+2026-10-21 to 10-23, all on 0.32 with the live stack of the day. Each one is settled with numbers, so nobody has to
+try it again without a new mechanism. Raw files in `results/settled/`.
+
+- [Where a decode step's time goes](#where-a-decode-steps-time-goes) (the profile the rest rests on)
+- [A sliding window for the MTP head](#a-sliding-window-for-the-mtp-head)
+- [A 64-row verify tile](#a-64-row-verify-tile)
+- [Sibling-tree speculation](#sibling-tree-speculation)
+- [A per-step draft count from the drafter's confidence](#a-per-step-draft-count-from-the-drafters-confidence)
+- [A multi-row GDN kernel](#a-multi-row-gdn-kernel) (works, not in the live stack)
+
+### Where a decode step's time goes
+
+2026-10-22, second card, torch profiler, `results/settled/profile/`. The XPU profiler sees nothing inside a graph
+replay (a K = 5 step showed 35 launches and 0.2 ms of device time against a 40 ms step), so the kernel split comes
+from a second load with graphs off (`--compilation-config '{"cudagraph_mode":"NONE"}'`; the dotted
+`-O.cudagraph_mode` form is silently ignored on 0.32). Eager steps are launch-bound (93 ms), but the kernel durations
+are the production kernels, and the graphed step time says how much replay already hides.
+
+Device time per decode step (`pt_ea.out`, `pt_eb.out`, `pt_ec.out`, `pt_ed.out`; `slices.out` has the step times):
+
+| rows (requests x q_len) | context | device busy | int4 GEMM | attention | GDN gated-delta | GDN conv1d | rest |
+|---|---|---|---|---|---|---|---|
+| 1 x 3 (K = 2) | 23k | 28.8 ms | 23.8 | 3.3 | 0.94 | 0.33 | 0.4 |
+| **1 x 6 (K = 5, the live step)** | 23k | **32.3 ms** | **24.7** | **4.9** | **1.83** | **0.51** | 0.4 |
+| 1 x 6 | 63k | 37.6 ms | 24.8 | 10.0 | 1.83 | 0.51 | 0.4 |
+| 1 x 6 | ~0.3k | 27.6 ms | 24.4 | 0.44 | 1.85 | 0.52 | 0.4 |
+| 4 x 6 = 24 (4 writers) | ~0.3k | 40.8 ms | 31.3 | 0.45 | 7.79 | 0.82 | 0.4 |
+
+- **The GEMMs are the floor: 24 ms of every step, 76% at 23k.** 304 `gemm_kernel` launches stream the whole 27B int4
+  weight set once per step: 14-15 GB in 24 ms is about 600 GB/s, the card's memory bandwidth. It moves +0.3 ms per
+  extra verify row and not at all with context. Only fewer bytes per step could shrink it (TP2 and lighter quants,
+  both settled no-gos on this model).
+- **Attention is the context cost:** 4.9 ms at 23k, 10.0 at 63k (so about 19 at 120k), 0.44 at short context; about
+  0.5 ms per verify row at 23k and 1 ms at 63k, all in the two fmha kernels (split-KV decode + reduce).
+- **GDN is exactly linear in rows: 0.31 ms per row, 48 launches regardless.** The gated-delta kernel costs 0.94 /
+  1.83 / 3.75 / 7.79 ms at 3 / 6 / 12 / 24 rows: a serial row loop inside the kernel, not launch overhead. 6% of a
+  single-stream step, 21% of a 4-writer step.
+- **The graphed step is fully kernel-bound.** The 39.9 ms live step is these 32.3 ms plus the target LM head
+  (2.17 ms, fp8 GEMM over 248,320 x 5,120), the five MTP draft passes (about 5.6 ms) and rejection sampling, which
+  launch after the step's profiler annotation closes. 32.3 + 7.8 = 40.2 ms of device work for a 39.9 ms step: there
+  is no host-side slack to win, and graph replay already removes the 35-44 ms of launch gaps the eager step shows.
+- **One MTP draft pass at 23k** (passes 2 to 5): fc 51 us, qkv 69, o_proj 34, gate_up 161, down 80, **draft head
+  440** (int4, 98,816 rows, 261 MB), GEMMs 835 us at 575 GB/s, attention 172 us. The head is 54% of the bytes a pass
+  moves, which is why the [shortlist](#shortlist-draft-head) was the one lever left. The per-draft slope of a step
+  is one pass (about 0.96 ms) plus one extra target verify row (about 0.7 ms: GEMM 0.3, GDN 0.31, rest 0.1).
+
+So on this hybrid a verify row costs 0.5 to 3 ms depending on context, not the attention kernel's 0.06 ms per row
+per layer. That number decides the next three entries.
+
+### A sliding window for the MTP head
+
+2026-10-21, `results/settled/mtp-window/`. A patch gave the MTP layer's attention a sliding window (8,192 or 2,048
+tokens; the layer's KV spec, prefix caching and the target untouched, so only acceptance could change). Short code
+did not move (130.8 / 131.2 / 131.6 t/s for off / 2,048 / 8,192, `sc_*.out`). Decode behind 23k / 58k / 115k
+(`dd_*.out`, tokens per step from the counters):
+
+| window | 23k | 58k | 115k | tokens per step over the three |
+|---|---|---|---|---|
+| off (live) | 84.5 t/s | 83.2 | 64.1 | 3.55 |
+| 8,192 | 72.9 | 77.5 | 56.4 (-12%) | 3.10 (-13%) |
+| 2,048 | 75.3 | 65.1 | 60.3 (-6%) | 2.97 (-16%) |
+
+The drafter needs the whole context to draft well at depth; the window saves nothing on the attention side that
+acceptance does not take back. Crossing 3/3 in every arm (`cr_*.out`). Dropped.
+
+### A 64-row verify tile
+
+2026-10-22, `results/settled/verify-tile/`. riceharvest's attention kernel carries a 64-row packed-verify tile next
+to the 8-row one the live seat uses (his notes call it "slower in serving"). We rebuilt the kernel from source on a
+PC (DPC++ 2026.0, the same vllm-xpu-kernels 0.1.15.4 tree) and it reproduced his `.so` **bit-identically** on every
+MTP shape (`kcheck-tile1-REPORT.txt`), so the kernel is reproducible. Then the tile question (`ktile.out`, one
+attention layer, one request, packed verify, microseconds; exactness passed for every tile, split count, batch,
+context and q_len):
+
+| context | q_len (rows) | 8-row tile, heuristic splits | 64-row tile, 32 splits |
+|---|---|---|---|
+| 45k | 6 (36) | 467 | 497 |
+| 45k | 10 (60) | 669 | 530 (-21%) |
+| 115k | 6 (36) | 1,121 | 1,074 |
+| 115k | 10 (60) | 1,623 | 1,151 (-29%) |
+
+The wide tile streams each KV tile once for all rows, so its cost barely grows with rows (36 -> 60 rows: +7% against
++45% on the 8-row path at 115k), but one work-group then walks a whole KV split, so it wants few, long splits: about
+4 work-groups per Xe core (32 splits at one request, 16 at two); 64 or 128 splits cost 10-30%, 8 splits 50%. A
+32-row tile was 25-34% slower than the 8-row path at every split count. In the seat at the live q_len 6 (K = 5) the
+two tiles are at parity (`seat-8row.out`, `seat-64row.out`: 39.9 / 46.0 / 55.7 vs 40.2 / 46.1 / 55.9 ms per step at
+23k / 61k / 120k, 4 writers 260.1 vs 259.8, short code 131.2 vs 129.6). Nothing to promote on its own; its value was
+for longer verifies, which the next entry closed.
+
+### Sibling-tree speculation
+
+2026-10-22, `results/settled/tree/`. One sibling path beside the MTP-5 chain: when the chain's first draft is
+rejected, a second row carries the drafter's second choice, so that step can still emit a token instead of falling
+back to the target's sample (the drafter's rank-2 matched 44-51% of first-draft rejections in a probe). q_len 8, a
+per-row ancestor mask added to the decode kernel (bit-exact against a reference on every tree shape), slot and GDN
+state fix-ups on the vLLM side.
+
+The rows alone, with no wins taken (`window1-tree-on.out` vs `window1-tree-off.out`, same load):
+
+| ms per step (tokens per step) | 23k | 61k | 120k | 4 writers | short code |
+|---|---|---|---|---|---|
+| chain, K = 5 (live) | 39.8 (3.29) | 45.1 (3.51) | 54.2 (3.63) | 255.7 | 129.2 |
+| + 2 tree rows | 44.1 (3.25) | 51.9 (3.54) | 65.0 (3.62) | - | - |
+| + 2 tree rows, single-sequence GDN, no pre-copies (`window2-b-*.out`) | 42.7 | 50.0 | 62.6 | - | 124.3 |
+
+Two extra rows cost +11% / +15% / +20% of the step, of which 1.6-2.3 ms is the two-sequence GDN path plus 96 per-layer
+state pre-copies and the rest is the price of the rows themselves (the profile above). With the wins on
+(`window2-g-wins-on.out`): rank-2 matched 38% of first-draft rejections and a win fired on 15% of tree steps at the
+same step time, but tokens per step **fell** (2.82 / 3.46 / 3.11 / 3.04 against 3.25 / 3.54 / 3.64 / 3.74 at 23k /
+61k / 120k / 210k) and short code dropped to 90.5, because the win path's K/V, GDN-slot and hidden-state copies emit
+wrong tokens (the greedy code transcript leaves the chain's about 150 tokens in; a correct win must reproduce it
+exactly). Not pursued further: even a correct win path has a ceiling of about +5% tokens per step (15% of steps x 1
+token) against +11-20% step time, because every extra row pays the serial GDN cost in all 48 layers. On this model,
+longer or wider speculation only pays where the rows are nearly free, which is nowhere.
+
+### A per-step draft count from the drafter's confidence
+
+2026-10-22, `results/settled/conf-k/`. The idea: verify K = 2 instead of K = 5 on steps where the drafter's
+position-0 confidence is low (deep prose), saving about 4 ms per step. vLLM 0.32's own version
+(`enable_adaptive_verification`) refuses to start on this model: the base attention class gates it on
+`not is_ssm()` and the GDN backend is an SSM backend, so the runner raises before any knob is read. Our own policy in
+the combined speculator's scheduler hook ran one observe-only arm on the live card (`observe-only.out`: short code
+130.0, 4 writers 253.3 / 262.2, decode 39.7 / 45.7 / 55.0 / 69.6 ms per step at 23k / 61k / 120k / 210k, edits 6/6
+exact, all at parity with the day's live numbers) and recorded, for every K = 5 verify, the confidence the scheduler
+would have had and how many drafts were accepted (`stats-*.json`). Under async scheduling the scheduler fixes K before
+the confidence of those drafts exists; the newest it has is 2-3 draft rounds old, and that lagged signal carries
+almost no information: on deep prose the mean accepted count is 2.0-2.3 in the low confidence buckets against 2.6 in
+the top one. Every cut from 0.3 to 0.9 predicts a loss (-0.3% to -4.9% at 23k, less at depth). An exact per-step
+choice needs the decision on the device inside the verify graph, which is the same GDN-builder work adaptive
+verification lacks. Dropped as a policy.
+
+### A multi-row GDN kernel
+
+2026-10-22, `results/settled/gdn-rows/`. The stock `gated_delta_rule_spec` kernel's cost is linear in rows because of
+its state stores (4 scalar half stores per column, 270-400 GB/s). Rebuilt with the state I/O vectorized to one 8-byte
+access per lane, plus the rows of a request staged in local memory:
+
+| rows (requests x per request) | installed, cold us per layer | new | speedup |
+|---|---|---|---|
+| 1 x 6 | 30.8 | 19.2 | 1.60x |
+| 4 x 6 (4 writers) | 125.3 | 73.3 | 1.71x |
+| 1 x 16 (a copy step) | 80.1 | 45.4 | 1.78x |
+| 4 x 16 | 384.7 | 200.3 | 1.97x |
+
+Output and the whole state pool **bit-identical** to the installed kernel on 240 of 240 cases (`kernel-test.out`);
+the new kernel moves state at 600 GB/s, the memory floor. In one fused op with the conv1d (`fused-op-test.out`)
+1.24-1.86x. In the seat on the second card, as a side library hooked into the GDN op: short code 130.5 / 129.8 ->
+135.0 / 134.1 t/s (+3.5%, two loads each; `seat-*.out`), greedy code identical to the live seat's text; the 4-writer
+batch step dropped about 1 ms (43.2 -> 42.2 ms), a third of what the per-layer numbers project, with the summed t/s
+inside the noise. The 4-writer lines in those seat files are **not** the kernel's: the bench that produced them
+ignored its endpoint override and measured the live seat on the first card instead (fixed since; the short-code and
+greedy lines did go to the test seat). Status: exact, safe, +3.5% on single-stream copy-heavy work, not promoted.
+Promoting it means shipping the library with the tree or upstreaming the vectorized stores into vllm-xpu-kernels.
 
 ## Quality checks
 

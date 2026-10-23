@@ -1,0 +1,2 @@
+{"mode": "deep", "tag": "live-pre-t1s3", "prompt": 61314, "out": 500, "tps": 70.2, "tok_step": 3.14, "drafts_step": 5.06, "ms_step": 44.7}
+{"mode": "deep", "tag": "live-pre-t1s3", "prompt": 120355, "out": 500, "tps": 61.7, "tok_step": 3.33, "drafts_step": 5.0, "ms_step": 53.9}

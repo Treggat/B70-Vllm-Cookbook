@@ -1,0 +1,23 @@
+23:41:40 cache loaded emb (248320, 5120) head (98816, 5120) torch.bfloat16
+23:41:42 shortlist ../draft-pass/shortlist/shortlist_r512.pt: rank 512, N 128
+23:41:42 000000.mtpd id=session-3be8e069-7167-4ddb-bdae-d4bfdd5ef901:0 cat=code T=111415 L=22359
+23:42:40 000001.mtpd id=session-3599836e-9c9e-4a59-97fb-e6c796216e5e:0 cat=rp T=91390 L=8569
+23:42:57 000002.mtpd id=session-1eb73708-aed5-419e-8f90-8a453cb25a95:0 cat=code T=85103 L=10637
+23:43:23 000003.mtpd id=session-b7750028-b0d3-4a77-bc4a-d52eebc4b7b8:0 cat=code T=83236 L=22125
+23:44:07 000004.mtpd id=session-3599836e-9c9e-4a59-97fb-e6c796216e5e:1 cat=rp T=77251 L=8144
+23:44:20 000005.mtpd id=session-c56559c5-f4df-41b8-b1e5-b6a1abf411a2:0 cat=code T=47918 L=9322
+23:44:28 000006.mtpd id=session-5314928b-74a5-4a70-84be-236bcafb4022:0 cat=code T=39253 L=4582
+23:44:34 000007.mtpd id=session-3599836e-9c9e-4a59-97fb-e6c796216e5e:2 cat=rp T=29117 L=272
+23:44:34 EVAL [all] T=1.0 files=8 starts=86010 tok/step: G 4.693  Pv 4.796 (+2.2%)  Pi 4.838 (+3.1%)  | ref greedy-target 4.866  realized-hit 4.697
+23:44:34   alpha G=[0.9061, 0.877, 0.8544, 0.8358, 0.8215] Pv=[0.9336, 0.8901, 0.8608, 0.8386, 0.8208] Pi=[0.9377, 0.8953, 0.8669, 0.8453, 0.828]
+23:44:34   shortlist: Gs 4.687  Ps 4.796 (+2.3% vs Gs, -0.01% vs full-head Pv)  alpha Ps=[0.9332, 0.89, 0.8611, 0.839, 0.8214]
+23:44:34   Pv q mass the target cut=[0.0048, 0.0133, 0.0221, 0.0299, 0.0379]  p mass outside trim=[0.00103, 0.00103, 0.00103, 0.00103, 0.00103]
+23:44:34 EVAL [code] T=1.0 files=5 starts=69025 tok/step: G 4.814  Pv 4.902 (+1.8%)  Pi 4.940 (+2.6%)  | ref greedy-target 4.975  realized-hit 4.819
+23:44:34   alpha G=[0.9218, 0.8942, 0.8716, 0.8516, 0.8367] Pv=[0.9453, 0.9046, 0.8756, 0.8525, 0.834] Pi=[0.9486, 0.909, 0.8809, 0.8584, 0.8403]
+23:44:34   shortlist: Gs 4.808  Ps 4.900 (+1.9% vs Gs, -0.04% vs full-head Pv)  alpha Ps=[0.9448, 0.9043, 0.8756, 0.8526, 0.8343]
+23:44:34   Pv q mass the target cut=[0.0025, 0.0086, 0.0161, 0.0234, 0.031]  p mass outside trim=[0.00124, 0.00124, 0.00124, 0.00124, 0.00124]
+23:44:34 EVAL [rp] T=1.0 files=3 starts=16985 tok/step: G 4.201  Pv 4.368 (+4.0%)  Pi 4.422 (+5.3%)  | ref greedy-target 4.426  realized-hit 4.202
+23:44:34   alpha G=[0.8422, 0.8069, 0.7843, 0.7712, 0.7597] Pv=[0.8862, 0.8311, 0.8007, 0.7818, 0.7672] Pi=[0.8932, 0.8396, 0.8101, 0.7919, 0.7778]
+23:44:34   shortlist: Gs 4.197  Ps 4.373 (+4.2% vs Gs, +0.11% vs full-head Pv)  alpha Ps=[0.886, 0.8321, 0.8023, 0.7835, 0.7691]
+23:44:34   Pv q mass the target cut=[0.0142, 0.0324, 0.0463, 0.0563, 0.0659]  p mass outside trim=[0.00017, 0.00017, 0.00017, 0.00017, 0.00017]
+23:44:34 done (172s)

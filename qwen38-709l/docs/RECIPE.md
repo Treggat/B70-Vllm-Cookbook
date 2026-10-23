@@ -96,6 +96,25 @@ the whole file go from 155 to 235 t/s, exact; everything else stays at MTP-5 spe
 scripts after `apply_stack.sh`, which does not apply them, then switch it on in `prod.env` (section 4). Every hook is a
 no-op with its switch unset, so a tree with the patches applied still serves plain MTP-5.
 
+### Optional: the shortlist draft head
+
+[`patches/shortlist/`](../patches/shortlist/README.md) (live since 2026-10-22): the MTP drafter scores 128 candidate
+rows from a covariance-weighted rank-512 factorization of its int4 draft head and rescores only those, instead of
+reading the whole 98,816-row head on every draft pass. 0.33 ms less per pass, -3.4% step time at every depth, short
+code +4%, edits +2%; about 2-3% acceptance cost on short greedy prose, none on sampled prose (RESULTS.md). Apply
+`patch_shortlist_032.py` to the tree, build or download the artifact (the README says how), and set
+`B70_DRAFT_SHORTLIST=<artifact> B70_DRAFT_SHORTLIST_N=128` in `prod.env`. Unset = the stock head; the module turns itself
+off with one log line if the artifact does not match the head it finds.
+
+### Probabilistic drafts
+
+`"draft_sample_method":"probabilistic"` in the speculative config (live since 2026-10-23) samples each MTP draft from
+the drafter's distribution instead of taking its argmax. On sampled requests, which is every ordinary chat and agent
+turn on this seat (section 4), it raised prose decode 10-18% and 4-writer throughput 8% with no cost to greedy
+requests (RESULTS.md). It needs the combo speculator revision in this repo (one-hot rows for copied drafts) and the
+shortlist's probabilistic path; both are in `patches/`. Without the combined speculator, stock vLLM supports the flag
+as is.
+
 ## 3. Model
 
 See [AWQ.md](AWQ.md). Short version: TheUnderscore's W4A16 quant of the 709-L comes in compressed-tensors
@@ -114,9 +133,13 @@ See [AWQ.md](AWQ.md). Short version: TheUnderscore's W4A16 quant of the 709-L co
   20.3 s instead of about 3 s. `apply_stack.sh` also keeps the MTP drafter's own embedding table off the offloader
   (see PITFALLS): the target's offloaded table is the one both end up using.
 - `--speculative-config '{"method":"mtp","num_speculative_tokens":5}'` (the launcher's default). With the combined
-  speculator, `prod.env` overrides `SPEC` and sets its switches instead: the commented block in `prod.env.example`.
-  It costs about 10% of the KV pool (416,591 → 375,067 tokens), because the GDN layers keep a state slot per draft
-  position.
+  speculator, `prod.env` overrides `SPEC` and sets its switches instead: the commented block in `prod.env.example`,
+  which since 2026-10-23 also carries `"draft_sample_method":"probabilistic"`. The combined speculator costs about
+  10% of the KV pool (416,591 → 375,067 tokens), because the GDN layers keep a state slot per draft position.
+- **Sampling defaults.** The serve line has no `--generation-config`, so vLLM fills any sampling field a request
+  leaves out from the model's `generation_config.json`: temperature 1.0, top-k 20, top-p 0.95 for the 709-L. Our
+  router and agent harness send none, so every ordinary request samples at those settings. That is what probabilistic
+  drafting speeds up, and what a greedy-only bench never sees; `bench/prose_ab.py` measures all three modes.
 - **No `--kv-offloading-size`.** The 0.31 line had `--kv-offloading-size 8`. vLLM's CPU KV tier stores blocks for
   this hybrid model but never finds them again: `bench/kvoff_probe.py` evicts a 55k-token prompt with 7 x 58k others
   and replays it, and the replay reports 0 cached tokens and a full re-prefill (36 s), on 0.32 exactly as Vcvzgbzz
@@ -160,6 +183,11 @@ that does the same.
 cd bench
 python crossing.py          # page-boundary corruption test: must print PASS
 python bench.py mine        # speed + canary + greedy hashes
+python editbench.py mine    # whole-file edits, greedy and sampled: all 6 must match exactly (the copy speculator's path)
+python prose_ab.py mine     # prose: greedy, the model's default sampling, thinking on; tokens per step and t/s per mode
 python stress4.py mine      # 4 x 95k chats at once: 0 preemptions, no OOM
 python maxlen.py            # after an engine change: a 129k prompt generates into the 131k edge and must end cleanly (direct to vLLM)
 ```
+
+After a drafter change, run the greedy code prompt several times per config and compare the set of transcripts, not
+one run: the seat itself flips between two transcripts at an exact near-tie (PITFALLS).

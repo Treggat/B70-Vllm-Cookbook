@@ -1,0 +1,22 @@
+{
+ "version": 1,
+ "rank": 512,
+ "group_size": 128,
+ "rows": 98816,
+ "vocab_full": 248320,
+ "vocab_sha": "3a54140995f62fe7",
+ "head_fingerprint": "696c55ee3aa87e40",
+ "cov_files": [
+  "000015.mtpd",
+  "000016.mtpd",
+  "000017.mtpd",
+  "000018.mtpd",
+  "000019.mtpd",
+  "000020.mtpd"
+ ],
+ "cov_rows": 287000,
+ "energy_kept": 0.9189006156160235,
+ "self_check_rel_err": 0.38728734850883484,
+ "built": "2026-10-22 19:15",
+ "by": "draft-pass/shortlist/build_factors.py"
+}

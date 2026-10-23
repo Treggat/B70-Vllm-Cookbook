@@ -1,0 +1,4 @@
+w2048u deep  23239 tok: decode  75.3 t/s (500 out, ttft 0.2s)
+w2048u deep  58204 tok: decode  65.1 t/s (500 out, ttft 0.3s)
+w2048u deep 114801 tok: decode  60.3 t/s (500 out, ttft 0.5s)
+deep spec: 852.0 4260.0 3091.0 -> 1864.0 9320.0 5081.0

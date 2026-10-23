@@ -38,6 +38,36 @@
 - **riceharvest's attention `.so` only has the MTP shapes.** A DFlash2 drafter (head 128, non-causal, sliding window)
   dies in warmup with "Chunk prefill kernel tuple not compiled for this configuration". Use the stock kernel, or
   build one that includes that shape.
+- **Greedy output is not run-to-run deterministic once drafts change.** The target's verify numerics depend on how
+  tokens group into steps (packed q_len paths, copy steps), so at an exact near-tie the greedy pick flips. We measured
+  one: the top two tokens 0.016 nats apart, and the unchanged seat produced both transcripts (2 of 5 runs). Do not
+  gate a drafter change on byte-identical greedy output. Gate on "no transcript the baseline never produces" over
+  several runs, exact edits (`bench/editbench.py`) and the crossing test.
+- **The drafter's warm-up feeds garbage hidden states.** vLLM warms the drafter with dummy inputs before graph
+  capture. The shortlist's rescored logits came out NaN there, a tie-break that compared against the max was false
+  everywhere, and its sentinel row indexed past the head: engine init died with an index-out-of-bounds. Anything on
+  the draft path has to return valid ids for NaN, inf and zero inputs; the shortlist tests cover it.
+- **Gate a drafter change on prose, not only on the traffic you fit it on.** The shortlist's offline replay (our own,
+  code-heavy traffic) said -0.1% acceptance; a fixed-prompt prose A/B said -2 to -3% on greedy and thinking prose
+  (none on sampled). Prose is where MTP is weakest on this model (about 2 tokens per step against 4.6 on code), so a
+  drafter change shows there first. `bench/prose_ab.py` is the bench; keep it next to the code benches.
+- **Know what your clients actually sample with.** With no `--generation-config`, vLLM fills missing sampling fields
+  from the model's `generation_config.json` (709-L: temperature 1.0, top-k 20, top-p 0.95), and our router and agent
+  harness send none. So every agent turn is a sampled request, probabilistic drafting applies to all of it, and a
+  greedy-only bench would never have shown the +14-18% on prose. Check the engine's argv and a real request before
+  judging a change that depends on sampling.
+- **Every verify row costs 0.5 to 3 ms on this hybrid model, not microseconds.** The 48 GDN layers process rows
+  serially (0.31 ms per row) and attention adds 0.5-1 ms per row at depth, so a wider or longer speculation pays that
+  in every step whether or not it wins. Sibling-tree speculation (+2 rows) cost +11-20% step time for a +5% ceiling;
+  MTP K 2-4 lose to K 5 at every depth. Profile the step before building anything that adds rows
+  ([RESULTS](RESULTS.md#where-a-decode-steps-time-goes)).
+- **vLLM's `enable_adaptive_verification` does not start on GDN models.** The attention base class gates it on
+  `not is_ssm()`; the runner raises before any knob is read. A per-step draft count from the drafter's confidence
+  also does not work as a scheduler policy here: under async scheduling the confidence the scheduler sees is 2-3
+  draft rounds old and nearly flat against acceptance ([RESULTS](RESULTS.md#a-per-step-draft-count-from-the-drafters-confidence)).
+- **An agent harness with cross-chat memory breaks A/B turns.** Ours surfaced the "before" chat's replies to the
+  "after" chat (same example numbers, same story elements), which inflates the second arm's acceptance. Use fresh
+  topics per arm or turn that memory off for A/Bs.
 
 ## Build
 
@@ -52,6 +82,16 @@
   `https://wheels.vllm.ai/0.32.0/xpu/`. The bare `/xpu/` path stopped tracking the release the day 0.32 came out.
 - **Patch scripts that patch every vLLM they find** (see RECIPE). Pin them to one tree.
 - **"dubious ownership":** don't `chown` the vLLM git checkout away from the user who runs pip.
+- **`python -I` ignores `PYTHONPATH`.** A kernel test launched that way skipped its side package, found no B70 kernel
+  in the stock library and fell back to PyTorch reference attention at 45k tokens. On the xe driver, device
+  allocations past the card's 32 GB spill into host RAM, so the 62 GB host went to a global OOM that killed the live
+  server's process and two unrelated containers. Treat a "falling back to PyTorch reference attention" line at long
+  context as an OOM in progress and kill it; run a 2k case first and check the printed library path.
+- **The XPU torch profiler sees nothing inside a graph replay.** A graphed step shows 35 launches and 0.2 ms of
+  device time. Profile a graphs-off load (`--compilation-config '{"cudagraph_mode":"NONE"}'`; the dotted
+  `-O.cudagraph_mode` form is silently ignored on 0.32), read the kernel durations from there, and take the step
+  time from the graphed load. Ops launched after the engine step's annotation closes (the target LM head, the MTP
+  draft loop, rejection sampling) are easy to miss: count them separately.
 - **Compile cache keyed on flags, not env:** give each switch combination its own `VLLM_CACHE_ROOT`.
 - **`--max-num-batched-tokens 16384`** made cold prefill 2–3× slower on this XPU build. We use 3584.
 - **Memory query reads 0 GiB free** under some Level Zero driver/container combinations. Fixed by `patch_meminfo_fallback`.
@@ -76,6 +116,10 @@
   sources). The server runs fine, but a supervisor such as llama-swap then shows an empty log for the model.
 - **llama-swap users:** scraping `/upstream/<model>/metrics` for a model that isn't loaded **loads it**, swapping out
   whatever is running. Only scrape the seat that's already up.
+- **Check which server a bench actually hit.** One of our bench scripts ignored its endpoint override and measured the
+  live seat for a whole A/B window on the test seat; the numbers looked plausible. Read `model_name` in the
+  `/metrics` lines the bench records, and keep the two servers' served names different (`bench/common.py` reads one
+  set of settings for every script here).
 - **Do the VRAM math before raising KV.** CUDA-graph-style capture memory isn't counted by
   `gpu_memory_utilization`. Set `--kv-cache-memory-bytes` explicitly and leave about 1.5 GiB of headroom.
 - **`--kv-offloading-size` does nothing useful for this hybrid model** (0.31 and 0.32): blocks go to the CPU tier and

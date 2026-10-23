@@ -1,0 +1,4 @@
+B70_DRAFT_SHORTLIST=<venv dir>/shortlist/shortlist_r512.pt
+B70_DRAFT_SHORTLIST_N=128
+"max_model_len":262144
+live .so 8d1bf4d1ea74 (prod 8d1bf4d1ea74); resets 3

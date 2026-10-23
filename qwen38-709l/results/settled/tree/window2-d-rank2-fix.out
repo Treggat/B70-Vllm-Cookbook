@@ -1,0 +1,9 @@
+tile-w2d deep  23239 tok:   71.9 t/s,  3.25 tok/step,  7.13 drafts/step,  45.1 ms/step
+tile-w2d deep  61314 tok:   67.0 t/s,  3.54 tok/step,  6.97 drafts/step,  52.8 ms/step
+tile-w2d deep 120355 tok:   55.4 t/s,  3.64 tok/step,  7.15 drafts/step,  65.7 ms/step
+tile-w2d deep 209798 tok:   44.5 t/s,  3.74 tok/step,  6.97 drafts/step,  83.7 ms/step
+4 writers: {'each': [41.8, 37.9, 26.1, 35.5], 'summed': 141.3
+'tok_per_step': 2.01
+avg of 9: 116.2 t/s
+w2d EDIT avg: greedy 224.0 t/s, sampled 220.7 t/s, all 222.3 t/s; exact 6/6
+W2D_DONE

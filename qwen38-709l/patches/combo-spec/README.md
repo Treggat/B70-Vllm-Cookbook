@@ -1,4 +1,4 @@
-# Combined copy + MTP speculator on vLLM 0.32 (opt-in, live on our seat since 2026-10-21)
+# Combined copy + MTP speculator on vLLM 0.32 (opt-in, live on our seat since 2026-10-21; probabilistic drafts since 2026-10-23)
 
 vLLM 0.32 runs one speculative method per engine. On the 709-L, MTP-5 is the best general drafter (131 t/s short
 code). But when the output copies its own context (an edit that returns the whole file, a rename, a refactor), MTP is
@@ -22,9 +22,16 @@ step:
   - Then it runs the n-gram Triton scan from vLLM's `NgramGPUSpeculator`. A request uses the 15 copied drafts when the
     match is at least 3 tokens long and the first copied token equals MTP's first draft. Otherwise it gets MTP's
     draft padded to 15.
-  - Drafts are greedy (one-hot) on both paths, so mixing them in one verify is lossless. This relies on vLLM's
-    default `draft_sample_method: "greedy"`. With `"probabilistic"` the rejection sampler would check the copied tokens
-    against MTP's cached draft logits, so do not combine the two.
+  - With vLLM's default `draft_sample_method: "greedy"`, drafts are one-hot on both paths, so mixing them in one
+    verify is lossless.
+  - With `"probabilistic"` (our live seat since 2026-10-23, see [docs/RESULTS.md](../../docs/RESULTS.md#probabilistic-mtp-drafting)),
+    the rejection sampler reads the cached draft logits `draft_logits[req, col]` for every draft. On a copy step MTP
+    fills only the columns below `km` (1 in our config), and even those hold MTP's logits for rows that then copy;
+    the other columns still hold an older step's logits. So after the finalize kernel, `_combo_onehot_kernel` writes
+    a one-hot row (0 at the draft token, -inf elsewhere) into every column of a copy row and into the columns at or
+    above `km` of an MTP row: q = 1 there, exactly like a greedy draft, and the mix stays lossless. It runs only when
+    `draft_logits` is set (one launch per copy step, up to K x 248,320 values per request); with greedy drafts it is
+    a no-op.
 - **GDN** (`patch_gdn_varlen_spec_032.py`, `B70_GDN_VARLEN_SPEC=6,16`): the metadata builder assumes every spec decode
   has `num_speculative_tokens + 1` tokens.
   - With K max 15, a 6-token MTP step looked like a truncated final group, so the boundary patch sent it to the stateful
@@ -56,8 +63,13 @@ and `py_compile` what they touch. Every hook is a no-op with its switch unset. A
 ```sh
 export B70_SPEC_PACKED=1 B70_SPEC_PACKED_QLENS=2,3,6,16 B70_GDN_VARLEN_SPEC=6,16 B70_COMBO_SPEC=1
 export B70_COMBO_MAX_CTX=262144 B70_COMBO_SCAN_CTX=262144
-SPEC='{"method":"mtp","num_speculative_tokens":15,"num_speculative_tokens_per_batch_size":[[1,1,15],[2,4,5]],"rejection_sample_method":"block"}'
+SPEC='{"method":"mtp","num_speculative_tokens":15,"num_speculative_tokens_per_batch_size":[[1,1,15],[2,4,5]],"rejection_sample_method":"block","draft_sample_method":"probabilistic"}'
 ```
+
+`draft_sample_method: "probabilistic"` samples each MTP draft from the drafter's distribution instead of taking its
+argmax. On requests that sample (the model's default is temperature 1.0, top-k 20, top-p 0.95) that raised prose
+acceptance 14-18% on our seat at no cost to greedy requests, which skip draft sampling (RESULTS.md). Leave it out for
+vLLM's default greedy drafts; everything else here works the same either way.
 
 The Dynamic SD schedule is there only so that vLLM captures graphs for q_len 6 and 16 (target, MTP prefill and MTP
 decode). The policy overrides its choice. KV drops about 10% (416,591 → 375,067 tokens in our 14.5 GiB pool): the GDN

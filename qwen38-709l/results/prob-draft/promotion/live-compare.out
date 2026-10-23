@@ -1,0 +1,73 @@
+== pre
+spec before: 12090.0 73920.0 46052.0
+short code (greedy): avg of 9: 135.0 t/s
+deep (greedy) live-pre-1 deep  23239 tok:   84.7 t/s,  3.25 tok/step,  5.19 drafts/step,  38.2 ms/step
+deep (greedy) live-pre-1 deep  61314 tok:   84.2 t/s,  3.75 tok/step,  5.07 drafts/step,  44.2 ms/step
+deep (greedy) live-pre-2 deep  23239 tok:   95.0 t/s,  3.67 tok/step,  5.66 drafts/step,  38.6 ms/step
+deep (greedy) live-pre-2 deep  61314 tok:   83.8 t/s,  3.71 tok/step,  5.07 drafts/step,  44.1 ms/step
+deep (greedy) live-pre-3 deep  23239 tok:   85.7 t/s,  3.29 tok/step,  5.20 drafts/step,  38.3 ms/step
+deep (greedy) live-pre-3 deep  61314 tok:   83.8 t/s,  3.72 tok/step,  5.07 drafts/step,  44.1 ms/step
+deep (t=1.0 seed 1) live-pre-t1s1 deep  61314 tok:   78.4 t/s,  3.54 tok/step,  5.14 drafts/step,  44.8 ms/step
+deep (t=1.0 seed 1) live-pre-t1s1 deep 120355 tok:   53.0 t/s,  2.90 tok/step,  5.12 drafts/step,  54.4 ms/step
+deep (t=1.0 seed 2) live-pre-t1s2 deep  61314 tok:   64.2 t/s,  2.97 tok/step,  5.06 drafts/step,  46.0 ms/step
+deep (t=1.0 seed 2) live-pre-t1s2 deep 120355 tok:   56.2 t/s,  3.06 tok/step,  5.12 drafts/step,  54.5 ms/step
+deep (t=1.0 seed 3) live-pre-t1s3 deep  61314 tok:   70.2 t/s,  3.14 tok/step,  5.06 drafts/step,  44.7 ms/step
+deep (t=1.0 seed 3) live-pre-t1s3 deep 120355 tok:   61.7 t/s,  3.33 tok/step,  5.00 drafts/step,  53.9 ms/step
+(t=1.0) 4 writers: {'each': [50.1, 90.2, 40.7, 84.0], 'summed': 265.0
+(t=1.0) 4 writers: {'each': [53.1, 90.1, 39.4, 87.6], 'summed': 270.2
+live-pre EDIT avg: greedy 241.8 t/s, sampled 239.7 t/s, all 240.7 t/s; exact 6/6
+crossing clean (of 3: t0, t1 s7, t1 s8): 3
+SUMMARY live-pre G: 10 requests, 4165 tokens, tok/step 2.252, accepted/draft-token 0.2505, decode 67.0 t/s
+SUMMARY live-pre S: 20 requests, 8752 tokens, tok/step 1.909, accepted/draft-token 0.1817, decode 55.8 t/s
+SUMMARY live-pre T: 10 requests, 9216 tokens, tok/step 2.338, accepted/draft-token 0.2619, decode 67.9 t/s
+spec after: 33684.0 194480.0 101946.0
+== post
+spec before: 1.0 5.0 3.0
+short code (greedy): avg of 9: 135.0 t/s
+deep (greedy) live-post-1 deep  23239 tok:   84.1 t/s,  3.23 tok/step,  5.19 drafts/step,  38.3 ms/step
+deep (greedy) live-post-1 deep  61314 tok:   80.9 t/s,  3.56 tok/step,  5.00 drafts/step,  44.0 ms/step
+deep (greedy) live-post-2 deep  23239 tok:  104.7 t/s,  4.12 tok/step,  6.15 drafts/step,  39.1 ms/step
+deep (greedy) live-post-2 deep  61314 tok:   81.1 t/s,  3.56 tok/step,  5.00 drafts/step,  44.0 ms/step
+deep (greedy) live-post-3 deep  23239 tok:   96.7 t/s,  3.76 tok/step,  5.68 drafts/step,  38.8 ms/step
+deep (greedy) live-post-3 deep  61314 tok:   78.9 t/s,  3.49 tok/step,  5.07 drafts/step,  44.2 ms/step
+deep (t=1.0 seed 1) live-post-t1s1 deep  61314 tok:   83.0 t/s,  3.77 tok/step,  5.30 drafts/step,  45.2 ms/step
+deep (t=1.0 seed 1) live-post-t1s1 deep 120355 tok:   62.5 t/s,  3.37 tok/step,  5.00 drafts/step,  53.9 ms/step
+deep (t=1.0 seed 2) live-post-t1s2 deep  61314 tok:   84.5 t/s,  3.80 tok/step,  5.08 drafts/step,  44.8 ms/step
+deep (t=1.0 seed 2) live-post-t1s2 deep 120355 tok:   64.8 t/s,  3.49 tok/step,  5.00 drafts/step,  53.9 ms/step
+deep (t=1.0 seed 3) live-post-t1s3 deep  61314 tok:   82.4 t/s,  3.73 tok/step,  5.22 drafts/step,  45.2 ms/step
+deep (t=1.0 seed 3) live-post-t1s3 deep 120355 tok:   68.1 t/s,  3.70 tok/step,  5.00 drafts/step,  53.9 ms/step
+(t=1.0) 4 writers: {'each': [68.3, 97.2, 46.9, 80.1], 'summed': 292.4
+(t=1.0) 4 writers: {'each': [62.4, 95.2, 45.3, 81.6], 'summed': 284.5
+live-post EDIT avg: greedy 243.8 t/s, sampled 233.8 t/s, all 238.8 t/s; exact 6/6
+crossing clean (of 3: t0, t1 s7, t1 s8): 3
+SUMMARY live-post G: 10 requests, 4249 tokens, tok/step 2.237, accepted/draft-token 0.2473, decode 66.4 t/s
+SUMMARY live-post S: 20 requests, 8524 tokens, tok/step 2.186, accepted/draft-token 0.2370, decode 63.6 t/s
+SUMMARY live-post T: 10 requests, 8935 tokens, tok/step 2.590, accepted/draft-token 0.3126, decode 74.9 t/s
+spec after: 19798.0 111570.0 56245.0
+mode  base tok/step  sl tok/step   change |  base t/s   sl t/s   change | n
+G             2.252        2.237   -0.70% |      67.0     66.4   -0.91% | 10/10
+     G paired per prompt: mean -1.27%, median -2.29%, min -6.98%, max +7.48%; identical texts 3/10
+S             1.909        2.186  +14.51% |      55.8     63.6  +14.00% | 20/20
+     S noise yardstick (base seed 1 vs seed 2): +3.34%
+T             2.338        2.590  +10.77% |      67.9     74.9  +10.21% | 10/10
+pre greedy code:       1 c080a855       4 f6cc69cc 
+post greedy code:       5 f6cc69cc 
+known prod transcripts: f6cc69cc c080a855
+sampled deep ~61k pre: tok/step [3.54, 2.97, 3.14] mean 3.22; t/s mean 70.9
+sampled deep ~61k post: tok/step [3.77, 3.8, 3.73] mean 3.77; t/s mean 83.3
+sampled deep ~120k pre: tok/step [2.9, 3.06, 3.33] mean 3.10; t/s mean 57.0
+sampled deep ~120k post: tok/step [3.37, 3.49, 3.7] mean 3.52; t/s mean 65.1
+harness pre-t1     tok/step  4.11  gen 2205
+harness pre-t2     tok/step  6.57  gen 1916
+harness pre-t3     tok/step  5.84  gen 1088
+harness pre-t4     tok/step  2.66  gen 473
+harness pre-t5     tok/step  2.58  gen 398
+harness pre-t6     tok/step  2.06  gen 419
+harness pre-t7     tok/step  2.17  gen 400
+harness post-t1    tok/step  4.34  gen 2915
+harness post-t2    tok/step  6.72  gen 2585
+harness post-t3    tok/step  6.66  gen 1464
+harness post-t4    tok/step  3.02  gen 449
+harness post-t5    tok/step  2.93  gen 435
+harness post-t6    tok/step  2.50  gen 416
+harness post-t7    tok/step  2.35  gen 393

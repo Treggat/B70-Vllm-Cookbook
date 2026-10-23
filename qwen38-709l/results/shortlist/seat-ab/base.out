@@ -1,0 +1,16 @@
+[08:44:32 PM] == bench base
+spec before: 2.0 10.0 2.0 
+short code: avg of 9: 129.9 t/s
+sl-base deep  23239 tok:   82.4 t/s,  3.31 tok/step,  5.20 drafts/step,  40.1 ms/step
+sl-base deep  61314 tok:   76.6 t/s,  3.54 tok/step,  5.00 drafts/step,  46.2 ms/step
+sl-base deep 120355 tok:   63.7 t/s,  3.61 tok/step,  5.22 drafts/step,  56.4 ms/step
+4 writers: {'each': [51.8, 86.9, 42.8, 82.4], 'summed': 263.9
+4 writers: {'each': [51.6, 81.2, 42.4, 77.6], 'summed': 252.8
+sl-base EDIT avg: greedy 234.9 t/s, sampled 232.8 t/s, all 233.8 t/s; exact 6/6
+crossing clean: 3
+base code rep1: 700 tok in 5.1s -> base-code-1.txt
+base code rep2: 700 tok in 5.2s -> base-code-2.txt
+base prose rep1: 700 tok in 11.1s -> base-prose-1.txt
+base prose rep2: 700 tok in 11.1s -> base-prose-2.txt
+spec after: 8923.0 56235.0 37376.0 
+[08:51:45 PM] bench base done

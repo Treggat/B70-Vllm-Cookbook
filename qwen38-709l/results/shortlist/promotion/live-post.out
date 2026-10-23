@@ -1,0 +1,21 @@
+[10:17:17 PM] == bench live post
+spec before: 2.0 10.0 2.0
+short code: avg of 9: 134.9 t/s
+live-post-1 deep  23239 tok:   85.4 t/s,  3.27 tok/step,  5.20 drafts/step,  38.2 ms/step
+live-post-1 deep  61314 tok:   84.4 t/s,  3.75 tok/step,  5.07 drafts/step,  44.1 ms/step
+live-post-2 deep  23239 tok:   98.6 t/s,  3.82 tok/step,  5.69 drafts/step,  38.6 ms/step
+live-post-2 deep  61314 tok:   83.8 t/s,  3.72 tok/step,  5.07 drafts/step,  44.1 ms/step
+live-post-3 deep  23239 tok:   95.1 t/s,  3.67 tok/step,  5.66 drafts/step,  38.6 ms/step
+live-post-3 deep  61314 tok:   84.5 t/s,  3.75 tok/step,  5.07 drafts/step,  44.1 ms/step
+4 writers: {'each': [49.2, 85.5, 43.9, 86.3], 'summed': 264.9
+4 writers: {'each': [49.2, 90.1, 44.2, 87.0], 'summed': 270.6
+image: {'sec': 22.4, 'prompt': 2251, 'canary': None, 'reply': "This pixelated fantasy scene depicts a cloaked figure standing on a cliff overlooking a majestic castle illuminated by warm golden lights. A large dragon with spread wings soars through the dramatic sky, which transitions from fiery orange sunset hues on the left to deep blue night with a full moon on the right. Waterfalls cascade from the castle's base into a reflective body of water below, creat"}
+live-post EDIT avg: greedy 244.3 t/s, sampled 241.0 t/s, all 242.6 t/s; exact 6/6
+crossing clean: 3
+live-post code rep1: 700 tok in 5.0s -> live-post-code-1.txt
+live-post code rep2: 700 tok in 5.0s -> live-post-code-2.txt
+live-post code rep3: 700 tok in 4.8s -> live-post-code-3.txt
+live-post code rep4: 700 tok in 5.0s -> live-post-code-4.txt
+live-post code rep5: 700 tok in 4.8s -> live-post-code-5.txt
+spec after: 9668.0 60440.0 40431.0
+[10:23:52 PM] bench live post done

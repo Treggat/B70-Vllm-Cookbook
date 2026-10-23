@@ -1,0 +1,12 @@
+tile-w5 deep  23239 tok:   81.6 t/s,  3.29 tok/step,  5.20 drafts/step,  40.2 ms/step
+tile-w5 deep  61314 tok:   76.7 t/s,  3.54 tok/step,  5.00 drafts/step,  46.1 ms/step
+tile-w5 deep 120355 tok:   64.2 t/s,  3.60 tok/step,  5.00 drafts/step,  55.9 ms/step
+4 writers: {'each': [49.1, 84.2, 43.9, 82.6], 'summed': 259.8
+'tok_per_step': 2.83
+avg of 9: 129.6 t/s
+Capturing CUDA graphs (FULL):   0%|          | 0/8 [00:00<?, ?it/s][B70 spec_packed] B=4 ql=16 max_seqlen_k=262144 tile=8 capturing=False
+Capturing CUDA graphs (FULL):  25%|██▌       | 2/8 [00:00<00:00, 11.99it/s][B70 spec_packed] B=2 ql=16 max_seqlen_k=262144 tile=8 capturing=False
+Capturing CUDA graphs (FULL):  50%|█████     | 4/8 [00:00<00:00, 12.23it/s][B70 spec_packed] B=3 ql=6 max_seqlen_k=262144 tile=64 capturing=False
+Capturing CUDA graphs (FULL):  75%|███████▌  | 6/8 [00:00<00:00, 11.20it/s][B70 spec_packed] B=2 ql=6 max_seqlen_k=262144 tile=64 capturing=Fal
+Capturing CUDA graphs (PIECEWISE):   0%|          | 0/21 [00:00<?, ?it/s]Capturing CUDA graphs (PIECEWISE):   5%|▍         | 1/21 [00:00<00:04,  4.68it/s]C
+Capturing CUDA graphs (PIECEWISE):  43%|████▎     | 9/21 [00:01<00:02,  5.66it/s]Capturing CUDA graphs (PIECEWISE):  48%|████▊     | 10/21

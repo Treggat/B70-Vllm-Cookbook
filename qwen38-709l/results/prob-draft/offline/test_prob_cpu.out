@@ -1,0 +1,20 @@
+seat head rebuilt on CPU in 6s
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+PASS new and live module revisions active on the seat head
+PASS logits_row: [n, 248320] float16
+PASS logits_row: exactly N=128 finite entries per row, -inf elsewhere
+PASS logits_row: finite entries only at draft-vocab ids
+PASS logits_row: candidate logits == fp32 rescoring (max rel err 4.67e-04)
+PASS argmax(logits_row) == top_tokens on 2000/2000 rows
+PASS top_tokens byte-identical to the live revision on 2000/2000 rows
+  q fidelity T=1.0: sum min(q_shortlist, q_full) mean 0.97831, p1 0.6573; acceptance vs a top_k20/top_p.95 target equal to the full drafter, shortlist / full: mean 1.00225, p1 0.8117
+PASS q fidelity: untruncated overlap with the full head > 0.95 (sanity; informational)
+PASS q fidelity after the target truncation: > 99.5% of the full head acceptance
+PASS all NaN hidden states -> valid distribution
+PASS inf hidden states -> valid distribution
+PASS zeros hidden states -> valid distribution
+PASS mixed NaN hidden states -> valid distribution
+PASS [2, 2, D] input, bf16 -> (4, 248320) torch.bfloat16
+PASS B70_DRAFT_SHORTLIST_PROB: default on, 0 off, 1 on
+ALL PASS

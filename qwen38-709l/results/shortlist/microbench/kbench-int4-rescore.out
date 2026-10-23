@@ -1,0 +1,15 @@
+devices 1 Intel(R) Graphics [0xe223] uuid 868023e2-0000-0000-0c00-000000000000
+module from <venv dir>/scratch-kb/vllm/model_executor/models/b70_shortlist_head.py
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 1.00000, max diff 0), built 2026-10-22 19:15
+N=128 block=0 B=1: stock eager   484.5 us graph   490.1 | shortlist eager   336.0 us graph   161.6 | saved in graph  328.4 us | agree 0.9883 (held-out sample)
+N=128 block=0 B=2: stock eager   489.1 us graph   495.0 | shortlist eager   344.4 us graph   163.8 | saved in graph  331.2 us | agree 0.9883 (held-out sample)
+N=128 block=0 B=4: stock eager   498.1 us graph   502.3 | shortlist eager   341.5 us graph   169.4 | saved in graph  332.9 us | agree 0.9883 (held-out sample)
+[B70] draft shortlist: ON: rank 512, N 64, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 1.00000, max diff 0), built 2026-10-22 19:15
+N=64 block=0 B=1: stock eager   484.9 us graph   490.5 | shortlist eager   340.5 us graph   160.2 | saved in graph  330.3 us | agree 0.9773 (held-out sample)
+N=64 block=0 B=2: stock eager   488.9 us graph   494.9 | shortlist eager   340.8 us graph   159.5 | saved in graph  335.4 us | agree 0.9773 (held-out sample)
+N=64 block=0 B=4: stock eager   498.2 us graph   502.2 | shortlist eager   338.8 us graph   176.0 | saved in graph  326.3 us | agree 0.9773 (held-out sample)
+[B70] draft shortlist: ON: rank 512, N 256, block 4, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 1.00000, max diff 0), built 2026-10-22 19:15
+N=256 block=4 B=1: stock eager   485.2 us graph   490.4 | shortlist eager   414.8 us graph   178.9 | saved in graph  311.5 us | agree 0.9798 (held-out sample)
+N=256 block=4 B=2: stock eager   489.1 us graph   494.4 | shortlist eager   418.4 us graph   182.4 | saved in graph  312.0 us | agree 0.9798 (held-out sample)
+N=256 block=4 B=4: stock eager   498.7 us graph   503.3 | shortlist eager   420.2 us graph   200.7 | saved in graph  302.6 us | agree 0.9798 (held-out sample)
+KBENCH_DONE

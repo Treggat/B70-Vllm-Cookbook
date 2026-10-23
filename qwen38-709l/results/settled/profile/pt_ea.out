@@ -1,0 +1,67 @@
+
+=== traces/ea_rank0.1792700934871695276.pt.trace.json.gz: 63 engine steps, device events outside any step: 9821 (476.6 ms)
+
+--- decode steps with 1 request(s), 6 generation tokens (verify rows): 61 steps ---
+  step wall  73.91 ms | device busy  32.34 ms | launch gaps (<2 ms)  40.71 ms | other idle   0.00 ms | launches/step     884
+  group             ms/step  share%  launches  us/launch
+  gemm               24.731    76.5     512.8       48.2
+  attention           4.882    15.1      48.2      101.2
+  gdn_other           1.827     5.7      48.0       38.1
+  gdn_conv            0.513     1.6      48.0       10.7
+  copies              0.175     0.5     138.9        1.3
+  norm_act_rope       0.170     0.5      65.2        2.6
+  elementwise         0.019     0.1      16.0        1.2
+  other               0.013     0.0       5.3        2.5
+  sampling_lmhead     0.006     0.0       1.1        5.3
+  top kernels (ms/step, launches/step, group):
+      24.191   304.5  gemm           gemm_kernel
+       4.276    16.1  attention      _ZTSN6compat12experimental6detail13KernelFunctorIXadL_ZN7cutlass13device_kernelINS3_4fmha6kernel12vllm_xpu_xe2
+       1.827    48.0  gdn_other      gdn::gated_delta_rule_spec_kernel<sycl::_V1::detail::half_impl::half, sycl::_V1::detail::half_impl::half, 4>
+       0.513    48.0  gdn_conv       gdn::causal_conv1d_spec_kernel<sycl::_V1::detail::half_impl::half, 4, true>
+       0.495    16.1  attention      _ZTSN6compat12experimental6detail13KernelFunctorIXadL_ZN7cutlass13device_kernelINS3_4fmha6kernel12vllm_xpu_xe2
+       0.178    48.0  gemm           triton_per_fused__to_copy_add_int4_gemm_w4a16_mean_mul_pow_rsqrt_silu_t_view_0
+       0.168    64.0  gemm           triton_red_fused__to_copy_add_fused_add_rms_norm_int4_gemm_w4a16_t_1
+       0.126    48.1  norm_act_rope  triton_red_fused__to_copy_add_fused_add_rms_norm_3
+       0.114    64.0  gemm           triton_poi_fused_int4_gemm_w4a16_mul_silu_slice_t_2
+       0.064    16.1  attention      vllm::reshape_and_cache_flash_strided_kernel<c10::Half, unsigned char, (vllm::Fp8KVCacheDataType)1>
+       0.055    16.0  gemm           triton_red_fused__to_copy_add_fused_add_rms_norm_int4_gemm_w4a16_t_3
+       0.048    32.0  copies         at::native::xpu::VectorizedElementwiseKernel<8, at::native::xpu::CopyScalarFunc<c10::Half>, at::detail::Array<
+       0.047     0.0  attention      _ZTSN6compat12experimental6detail13KernelFunctorIXadL_ZN7cutlass13device_kernelINS3_4fmha6kernel12vllm_xpu_xe2
+       0.041    16.1  norm_act_rope  _fused_qk_rmsnorm_rope_gate_kernel
+       0.033    47.0  copies         triton_poi_fused_zeros_4
+       0.024    18.2  copies         Memcpy D2D (Device -> Device)
+       0.024    16.0  gemm           triton_poi_fused_int4_gemm_w4a16_mul_sigmoid_t_view_0
+       0.023    22.0  copies         at::native::xpu::ElementwiseKernelWithIndexFunctor<int, at::native::xpu::ArangeFunctor<int, long> >
+       0.011     1.1  copies         at::native::xpu::IndexSelectSmallIndexFunctor<c10::Half, long, unsigned int, 2, 2, -2>
+       0.011     6.0  copies         Memcpy H2D (Host (Driver Allocated) -> Device)
+       0.006     4.1  copies         at::native::xpu::UnrolledElementwiseKernel<at::native::xpu::CopyScalarFunc<int>, at::detail::Array<char*, 2>, 
+       0.005     1.1  other          _compute_slot_mappings_kernel
+       0.005     3.0  elementwise    at::native::xpu::VectorizedElementwiseKernel<4, at::native::xpu::BUnaryFunctor<int, int, int, at::native::xpu:
+       0.004     3.0  copies         at::native::xpu::ScatterGatherElementwiseKernelFunctor<at::native::xpu::ScatterGatherInternalKernelLoopFunctor
+       0.004     3.0  elementwise    at::native::xpu::VectorizedElementwiseKernel<4, at::native::xpu::ClampScalarFunctor<int>, at::detail::Array<ch
+       0.004     1.0  copies         _gather_block_tables_kernel
+       0.003     3.0  elementwise    at::native::xpu::ElementwiseGlobalRangeKernel<at::native::xpu::LegacyKernelScalarFunctor<int, 3, OffsetCalcula
+       0.003     0.1  sampling_lmhead at::native::xpu::ReduceKernel<1, at::native::xpu::ReduceOp<c10::Half, at::native::xpu::ArgMaxOps<float>, unsig
+       0.003     1.0  copies         at::native::xpu::IndexKernelFunctor<at::native::xpu::IndexFunctor<at::native::xpu::OpaqueType<4> >, char*, Off
+       0.003     3.0  elementwise    at::native::xpu::UnrolledElementwiseKernel<at::native::xpu::BinaryFunctor<int, int, int, at::native::xpu::AddF
+       0.003     3.0  elementwise    at::native::xpu::VectorizedElementwiseKernel<4, at::native::xpu::BUnaryFunctor<int, int, int, at::native::xpu:
+       0.003     1.0  copies         at::native::xpu::VectorizedElementwiseKernel<16, at::native::xpu::FillFunctor<bool>, at::detail::Array<char*, 
+       0.003     1.0  norm_act_rope  _prepare_rope_positions_kernel
+       0.003     1.0  sampling_lmhead _combine_sampled_and_draft_tokens_kernel
+       0.002     1.0  other          triton_red_fused_1
+       0.002     1.0  other          preprocess_mamba_align_fused_kernel
+       0.002     1.0  other          _prepare_pos_seq_lens_kernel
+       0.002     1.0  copies         precopy_mamba_align_fused_kernel
+       0.001     1.0  elementwise    _expand_idx_mapping_kernel
+       0.001     1.0  copies         at::native::xpu::VectorizedElementwiseKernel<4, at::native::xpu::FillFunctor<int>, at::detail::Array<char*, 1>
+  unmatched ('other') kernels, top 15 by time:
+       0.005     1.1  _compute_slot_mappings_kernel
+       0.002     1.0  triton_red_fused_1
+       0.002     1.0  preprocess_mamba_align_fused_kernel
+       0.002     1.0  _prepare_pos_seq_lens_kernel
+       0.001     1.0  triton_poi_fused_0
+       0.000     0.1  triton_red_fused_0
+       0.000     0.1  _update_draft_inputs_kernel
+       0.000     0.0  _post_update_kernel
+       0.000     0.0  postprocess_mamba_fused_kernel
+       0.000     0.0  _prepare_decode_inputs_kernel

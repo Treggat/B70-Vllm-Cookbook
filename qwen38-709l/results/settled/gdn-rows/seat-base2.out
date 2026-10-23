@@ -1,0 +1,14 @@
+[04:14:06 PM] == bench base2
+4 writers: {'each': [51.9, 83.7, 41.4, 83.3], 'summed': 260.3
+'tok_per_step': 2.81
+4 writers: {'each': [50.7, 88.8, 42.9, 84.7], 'summed': 267.0
+'tok_per_step': 2.86
+avg of 9: 129.8 t/s
+base2 code rep1: 700 tok in 5.3s -> base2-code-1.txt
+base2 code rep2: 700 tok in 5.2s -> base2-code-2.txt
+base2 prose rep1: 700 tok in 10.8s -> base2-prose-1.txt
+base2 prose rep2: 700 tok in 11.1s -> base2-prose-2.txt
+vllm:spec_decode_num_drafts_total{engine="0",model_name="qwen38-709l"} 2026.0
+vllm:spec_decode_num_draft_tokens_total{engine="0",model_name="qwen38-709l"} 10550.0
+vllm:spec_decode_num_accepted_tokens_total{engine="0",model_name="qwen38-709l"} 6033.0
+[04:15:57 PM] bench base2 done
