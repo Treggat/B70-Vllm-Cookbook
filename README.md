@@ -1,6 +1,6 @@
 # B70 vLLM Cookbook
 
-Recipes for serving LLMs on the **Intel Arc Pro B70 (32 GB)** with **vLLM 0.31 / 0.32 (XPU)**. Every recipe was run on
+Recipes for serving LLMs on the **Intel Arc Pro B70 (32 GB)** with **vLLM 0.32 (XPU)**. Every recipe was run on
 the same box, two B70s with one model per card, and every number in it is ours. Each recipe is one folder with its
 page, patches, launcher, benchmarks and raw results.
 
@@ -9,18 +9,18 @@ page, patches, launcher, benchmarks and raw results.
 | recipe | model | format | what's in it | speed on one B70 |
 |---|---|---|---|---|
 | [**Qwen3.8-27B 709-L**](qwen38-709l/README.md) | DavidAU's merged Qwen3.8-27B fine-tune | AWQ W4A16 | MTP speculative decoding that switches to drafts copied from the context when the output copies it (whole-file edits +50%), a shortlist draft head (-3.4% step time) and probabilistic drafts (sampled prose +14-18%), vision and video, the full 262k context, three community patch sets stacked on one tree with per-patch measurements, and an attempt to train a DFlash2 drafter for the merge | 135 t/s one stream on code, 64 t/s on sampled prose, 239 t/s on whole-file edits, about 290 t/s across 4 |
-| [**gpt-oss-20b**](gpt-oss-20b/README.md) | OpenAI gpt-oss-20b, plus our anti-loop fine-tune ([weights](https://huggingface.co/Taggert2222/gpt-oss-20b-antidoom)) | MXFP4 | harmony tool calling with a strict tool-call grammar, a reasoning-effort cap, an [Antidoom](https://github.com/Liquid4All/antidoom) fine-tune trained on two B70s that removes doom loops, and what an agent harness does to make gpt-oss fake its tool calls | 106-117 t/s one stream, 698 t/s across 16 |
+| [**gpt-oss-20b**](gpt-oss-20b/README.md) | OpenAI gpt-oss-20b, plus our anti-loop fine-tune ([weights](https://huggingface.co/Taggert2222/gpt-oss-20b-antidoom)) | MXFP4 | harmony tool calling with a strict tool-call grammar, a reasoning-effort cap, an [Antidoom](https://github.com/Liquid4All/antidoom) fine-tune trained on two B70s that removes doom loops, and what an agent harness does to make gpt-oss fake its tool calls | 117 t/s one stream, 826 t/s across 16 (fp8 KV) |
 
 Speeds are single-run measurements through an OpenAI-compatible endpoint. Each recipe page gives the conditions and
 the noise.
 
 ## What the recipes share
 
-- **The engine.** Both run vLLM built from source for XPU in its own venv, with torch 2.14.0+xpu, triton
-  3.8.0+xpu and vllm-xpu-kernels 0.1.15.4 (the same pins on 0.31 and 0.32). The 709-L recipe is on vLLM 0.32.0 since
-  2026-10-19; [`qwen38-709l/scripts/build_venv.sh`](qwen38-709l/scripts/build_venv.sh) builds it, and its git history
-  holds the 0.31 version. The gpt-oss page says which version its numbers were taken on, plus one extra check for its
-  harmony library.
+- **The engine.** Both run vLLM 0.32.0 built from source for XPU in its own venv, with torch 2.14.0+xpu, triton
+  3.8.0+xpu and vllm-xpu-kernels 0.1.15.4 (the same pins as 0.31), since 2026-10-19.
+  [`qwen38-709l/scripts/build_venv.sh`](qwen38-709l/scripts/build_venv.sh) builds it, and its git history holds the
+  0.31 version. Each page marks which of its numbers were taken on 0.31; the gpt-oss page adds one extra check for
+  its harmony library.
 - **One card per model.** On a two-card box, pin each server to its card with `ZE_AFFINITY_MASK` (0 or 1). With
   torch 2.13 and later, the card is picked the Level Zero way, so don't also set `ONEAPI_DEVICE_SELECTOR`.
 - **Check before you trust.** Every recipe ships a sanity test next to its speed bench. Run it after any change to

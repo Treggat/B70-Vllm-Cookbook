@@ -1,7 +1,7 @@
 #!/bin/sh
-# Serve gpt-oss-20b (MXFP4, stock or an Antidoom merge) on one Arc Pro B70 with the vLLM 0.31 XPU venv
-# (../../qwen38-709l/scripts/build_venv.sh) and the gptoss031 plugin (../plugin).
-# Usage: VENV=/opt/b70/vllm031 MODEL=/models/gpt-oss-20b sh serve-gpt-oss.sh <port>
+# Serve gpt-oss-20b (MXFP4, stock or an Antidoom merge) on one Arc Pro B70 with the vLLM 0.32 XPU venv
+# (../../qwen38-709l/scripts/build_venv.sh; a 0.31 venv works the same) and the gptoss031 plugin (../plugin).
+# Usage: VENV=/opt/b70/vllm032 MODEL=/models/gpt-oss-20b sh serve-gpt-oss.sh <port>
 #
 # Variables (all optional except VENV and MODEL):
 #   VENV         venv dir from build_venv.sh (holds venv/ and src/)
@@ -19,6 +19,8 @@
 #   capped to medium: 28/36 (uncapped: 8/36).
 # fp8 KV cache (in gpt-oss.extra.example since 2026-10-18; variant B, bench/bench_kv.py): KV pool 643,585 -> 1,287,170
 #   tokens, same decode speed, 16 x 69k contexts all stay cached; cold long prefill about 25% slower.
+# vLLM 0.32.0 (since 2026-10-19, same script, variant B, fp8 KV, rebuilt kernels): 117 / 312 / 826 tok/s at 1 / 4 / 16
+#   streams (0.31: 117 / 308 / 821); gates in docs/RECIPE.md.
 HERE=$(cd "$(dirname "$0")" && pwd)
 V=${VENV:?set VENV to the venv dir from build_venv.sh}
 MODEL=${MODEL:?set MODEL to the gpt-oss-20b model dir}
