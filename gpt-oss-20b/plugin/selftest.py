@@ -1,6 +1,6 @@
-"""Offline self-test for the gptoss031 vLLM plugin (vLLM 0.31). No model load, no GPU.
+"""Offline self-test for the gptoss031 vLLM plugin (vLLM 0.31 and 0.32). No model load, no GPU.
 
-Run it with the python of the vLLM 0.31 venv that will serve the model (it needs that venv's vllm, xgrammar and
+Run it with the python of the vLLM venv that will serve the model (it needs that venv's vllm, xgrammar and
 openai_harmony, plus the gpt-oss tokenizer), with this folder on PYTHONPATH:
     PYTHONPATH=$PWD GPTOSS_MODEL_DIR=/path/to/gpt-oss-20b $VENV/venv/bin/python selftest.py [name-filter]
 GPTOSS_MODEL_DIR may also be a Hugging Face id (default openai/gpt-oss-20b).

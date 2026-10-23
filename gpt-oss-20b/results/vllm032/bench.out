@@ -1,0 +1,13 @@
+[vllm032-fast5] warm-up
+   Paris
+[vllm032-fast5] pool
+   {'pool_tokens': 1287170, 'max_concurrency_at_max_len': 9.82033096926714, 'num_gpu_blocks': '20770', 'cache_dtype': 'fp8', 'skip_layers': '[]', 'offload_size': 'None'}
+[vllm032-fast5] greedy
+  greedy vs bf16-base: 5/20 identical
+[vllm032-fast5] speed
+  speed x1: summed 116.8 tok/s, per stream [116.8]
+  speed x4: summed 311.6 tok/s, per stream [77.9, 77.9, 77.9, 77.9]
+  speed x16: summed 825.7 tok/s, per stream [51.7, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6, 51.6]
+[vllm032-fast5] long
+  long 51193 tok: ttft 10.12 s, decode 113.7 tok/s, needle True
+[vllm032-fast5] done

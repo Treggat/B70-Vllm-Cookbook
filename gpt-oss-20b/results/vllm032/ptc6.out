@@ -1,0 +1,25 @@
+<unknown>:4: SyntaxWarning: invalid escape sequence '\%'
+<unknown>:4: SyntaxWarning: invalid escape sequence '\w'
+<unknown>:3: SyntaxWarning: invalid escape sequence '\`'
+gpt-oss-antidoom: 51/72 valid run_code calls | per call: median 3.7s, slowest 15.6s | avg output 266 tok, avg reasoning 599 chars | 4 at once, whole probe 77s | leaked control text 0
+   task 7: code never calls tools
+   task 8: code is not valid Python: unterminated triple-quoted string literal (detected at line 10) (line 6)
+   task 10: code is not valid Python: invalid syntax (line 6)
+   task 5: code is not valid Python: invalid syntax (line 4)
+   task 8: code never calls tools
+   task 11: code never calls tools
+   task 12: code never calls tools
+   task 5: code is not valid Python: invalid syntax (line 4)
+   task 7: code never calls tools
+   task 8: code is not valid Python: invalid syntax (line 4)
+   task 10: code is not valid Python: invalid syntax (line 7)
+   task 1: code is not valid Python: invalid syntax (line 5)
+   task 2: code is not valid Python: unterminated string literal (detected at line 4) (line 4)
+   task 5: code is not valid Python: invalid syntax (line 3)
+   task 12: code never calls tools
+   task 1: code is not valid Python: invalid syntax. Perhaps you forgot a comma? (line 4)
+   task 7: code never calls tools
+   task 8: code is not valid Python: invalid syntax (line 4)
+   task 10: code is not valid Python: unexpected character after line continuation character (line 5)
+   task 12: code never calls tools
+   task 1: code is not valid Python: invalid syntax (line 5)

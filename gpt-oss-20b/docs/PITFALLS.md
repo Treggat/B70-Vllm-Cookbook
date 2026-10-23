@@ -20,6 +20,12 @@
 - **riceharvest's fast fp8 conversion does nothing for gpt-oss.** It covers e4m3 → fp16 (his Qwen build runs in fp16).
   gpt-oss runs in bf16, so it takes the e4m3 → bf16 path. A build with his patches alone left our 51k first token at
   11.16 s. `kernels/patches/bf16fast5.py` is the bf16 version.
+- **A rebuilt kernel library does not follow you into a new venv.** A fresh build gets the stock
+  `libattn_kernels_xe_2.so`. 0.32 pins the same vllm-xpu-kernels 0.1.15.4, so the [`kernels/`](../kernels/README.md)
+  build fits, but copy it in yourself and check the sha after every rebuild.
+- **A patch script with a tree path baked in patches the wrong tree and says OK.** Our memory-query fallback patch
+  carried the old venv's path; on the new build it re-checked the old tree and reported success. Pass the tree path
+  explicitly (the launcher does) and grep the new tree for the marker.
 - **Never copy a new kernel library over a loaded one.** The running server has `libattn_kernels_xe_2.so`
   memory-mapped. Stop it first, copy to a temporary name, then `mv` it into place.
 - **A "kernel not compiled" fallback is not a crash, it's a slowdown.** vllm-xpu-kernels falls back to PyTorch
