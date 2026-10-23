@@ -138,25 +138,27 @@ Speed, 2026-10-14, stock weights, short prompts, graphs on: 1 stream 106–117 t
 698 summed. The same model on the older vLLM 0.26 image did 109–119 / 261 / 702, so 0.31 is on par. (The 2026-10-18
 fp8 measurements below use a different script with low effort and 700-token replies, so their 118 / 308 / 820 is not
 a speedup over these.) On 0.32, same script as the fp8 measurements, variant B, fp8 KV, rebuilt kernels: 117 / 312 /
-826 (0.31 the day before: 117 / 308 / 821; `results/vllm032/bench.out`). First load takes
+826 (`results/vllm032/bench.out`; 0.31 the day before with the same kernels: 117 / 308 / 821, `results/fp8_kv.json`,
+the `fast5_kernel` block). First load takes
 about 2.5–3 minutes on our box (a cold reload measured 144–169 s); later requests are warm.
 
 ### Moving to 0.32
 
 2026-10-19, `results/vllm032/`. A fresh venv from the same build steps at v0.32.0, the rebuilt attention library
-copied in, the same plugin, cap and `.extra`. Gates on variant B with the fp8 KV cache, 0.31 with the same kernels the
-day before in parentheses:
+copied in, the same plugin, cap and `.extra`. Gates on variant B with the fp8 KV cache; in parentheses, 0.31 with the
+same kernels the day before (`../results/fp8_kv.json`, the `fast5_kernel` block; the fp8 KV table further down is the
+stock-kernel run, a different one):
 
 | gate | 0.32 | raw |
 |---|---|---|
 | KV pool | 1,287,170 tokens (same) | `bench.out` |
 | decode, 1 / 4 / 16 streams, summed tok/s | 117 / 312 / 826 (117 / 308 / 821) | `bench.out` |
-| 51k-token cold read: first token, decode | 10.1 s, 114 tok/s (10.0 s) | `bench.out` |
+| 51k-token cold read: first token, decode | 10.1 s, 114 tok/s (10.0 s, 114) | `bench.out` |
 | loops, 200 held-out prompts, medium / high | 1 / 1 (1 / 1) | `loops-medium.out`, `loops-high.out` |
 | graded accuracy, 700 items, medium | 82.9% (83.3%; 3 items) | `grade-medium.out` |
-| tool_flow, 2 × 16 sessions, format faults / HTTP errors | 0 / 0 (0 / 0) | `flow-1.out`, `flow-2.out` |
-| PTC probe, 72 calls | 51 (48 to 55 the same evening on 0.31) | `ptc6.out` |
-| plugin self-test | 31/31 | |
+| tool_flow, 2 × 16 sessions, format faults / HTTP errors | 0 / 0 (0 format faults) | `flow-1.out`, `flow-2.out` |
+| PTC probe, 72 calls | 51 (50 / 51 / 50 over three runs; stock kernels the same hour 48 and 55) | `ptc6.out` |
+| plugin self-test, offline | 31/31 | rerun it: `plugin/selftest.py` (section 2) |
 
 `gates.log` is the whole run. We promoted the live server the same afternoon; rolling back is one path in the
 launcher's `VENV`.

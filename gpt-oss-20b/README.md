@@ -55,7 +55,8 @@ aborted: the soak's own timeout killed them in flight at the end.)
 43 tok/s on one stream. B has the same tensors and shapes, so we did not re-measure speed. It writes shorter replies:
 median 305 completion tokens on the loop set at medium, stock 418. On vLLM 0.32.0 with the fp8 KV cache and the
 rebuilt kernels (`bench/bench_kv.py`, low effort, 700-token replies, 2026-10-19): 117 / 312 / 826 tok/s at 1 / 4 / 16
-streams, against 117 / 308 / 821 on 0.31 the day before with the same script.
+streams, against 117 / 308 / 821 on 0.31 the day before with the same script and kernels (`results/fp8_kv.json`, the
+`fast5_kernel` block).
 
 **fp8 KV cache** (`serve/gpt-oss.extra.example` since 2026-10-18): the KV pool doubles from 643,585 to 1,287,170
 tokens at the same decode speed. 16 agent-sized contexts of 69k each all stay cached (bf16: 0.1%), so their next turn
@@ -67,10 +68,12 @@ replies, 465 long reads, 625 tool calls) had 0 errors and 0 NaN replies. Details
 
 **vLLM 0.31 → 0.32** (2026-10-19, `results/vllm032/`): same pins (torch 2.14.0+xpu, triton 3.8.0+xpu,
 vllm-xpu-kernels 0.1.15.4), xgrammar 0.2.7 → 0.2.8, the same plugin (self-test 31/31 on both). Gates on B with fp8 KV
-and the rebuilt kernels, 0.31 the day before in parentheses: loops 1/200 at medium and 1/200 at high (1 / 1), graded
-82.9% (83.3%; 3 items of 700), tool_flow 2 × 16 sessions 0 format faults and 0 HTTP errors (0 / 0), PTC 51/72 (0.31
-the same evening: 48 to 55, which is the probe's noise band), KV pool 1,287,170 tokens (same), 51k-token cold read
-10.1 s to first token (10.0 s). We serve on 0.32 since that day.
+and the rebuilt kernels; in parentheses the same config on 0.31 the day before (`results/fp8_kv.json`, the
+`fast5_kernel` block; the 83.9% and PTC 56 above are the stock-kernel fp8 run, a different one): loops 1/200 at
+medium and 1/200 at high (1 / 1), graded 82.9% (83.3%; 3 items of 700), tool_flow 2 × 16 sessions 0 format faults and
+0 HTTP errors (0 format faults), PTC 51/72 (50 / 51 / 50 over three runs; the stock kernels the same hour read 48 and
+55, which is the probe's noise band), KV pool 1,287,170 tokens (same), 51k-token cold read 10.1 s to first token
+(10.0 s). We serve on 0.32 since that day.
 
 **What did not work:** round 3 tried to also train out a "narrated tool call" habit (the model writes the call or a
 made-up result as text). Three variants cut it on our replay set (27/30 → 11, 1 and 9 of 30) but each broke
