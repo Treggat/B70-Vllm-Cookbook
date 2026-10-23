@@ -1,0 +1,23 @@
+[12:43:24 AM] == bench prob
+spec before: 1.0 5.0 3.0 
+short code (greedy): avg of 9: 133.8 t/s
+deep (greedy) prob deep  23239 tok:   80.6 t/s,  3.13 tok/step,  5.19 drafts/step,  38.7 ms/step
+deep (greedy) prob deep  61314 tok:   84.5 t/s,  3.79 tok/step,  5.08 drafts/step,  44.7 ms/step
+deep (greedy) prob deep 120355 tok:   66.4 t/s,  3.63 tok/step,  5.00 drafts/step,  54.5 ms/step
+deep (t=1.0) prob-t1 deep  23239 tok:   94.5 t/s,  3.78 tok/step,  5.83 drafts/step,  40.0 ms/step
+deep (t=1.0) prob-t1 deep  61314 tok:   88.8 t/s,  4.17 tok/step,  5.92 drafts/step,  46.9 ms/step
+deep (t=1.0) prob-t1 deep 120355 tok:   56.4 t/s,  3.11 tok/step,  5.00 drafts/step,  55.0 ms/step
+(t=1.0) 4 writers: {'each': [60.6, 90.0, 44.8, 83.8], 'summed': 279.2
+(t=1.0) 4 writers: {'each': [61.5, 89.6, 42.9, 81.6], 'summed': 275.6
+prob EDIT avg: greedy 236.9 t/s, sampled 230.8 t/s, all 233.9 t/s; exact 6/6
+crossing clean (of 3: t0, t1 s7, t1 s8): 3
+prob code rep1: 700 tok in 5.0s -> prob-code-1.txt
+prob code rep2: 700 tok in 5.0s -> prob-code-2.txt
+prob code rep3: 700 tok in 4.9s -> prob-code-3.txt
+prob code rep4: 700 tok in 5.1s -> prob-code-4.txt
+prob code rep5: 700 tok in 5.1s -> prob-code-5.txt
+SUMMARY prob G: 10 requests, 4392 tokens, tok/step 2.268, accepted/draft-token 0.2535, decode 66.6 t/s
+SUMMARY prob S: 20 requests, 8940 tokens, tok/step 2.240, accepted/draft-token 0.2477, decode 64.4 t/s
+SUMMARY prob T: 10 requests, 8725 tokens, tok/step 2.578, accepted/draft-token 0.3097, decode 74.0 t/s
+spec after: 18179.0 103345.0 52338.0 
+[12:56:26 AM] bench prob done

@@ -23,30 +23,49 @@ Most B70 write-ups cover base Qwen3.8 in GPTQ or EXL3. This one covers:
 - the seat on [Vcvzgbzz's](https://github.com/Vcvzgbzz/b70-cookbook) own test scripts, side by side with his numbers ([docs/RESULTS.md](docs/RESULTS.md))
 - one engine that switches each step between MTP-5 and 15 copied drafts, at every context depth: edits that return the
   whole file go from 155 to 235 t/s, exact, with everything else at MTP-5 speed ([patches/combo-spec/](patches/combo-spec/README.md))
+- a shortlist draft head: the MTP drafter scores 128 candidates from a rank-512 factorization instead of reading its
+  whole int4 head every pass, -3.4% step time at every depth ([patches/shortlist/](patches/shortlist/README.md))
+- probabilistic MTP drafts: sampled prose +14-18% tokens per step, 4 writers +8%, greedy unchanged, and why that
+  applies to every ordinary request on the seat ([docs/RESULTS.md](docs/RESULTS.md#probabilistic-mtp-drafting))
+- a fixed-prompt prose bench next to the code benches, because prose is where MTP is weakest (`bench/prose_ab.py`)
 
 Before vLLM we ran the same model on llama.cpp SYCL with our own kernel patches. That work is in
 [b70-llamacpp-cookbook](https://github.com/Treggat/b70-llamacpp-cookbook).
 
 ## Results
 
-Our live seat on 2026-10-21: vLLM 0.32, the full stack below plus the combined speculator, 262k window, fp8 KV in a
-14.5 GiB pool. Through an OpenAI-compatible endpoint, thinking off, single runs (treat about ±5% as noise). Conditions,
-older configs and raw files: [docs/RESULTS.md](docs/RESULTS.md).
+Our live seat on 2026-10-23: vLLM 0.32, the full stack below plus the combined speculator, the shortlist draft head
+and probabilistic drafts, 262k window, fp8 KV in a 14.5 GiB pool. Through an OpenAI-compatible endpoint, one stream
+unless said, single runs (treat about ±5% as noise). "Sampled" is the model's default sampling (temperature 1.0,
+top-k 20, top-p 0.95), which is what every request without its own sampling fields gets. Conditions, older configs
+and raw files: [docs/RESULTS.md](docs/RESULTS.md).
 
-| | live seat | MTP-5 alone |
+| | live seat | MTP-5, greedy drafts, full draft head |
 |---|---|---|
-| short code, one stream | **130.9 t/s** | 131.7 |
-| whole-file edits (3 tasks, greedy and sampled, all 6 exact) | **235.7 t/s** | 155 |
-| whole-file edit behind 94k tokens of context | **171.1 t/s** | 110.7 |
-| 4 streams, summed | about 265–275 t/s | same |
-| decode after a cold 100k prompt | 56–60 t/s² | 56–60 |
-| first token, cold 100k prompt | about 90 s (est.)¹ | 75 s |
+| short code, greedy | **135.0 t/s** | 131.7 |
+| whole-file edits (3 tasks, greedy and sampled, all 6 exact) | **238.8 t/s** | 155 |
+| whole-file edit behind 94k tokens of context | **171.1 t/s**¹ | 110.7 |
+| prose, sampled | **63.6 t/s** (2.19 tokens per step) | 53.9 (1.94)² |
+| prose, thinking on at effort medium | **74.9 t/s** (2.59) | 65.0 (2.35)² |
+| prose, greedy | 66.4 t/s (2.24) | 66.1 (2.34)² |
+| 4 writers, sampled, summed | **284–292 t/s** | 265–270³ |
+| decode behind 61k / 120k of context, sampled | **83 / 65 t/s** | 71 / 57³ |
+| decode after a cold 100k prompt, greedy | 56–60 t/s⁴ | 56–60 |
+| first token, cold 100k prompt | about 90 s (est.)⁵ | 75 s |
 | KV pool | 375,067 tokens: one 262k chat, or 4 of ~93k | 416,591 |
 
-¹ 75 s was measured before we turned on `--long-prefill-token-threshold 512`, which keeps other chats decoding during a
-big prefill (2.2 → 10.7 t/s) and makes that prefill about 22% slower. Not re-measured.
+¹ Measured 2026-10-21 with the combined speculator and greedy drafts; not re-measured since.
 
-² Measured with MTP-5 alone. The combined speculator matched MTP-5 at depth wherever we checked (23k–120k).
+² The same seat on 2026-10-22 before the shortlist, in the fixed-prompt prose bench (`bench/prose_ab.py`): the
+combined speculator never copies on prose, so this is MTP-5 with the full draft head and greedy drafts.
+
+³ The live seat on 2026-10-23 just before probabilistic drafting went on (shortlist, greedy drafts).
+
+⁴ Measured with MTP-5 alone. The combined speculator matched MTP-5 at depth wherever we checked (23k–120k), and the
+shortlist cut every measured step time by 3.4%.
+
+⁵ 75 s was measured before we turned on `--long-prefill-token-threshold 512`, which keeps other chats decoding during a
+big prefill (2.2 → 10.7 t/s) and makes that prefill about 22% slower. Not re-measured.
 
 How we got here, each step measured on the same box ([docs/RESULTS.md](docs/RESULTS.md)):
 
@@ -54,6 +73,10 @@ How we got here, each step measured on the same box ([docs/RESULTS.md](docs/RESU
   decode at 75k +29%, KV pool +45%. Per-patch numbers show where each gain comes from.
 - **vLLM 0.31 → 0.32, same stack** (2026-10-19), and **131k → 262k window:** parity within noise on every row.
 - **Combined copy + MTP speculator** (2026-10-21): whole-file edits +50%, first below 32k tokens, then at every depth.
+- **Shortlist draft head** (2026-10-22): 0.33 ms less per draft pass, -3.4% step time from 23k to 120k, short code
+  +4%, edits +2%; costs 2-3% acceptance on short greedy prose, none on sampled prose, no mode slower.
+- **Probabilistic drafts** (2026-10-23): sampled prose +14.5% tokens per step, thinking prose +11%, 4 writers +8%,
+  sampled decode behind 61k / 120k +17% / +14%; greedy requests unchanged.
 - **DFlash2:** the published drafter is about 3× slower than MTP-5 on this merge; the drafter we trained for it missed
   its gate, so MTP-5 stays.
 
@@ -75,7 +98,8 @@ cp serve/prod.env.example serve/prod.env; cp serve/prod.extra.example serve/prod
 VENV=/opt/b70/vllm032 MODEL=<out dir> sh serve/serve-709l.sh 8000
 ```
 
-That serves plain MTP-5. For the combined speculator, apply its patches to the same venv, uncomment its block in
+That serves plain MTP-5. For the live config (the combined speculator, the shortlist draft head and probabilistic
+drafts), apply their patches to the same venv, put the shortlist artifact in place, uncomment both blocks in
 `serve/prod.env` and restart:
 
 ```sh
@@ -83,18 +107,21 @@ P=/opt/b70/vllm032/venv/bin/python
 VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/combo-spec/patch_gdn_varlen_spec_032.py
 VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/combo-spec/patch_combo_spec_032.py
 VLLM032_ROOT=/opt/b70/vllm032 $P patches/combo-spec/patch_spec_packed_guard_032.py
+VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/shortlist/patch_shortlist_032.py
+mkdir -p /opt/b70/vllm032/shortlist   # the artifact: build it with patches/shortlist/build_factors.py or download ours (its README)
 ```
 
 Then check it before trusting it, from `bench/` with `BASE_URL` pointing at the server (see `bench/common.py`):
-`python crossing.py && python bench.py mine`, `python editbench.py mine` for the speculator, and once per engine change
-`python maxlen.py` (sent to the server directly, see the script).
+`python crossing.py && python bench.py mine`, `python editbench.py mine` for the speculator, `python prose_ab.py mine`
+for prose, and once per engine change `python maxlen.py` (sent to the server directly, see the script).
 
 ## Layout
 
 | path | what |
 |---|---|
 | `patches/*.py` | our four vLLM patches (memory-query fallback, BF16 MTP `fc`, video sent as `image_url`, SergiioB's MTP boundary fix re-based onto 0.32); `apply_stack.sh` applies them |
-| `patches/combo-spec/` | the combined copy + MTP speculator: scheduler policy, speculator, GDN and packed-verify fixes, tests ([README](patches/combo-spec/README.md)) |
+| `patches/combo-spec/` | the combined copy + MTP speculator: scheduler policy, speculator (with one-hot draft-logit rows for probabilistic drafts), GDN and packed-verify fixes, tests ([README](patches/combo-spec/README.md)) |
+| `patches/shortlist/` | the shortlist draft head: module, installer, artifact builder, CPU tests ([README](patches/shortlist/README.md)) |
 | `patches/dflash2/` | Vcvzgbzz's DFlash2 drafter patches re-based onto 0.32, for the drafter measurements (not in the live stack) |
 | `patches/kernels-union/` | a kernel library config that serves both MTP and DFlash2 shapes ([README](patches/kernels-union/README.md)) |
 | `scripts/build_venv.sh` | vLLM 0.32.0 XPU source build in its own venv (indexes, pins, a flag check of the serve line) |
@@ -105,7 +132,8 @@ Then check it before trusting it, from `bench/` with `BASE_URL` pointing at the 
 | `bench/bench.py`, `bench/crossing.py` | speed and sanity bench (short code, 4 writers, depth, greedy hashes); page-boundary corruption test |
 | `bench/maxlen.py`, `bench/stress4.py`, `bench/kvoff_probe.py` | max-model-len boundary test; 4 long chats at once; does the CPU KV offload tier ever hit |
 | `bench/starve.py` | decode of one chat while another's long cold prompt prefills (the chunked-prefill sweep) |
-| `bench/editbench.py`, `bench/tierbench.py`, `bench/snap.py` | whole-file edit speed with an exact-match check; decode and edits at depth; spec-decode counters around agent turns |
+| `bench/editbench.py`, `bench/tierbench.py`, `bench/snap.py` | whole-file edit speed with an exact-match check; decode and edits at depth (`TIER_TEMP` for sampled runs); spec-decode counters around agent turns |
+| `bench/prose_ab.py`, `bench/prose_compare.py` | fixed-prompt prose bench: greedy, the model's default sampling and thinking on, tokens per step and t/s per mode; and the A/B comparison of two runs |
 | `bench/common.py` | endpoint settings shared by the bench scripts (`BASE_URL`, `MODEL`, `API_KEY`, `METRICS_URL`) |
 | `results/` | raw output for every number in the docs, one folder per topic (generated text stripped) |
 

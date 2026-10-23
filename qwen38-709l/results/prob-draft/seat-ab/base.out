@@ -1,0 +1,23 @@
+[12:23:41 AM] == bench base
+spec before: 2.0 10.0 2.0 
+short code (greedy): avg of 9: 133.3 t/s
+deep (greedy) base deep  23239 tok:   84.4 t/s,  3.27 tok/step,  5.20 drafts/step,  38.7 ms/step
+deep (greedy) base deep  61314 tok:   79.0 t/s,  3.54 tok/step,  5.00 drafts/step,  44.8 ms/step
+deep (greedy) base deep 120355 tok:   68.6 t/s,  3.72 tok/step,  5.00 drafts/step,  54.3 ms/step
+deep (t=1.0) base-t1 deep  23239 tok:   97.3 t/s,  3.92 tok/step,  5.94 drafts/step,  39.9 ms/step
+deep (t=1.0) base-t1 deep  61314 tok:   74.1 t/s,  3.35 tok/step,  5.00 drafts/step,  45.2 ms/step
+deep (t=1.0) base-t1 deep 120355 tok:   56.7 t/s,  3.12 tok/step,  5.00 drafts/step,  55.0 ms/step
+(t=1.0) 4 writers: {'each': [50.8, 86.4, 38.8, 84.3], 'summed': 260.2
+(t=1.0) 4 writers: {'each': [52.1, 83.8, 40.1, 84.6], 'summed': 260.6
+base EDIT avg: greedy 241.0 t/s, sampled 236.4 t/s, all 238.7 t/s; exact 6/6
+crossing clean (of 3: t0, t1 s7, t1 s8): 3
+base code rep1: 700 tok in 5.1s -> base-code-1.txt
+base code rep2: 700 tok in 5.0s -> base-code-2.txt
+base code rep3: 700 tok in 4.9s -> base-code-3.txt
+base code rep4: 700 tok in 4.9s -> base-code-4.txt
+base code rep5: 700 tok in 4.9s -> base-code-5.txt
+SUMMARY base G: 10 requests, 4400 tokens, tok/step 2.256, accepted/draft-token 0.2512, decode 66.5 t/s
+SUMMARY base S: 20 requests, 8857 tokens, tok/step 1.891, accepted/draft-token 0.1781, decode 54.8 t/s
+SUMMARY base T: 10 requests, 8708 tokens, tok/step 2.278, accepted/draft-token 0.2530, decode 65.7 t/s
+spec after: 19716.0 110820.0 51338.0 
+[12:37:23 AM] bench base done

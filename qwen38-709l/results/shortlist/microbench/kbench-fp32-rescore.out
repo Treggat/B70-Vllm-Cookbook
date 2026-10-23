@@ -1,0 +1,11 @@
+devices 1 Intel(R) Graphics [0xe223] uuid 868023e2-0000-0000-0c00-000000000000
+module from <venv dir>/scratch-kb/vllm/model_executor/models/b70_shortlist_head.py
+[B70] draft shortlist: ON: rank 512, N 128, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 1.00000, max diff 0), built 2026-10-22 19:15
+N=128 B=1: stock eager   484.9 us graph   490.1 | shortlist eager   456.4 us graph   204.5 | saved in graph  285.6 us | agree 0.9875 (held-out sample)
+N=128 B=2: stock eager   489.1 us graph   494.9 | shortlist eager   457.0 us graph   237.4 | saved in graph  257.5 us | agree 0.9875 (held-out sample)
+N=128 B=4: stock eager   498.2 us graph   502.0 | shortlist eager   458.1 us graph   297.3 | saved in graph  204.8 us | agree 0.9875 (held-out sample)
+[B70] draft shortlist: ON: rank 512, N 64, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 1.00000, max diff 0), built 2026-10-22 19:15
+N=64 B=1: stock eager   484.8 us graph   490.0 | shortlist eager   452.7 us graph   190.2 | saved in graph  299.8 us | agree 0.9765 (held-out sample)
+N=64 B=2: stock eager   488.8 us graph   494.9 | shortlist eager   452.4 us graph   207.3 | saved in graph  287.6 us | agree 0.9765 (held-out sample)
+N=64 B=4: stock eager   498.1 us graph   502.1 | shortlist eager   452.6 us graph   252.3 | saved in graph  249.8 us | agree 0.9765 (held-out sample)
+KBENCH_DONE

@@ -1,0 +1,30 @@
+[01:08:43 AM] == bench live pre
+spec before: 12090.0 73920.0 46052.0
+short code (greedy): avg of 9: 135.0 t/s
+deep (greedy) live-pre-1 deep  23239 tok:   84.7 t/s,  3.25 tok/step,  5.19 drafts/step,  38.2 ms/step
+deep (greedy) live-pre-1 deep  61314 tok:   84.2 t/s,  3.75 tok/step,  5.07 drafts/step,  44.2 ms/step
+deep (greedy) live-pre-2 deep  23239 tok:   95.0 t/s,  3.67 tok/step,  5.66 drafts/step,  38.6 ms/step
+deep (greedy) live-pre-2 deep  61314 tok:   83.8 t/s,  3.71 tok/step,  5.07 drafts/step,  44.1 ms/step
+deep (greedy) live-pre-3 deep  23239 tok:   85.7 t/s,  3.29 tok/step,  5.20 drafts/step,  38.3 ms/step
+deep (greedy) live-pre-3 deep  61314 tok:   83.8 t/s,  3.72 tok/step,  5.07 drafts/step,  44.1 ms/step
+deep (t=1.0 seed 1) live-pre-t1s1 deep  61314 tok:   78.4 t/s,  3.54 tok/step,  5.14 drafts/step,  44.8 ms/step
+deep (t=1.0 seed 1) live-pre-t1s1 deep 120355 tok:   53.0 t/s,  2.90 tok/step,  5.12 drafts/step,  54.4 ms/step
+deep (t=1.0 seed 2) live-pre-t1s2 deep  61314 tok:   64.2 t/s,  2.97 tok/step,  5.06 drafts/step,  46.0 ms/step
+deep (t=1.0 seed 2) live-pre-t1s2 deep 120355 tok:   56.2 t/s,  3.06 tok/step,  5.12 drafts/step,  54.5 ms/step
+deep (t=1.0 seed 3) live-pre-t1s3 deep  61314 tok:   70.2 t/s,  3.14 tok/step,  5.06 drafts/step,  44.7 ms/step
+deep (t=1.0 seed 3) live-pre-t1s3 deep 120355 tok:   61.7 t/s,  3.33 tok/step,  5.00 drafts/step,  53.9 ms/step
+(t=1.0) 4 writers: {'each': [50.1, 90.2, 40.7, 84.0], 'summed': 265.0
+(t=1.0) 4 writers: {'each': [53.1, 90.1, 39.4, 87.6], 'summed': 270.2
+image: {'sec': 2.6, 'prompt': 2251, 'canary': None, 'reply': "This pixelated fantasy scene depicts a cloaked figure standing on a grassy cliff, gazing toward a majestic, illuminated castle perched on a distant mountain. A large dragon with red wings soars through the vibrant sunset sky, which transitions from fiery orange to deep blue with a full moon visible. Waterfalls cascade down the castle's rocky base into a reflective body of water below, creating a m"}
+live-pre EDIT avg: greedy 241.8 t/s, sampled 239.7 t/s, all 240.7 t/s; exact 6/6
+crossing clean (of 3: t0, t1 s7, t1 s8): 3
+live-pre code rep1: 700 tok in 5.1s -> live-pre-code-1.txt
+live-pre code rep2: 700 tok in 5.0s -> live-pre-code-2.txt
+live-pre code rep3: 700 tok in 4.8s -> live-pre-code-3.txt
+live-pre code rep4: 601 tok in 4.2s -> live-pre-code-4.txt
+live-pre code rep5: 700 tok in 5.0s -> live-pre-code-5.txt
+SUMMARY live-pre G: 10 requests, 4165 tokens, tok/step 2.252, accepted/draft-token 0.2505, decode 67.0 t/s
+SUMMARY live-pre S: 20 requests, 8752 tokens, tok/step 1.909, accepted/draft-token 0.1817, decode 55.8 t/s
+SUMMARY live-pre T: 10 requests, 9216 tokens, tok/step 2.338, accepted/draft-token 0.2619, decode 67.9 t/s
+spec after: 33684.0 194480.0 101946.0
+[01:23:01 AM] bench live pre done

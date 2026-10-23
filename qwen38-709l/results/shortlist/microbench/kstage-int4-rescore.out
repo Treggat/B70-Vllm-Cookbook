@@ -1,0 +1,4 @@
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 1.00000, max diff 0), built 2026-10-22 19:15
+B=1: z = h @ Q (fp16 5120x512) 11.7 us | P int4 gemm (512 -> 98816) 45.4 us | topk 128 (fp16, sorted=False) 74.9 us | topk 128 on fp32 copy 152.3 us | argmax over 98816 (reference) 21.2 us | gather + int4 rescore 16.6 us | block-4 max + topk 64 of 24704 96.4 us | whole top_tokens 183.2 us | stock: int4 head gemm only 448.8 us
+B=4: z = h @ Q (fp16 5120x512) 11.5 us | P int4 gemm (512 -> 98816) 41.6 us | topk 128 (fp16, sorted=False) 91.1 us | topk 128 on fp32 copy 141.0 us | argmax over 98816 (reference) 21.3 us | gather + int4 rescore 17.2 us | block-4 max + topk 64 of 24704 101.2 us | whole top_tokens 180.0 us | stock: int4 head gemm only 455.5 us
+KSTAGE_DONE

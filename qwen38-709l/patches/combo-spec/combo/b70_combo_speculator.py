@@ -13,7 +13,12 @@
 #                                 then  drafts = the 15 copied tokens
 #                                 else  drafts = MTP's drafts, the rest padded with its last draft (a real token id;
 #                                         the rejection sampler simply rejects them)
-# Drafts are greedy (one-hot) on both paths, so mixing them in one verify is lossless.
+# Greedy drafts (prod) are one-hot on both paths, so mixing them in one verify is lossless.
+# draft_sample_method "probabilistic" (2026-10-22, prob-draft/): the rejection sampler reads the cached draft logits
+# self.draft_logits[req, col] for every draft. On a copy step the MTP pass filled only cols < km (and those hold MTP's
+# logits even for rows that copy); every other col still holds an older step's logits. So after the finalize every
+# draft that is not MTP's own (copy rows: all cols; MTP rows: cols >= km) gets a one-hot row (0 at the draft token,
+# -inf elsewhere): q = 1 there, exactly like a greedy draft, so the mix stays lossless. No-op when draft_logits is None.
 # Verify q_len is 16 on copy steps (stock XPU spec fast path; spec_packed's B70_SPEC_PACKED_QLENS guard keeps it
 # unpacked) and 6 on MTP steps (packed).
 from __future__ import annotations
@@ -112,6 +117,60 @@ def _combo_finalize_kernel(
     out = tl.where(use_copy, copied, mtp_out)
     tl.store(out_ptr + b * K + k_iota, out, mask=k_in)
     tl.store(use_ptr + b, use_copy.to(tl.int32))
+
+
+@triton.jit
+def _combo_onehot_kernel(
+    draft_logits_ptr,  # *head_dtype [max_num_reqs, num_cols, V]
+    dl_stride_0,
+    dl_stride_1,
+    idx_mapping_ptr,  # *int64  [B]
+    out_ptr,  # *int64  [B, K]  the drafts the verify will see
+    use_ptr,  # *int32  [B]  1 = copied drafts
+    V,
+    K,
+    KM,
+    BLOCK: tl.constexpr,
+):
+    b = tl.program_id(0).to(tl.int64)
+    col = tl.program_id(1).to(tl.int64)
+    use = tl.load(use_ptr + b)
+    if use == 0 and col < KM:
+        return  # MTP's own draft: its cached logits are the ones it was sampled from
+    req_state_idx = tl.load(idx_mapping_ptr + b).to(tl.int64)
+    tok = tl.load(out_ptr + b * K + col).to(tl.int64)
+    offs = tl.program_id(2).to(tl.int64) * BLOCK + tl.arange(0, BLOCK).to(tl.int64)
+    val = tl.where(offs == tok, 0.0, float("-inf"))
+    ptr = draft_logits_ptr + req_state_idx * dl_stride_0 + col * dl_stride_1 + offs
+    tl.store(ptr, val.to(draft_logits_ptr.dtype.element_ty), mask=offs < V)
+
+
+def write_onehot_draft_logits(
+    draft_logits: torch.Tensor,
+    idx_mapping: torch.Tensor,
+    drafts: torch.Tensor,
+    use_copy: torch.Tensor,
+    num_reqs: int,
+    km: int,
+) -> None:
+    """One-hot draft-logit rows for every non-MTP draft of a copy step (see the header). drafts [>=B, K] int64."""
+    K = drafts.shape[1]
+    V = draft_logits.shape[-1]
+    assert drafts.stride(1) == 1 and drafts.stride(0) == K and K <= draft_logits.shape[1]
+    BLOCK = 8192
+    _combo_onehot_kernel[(num_reqs, K, triton.cdiv(V, BLOCK))](
+        draft_logits,
+        draft_logits.stride(0),
+        draft_logits.stride(1),
+        idx_mapping,
+        drafts,
+        use_copy,
+        V,
+        K,
+        km,
+        BLOCK=BLOCK,
+        num_warps=4,
+    )
 
 
 class B70ComboSpeculator(MTPSpeculator):
@@ -253,6 +312,10 @@ class B70ComboSpeculator(MTPSpeculator):
             num_warps=2,
             num_stages=1,
         )
+        if self.draft_logits is not None:  # probabilistic drafts only
+            write_onehot_draft_logits(
+                self.draft_logits, idx_mapping, self.combo_out, self.combo_use, num_reqs, km
+            )
         if self.debug:
             self._dbg_steps += 1
             self._dbg_rows += num_reqs

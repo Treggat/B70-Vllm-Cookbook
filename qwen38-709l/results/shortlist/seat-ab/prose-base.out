@@ -1,0 +1,8 @@
+[10:43:54 PM] == bench_prose base
+spec before: 2.0 10.0 2.0 
+short code: avg of 3: 130.0 t/s
+SUMMARY base G: 10 requests, 4215 tokens, tok/step 2.337, accepted/draft-token 0.2674, decode 66.1 t/s
+SUMMARY base S: 20 requests, 8170 tokens, tok/step 1.943, accepted/draft-token 0.1884, decode 53.9 t/s
+SUMMARY base T: 10 requests, 8617 tokens, tok/step 2.350, accepted/draft-token 0.2663, decode 65.0 t/s
+spec after: 9976.0 50210.0 12377.0 
+[10:50:01 PM] bench_prose base done

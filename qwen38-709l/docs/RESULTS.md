@@ -7,8 +7,10 @@ configs with no riceharvest switch on).
 
 Newest first within each topic. Older sections stay as they were measured, with a note where something replaced them.
 
-- [Current seat](#current-seat-2026-10-21)
+- [Current seat](#current-seat-2026-10-23)
 - [Speculative decoding](#speculative-decoding)
+  - [Probabilistic MTP drafting](#probabilistic-mtp-drafting) (live)
+  - [Shortlist draft head](#shortlist-draft-head) (live)
   - [Combined speculator at every depth](#combined-speculator-at-every-depth) (live)
   - [Combined copy + MTP speculator, first version](#combined-copy--mtp-speculator-first-version)
   - [DFlash2 drafter on the 709-L](#dflash2-drafter-on-the-709-l)
@@ -23,36 +25,181 @@ Newest first within each topic. Older sections stay as they were measured, with 
 - [Against Vcvzgbzz's own tests](#against-vcvzgbzzs-own-tests)
 - [Quality checks](#quality-checks)
 
-## Current seat (2026-10-21)
+## Current seat (2026-10-23)
 
-What our live seat runs, and the checks it passed after its last reload (2026-10-21 10:04 PM). Each line links the
+What our live seat runs, and the checks it passed after its last reload (2026-10-23 1:32 AM). Each line links the
 section with the full numbers and raw files.
 
 - **Engine:** vLLM 0.32.0 with the stack in [RECIPE.md](RECIPE.md), the 709-L AWQ W4A16, fp8 KV in a 14.5 GiB pool,
   `--max-model-len 262144` (375,067 tokens of KV with the combined speculator on), 4 streams,
   `--long-prefill-token-threshold 512`.
-- **Speculative decoding:** the [combined copy + MTP speculator](../patches/combo-spec/README.md) at every depth:
-  MTP-5 by default, 15 copied drafts when the output copies its context, block verification.
+- **Speculative decoding:** the [combined copy + MTP speculator](../patches/combo-spec/README.md) at every depth
+  (MTP-5 by default, 15 copied drafts when the output copies its context, block verification), with the
+  [shortlist draft head](../patches/shortlist/README.md) (N = 128) and **probabilistic drafts**
+  (`draft_sample_method: "probabilistic"`).
 
 | check | result | section |
 |---|---|---|
-| edit bench (3 whole-file edits, greedy + sampled) | 235.7 t/s, 6/6 exact | [combined speculator at every depth](#combined-speculator-at-every-depth) |
-| whole-file edit behind 94k of context | 171.1 t/s, exact | same |
-| short code | 130.9 t/s | same |
+| short code (avg of 9) | 135.0 t/s | [probabilistic drafting](#probabilistic-mtp-drafting) |
+| edit bench (3 whole-file edits, greedy + sampled) | 238.8 t/s, 6/6 exact | same |
+| prose, one stream, the model's default sampling (20 requests) | 63.6 t/s, 2.19 tokens per step | same |
+| prose, thinking on at effort medium (10) | 74.9 t/s, 2.59 | same |
+| prose, greedy (10) | 66.4 t/s, 2.24 | same |
+| 4 writers sampled, summed (x2) | 292.4, 284.5 t/s | same |
+| decode behind 61k / 120k, sampled, 3 seeds | 83.3 / 65.1 t/s (3.77 / 3.52 tokens per step) | same |
+| decode behind 23k / 61k, greedy, ms per step (x3) | 38.3-39.1 / 44.0-44.2 | same |
 | page-boundary test (`bench/crossing.py`) | 3/3 | same |
-| 262k max-model-len test (`bench/maxlen.py`) | pass | same |
+| image and video | correct | same |
+| greedy code x5 | one transcript, the one the seat already produced before | same |
+| whole-file edit behind 94k of context | 171.1 t/s, exact (2026-10-21, not re-measured) | [combined speculator at every depth](#combined-speculator-at-every-depth) |
+| 262k max-model-len test (`bench/maxlen.py`) | pass (2026-10-21) | same |
 | a chat decoding while an 83k prompt prefills | 10.7 t/s, longest stall 0.6 s (2.2 t/s, 2.9 s without the threshold) | [sharing the card](#sharing-the-card-chunked-prefill-sweep) |
 
 Not re-measured on this exact config:
 
-- **Decode at depth** (58–85 t/s from 23k to 120k, depending on the test) and **4 writers** (about 265–275 t/s summed)
-  come from plain MTP-5 runs on 0.32. The combined speculator matched them wherever we checked
-  ([at every depth](#combined-speculator-at-every-depth)).
+- **Decode after a cold 100k prompt, greedy** (56–60 t/s) comes from plain MTP-5 runs on 0.32; the combined
+  speculator matched them wherever we checked ([at every depth](#combined-speculator-at-every-depth)), and the
+  shortlist cut every measured step time by 3.4% ([shortlist](#shortlist-draft-head)).
 - **First token at 100k** was about 75 s before the prefill threshold went on. The threshold makes one big cold prefill
   about 22% slower (1,326 → 1,097 t/s at 83k, [sweep](#sharing-the-card-chunked-prefill-sweep)), so expect about
   90 s now.
 
 ## Speculative decoding
+
+### Probabilistic MTP drafting
+
+0.32, 2026-10-23, live since 1:32 AM. Raw in `results/prob-draft/` (`offline/` the replay, `seat-ab/` the A/B on the
+second card, `promotion/` the live seat before and after). This is the live config.
+
+vLLM's default `draft_sample_method` is `greedy`: each MTP draft is the argmax of the drafter's distribution q, and a
+request that samples accepts it with probability p(draft). With `probabilistic`, the draft is sampled from q and
+accepted with probability sum min(p, q), which recovers nearly all the acceptance that sampling costs. Greedy requests
+skip draft sampling and do not change. Two things had to be fixed first ([combo-spec](../patches/combo-spec/README.md),
+[shortlist](../patches/shortlist/README.md#probabilistic-drafts)): the copied drafts needed one-hot draft-logit rows,
+and the shortlist head needed to feed the sampler a logits row instead of stepping aside.
+
+**What the server actually samples with:** our clients send no sampling fields, and with no `--generation-config`
+flag vLLM fills them from the model's `generation_config.json`: temperature 1.0, top-k 20, top-p 0.95. So every
+ordinary chat and agent turn on this seat is a sampled request; only our greedy benches are not.
+
+**Offline replay** (`offline/held_K5.log`: 86,010 teacher-forced K = 5 chain starts from 8 held-out sessions of our
+own traffic, the seat's int4 draft head, the target's stored top-20 at temperature 1.0 / top-k 20 / top-p 0.95):
+chain tokens per step greedy -> probabilistic: all 4.693 -> 4.796 (+2.2%), code +1.8%, prose +4.0%; the gain grows as
+acceptance falls (+10% on the one session at 3.0 tokens per step). At temperature 0.6 the gains halve.
+
+**Seat A/B** on the second card (`seat-ab/base.out`, `prob.out`, `compare-*.out`, `prose_pd-*.jsonl`; base = the live
+config of the day, greedy drafts):
+
+| | greedy drafts | probabilistic | change |
+|---|---|---|---|
+| prose, default sampling, 20 requests: tokens per step / decode t/s | 1.891 / 54.8 | **2.240 / 64.4** | **+18.5% / +17.7%** (seed-to-seed noise 4.2%) |
+| prose, thinking on (medium), 10 | 2.278 / 65.7 | **2.578 / 74.0** | **+13.2% / +12.5%** |
+| prose, greedy, 10 | 2.256 / 66.5 | 2.268 / 66.6 | +0.5% / +0.1% |
+| 4 writers sampled, summed (x2) | 260.2, 260.6 | **279.2, 275.6** | **+7.0%** |
+| greedy decode behind 23k / 61k / 120k, ms per step | 38.7 / 44.8 / 54.3 | 38.7 / 44.7 / 54.5 | no step-time cost |
+| short code, greedy (avg of 9) | 133.3 | 133.8 | +0.4% |
+| edits, greedy and sampled (6 exact) | 238.7 (6/6) | 233.9 (6/6) | -2.0% (one-hot rows on copy steps) |
+| crossing, greedy code x5 | 3/3, 5/5 identical | 3/3, 5/5 identical to base | |
+
+The served gain on prose is about 4x the offline estimate because served sampled prose starts at 1.9 tokens per
+step, far below the replay's 4.2, and the gain rises as acceptance falls. Sampled prose now matches greedy prose.
+
+**Live seat, before and after** (`promotion/live-pre.out`, `live-post.out`, `live-compare.out`, `live-verify.out`,
+`prose_live-*.jsonl`, `tier_live-*.jsonl`; all through our router; prod was down 5 min 50 s for the reload):
+
+| | before (shortlist, greedy drafts) | **after (live)** | change |
+|---|---|---|---|
+| prose, default sampling (20): tokens per step / t/s | 1.909 / 55.8 | **2.186 / 63.6** | **+14.5% / +14.0%** (noise 3.3%) |
+| prose, thinking on (10) | 2.338 / 67.9 | **2.590 / 74.9** | **+10.8% / +10.2%** |
+| prose, greedy (10) | 2.252 / 67.0 | 2.237 / 66.4 | -0.7% / -0.9% |
+| decode behind 61k, sampled, 3 seeds | 3.54 / 2.97 / 3.14 (mean 3.22), 70.9 t/s | **3.77 / 3.80 / 3.73 (3.77), 83.3 t/s** | **+17%**, every seed up |
+| decode behind 120k, sampled, 3 seeds | 2.90 / 3.06 / 3.33 (3.10), 57.0 t/s | **3.37 / 3.49 / 3.70 (3.52), 65.1 t/s** | **+14%**, every seed up |
+| 4 writers sampled, summed (x2) | 265.0, 270.2 | **292.4, 284.5** | **+7.8%** |
+| short code, greedy (avg of 9) | 135.0 | 135.0 | same |
+| greedy decode behind 23k / 61k, ms per step (x3) | 38.2-38.6 / 44.1-44.2 | 38.3-39.1 / 44.0-44.2 | no step-time cost |
+| edits, greedy and sampled | 240.7, 6/6 exact | 238.8, **6/6 exact** | -0.8% |
+| crossing / vision / greedy code x5 | 3/3 / correct / 4x one transcript + 1x the other | 3/3 / correct / 5x one transcript | both transcripts are ones the seat produced before |
+
+Seven agent turns through our harness before and after (served tokens per step from the seat's counters,
+`promotion/live-harness-turns.log`; every reply read in full, no breakage): the four prose turns went from 2.37 to
+2.70 tokens per step (+14%), the three code turns 4.11 / 6.57 / 5.84 -> 4.34 / 6.72 / 6.66. One caveat on that
+measurement: our harness has cross-chat memory, which surfaced the "before" chat's replies to the "after" chat on two
+of the prose turns, so those two are not independent samples (turns 4 and 7 were unaffected and gained 11%).
+
+The sampled-depth runs are single seeded texts per depth and showed copy steps on one of them, so the A/B's depth
+rows were inconclusive; the three-seed runs on the live seat settle it. Edits lose about 1-2% on the sampled copy
+path (the one-hot rows) and stay exact.
+
+### Shortlist draft head
+
+0.32, 2026-10-22, live since 10:16 PM that day. Raw in `results/shortlist/` (`offline/` the replay and the artifact
+gate, `microbench/` the head step on the card, `seat-ab/` the A/Bs on the second card, `promotion/` the live seat
+before and after). Design and build: [patches/shortlist/README.md](../patches/shortlist/README.md).
+
+The MTP drafter reads its whole int4 draft head (98,816 x 5,120, 261 MB) once per draft pass to take an argmax. The
+shortlist scores every row with a covariance-weighted rank-512 factorization, keeps 128 candidates and rescores only
+those with the real head. Offline (`offline/artifact_r512_eval.log`): -0.11% chain tokens per step. Plain SVD and
+frequency-trimmed heads fail (`offline/sweep1_int4.log`, [README](../patches/shortlist/README.md#why-weighted-and-why-not-a-trimmed-head)).
+
+**Head step on the card** (`microbench/kbench-int4-rescore.out`, captured graph, microseconds per call):
+
+| streams | stock int4 head GEMM + scatter + argmax | shortlist N = 128 | saved |
+|---|---|---|---|
+| 1 | 490 | **162** | 328 |
+| 2 | 495 | 164 | 331 |
+| 4 | 502 | 169 | 333 |
+
+0.33 ms per draft pass = about 1.65 ms per K = 5 step. The first version rescored the candidates with an fp32
+dequantize (205 / 237 / 297 us, `microbench/kbench-fp32-rescore.out`); rescoring with the head's own int4 GEMM on the
+gathered rows is 17 us and uses the stock head's numerics.
+
+**Seat A/B** on the second card, same day (`seat-ab/base.out`, `sl.out`, `tier_sl-*.jsonl`; a determinism rerun with
+3 depth runs and 5 greedy code runs per arm in `det-base.out`, `det-sl.out`):
+
+| | stock head | shortlist | change |
+|---|---|---|---|
+| short code (avg of 9) | 129.9 t/s | **134.6** | **+3.6%** (rerun 130.6 -> 135.0) |
+| decode behind 23k / 61k / 120k, ms per step | 40.1 / 46.2 / 56.4 | **38.7 / 44.5 / 54.3** | **-3.5 / -3.7 / -3.7%** (rerun x3: -3.3 / -3.3% at 23k / 58k) |
+| tokens per step at 23k / 58k (rerun, x3 each) | 3.25 / 3.54 | 3.22 / 3.53 | -0.7 / -0.3% |
+| 4 writers sampled, summed (x2) | 258.4 avg | 260.3 avg | noise |
+| edits, greedy and sampled | 233.8, 6/6 exact | **239.0, 6/6 exact** | +2.2% |
+| crossing | 3/3 | 3/3 | |
+| acceptance over the bench | 66.5% | 67.3% | |
+| greedy code, distinct transcripts of 5 | 2 | 2, **the same two** | the shortlist adds no greedy behaviour the seat did not have |
+
+The greedy code prompt flips between two transcripts on the stock head too (2 of 5 runs), at a token where the
+target's top two are 0.016 nats apart: speculative decoding is lossless in distribution, but how tokens group into
+verify steps changes the numerics, so an exact near-tie can go either way under greedy. Byte-identical greedy output
+is not a usable gate once drafts change ([PITFALLS](PITFALLS.md#speculative-decoding)).
+
+**Prose A/B** on the second card, pre-shortlist vs shortlist (`seat-ab/prose-base.out`, `prose-sl.out`,
+`prose_base.jsonl`, `prose_sl.jsonl`; `bench/prose_ab.py`, 10 fixed prompts):
+
+| mode | tokens per step | decode t/s |
+|---|---|---|
+| greedy, thinking off (600 tokens) | 2.337 -> 2.276 (**-2.6%**; -2.3% on the 6 of 10 identical texts) | 66.1 -> 67.1 (+1.5%) |
+| the model's default sampling, 2 seeds (500) | 1.943 -> 1.941 (-0.1%) | 53.9 -> 56.2 (+4.2%) |
+| thinking on, effort medium (1,000) | 2.350 -> 2.278 (**-3.1%**, per-prompt sd 11.6) | 65.0 -> 65.7 (+1.1%) |
+
+So the shortlist does cost 2-3% acceptance on short-context greedy and thinking prose, where the offline replay
+(code-heavy traffic) said -0.1%, and nothing on sampled prose. No mode is slower.
+
+**Live seat, before and after** (`promotion/live-pre.out`, `live-post.out`, `live-verify.out`, `tier_live-*.jsonl`;
+through our router; prod down 3 min 16 s):
+
+| | before | **after (live)** | change |
+|---|---|---|---|
+| short code (avg of 9) | 129.6 | **134.9** | **+4.1%** |
+| decode behind 23k / 58k, ms per step (x3) | 39.8 / 45.7 | **38.5 / 44.1** | **-3.4 / -3.4%** |
+| decode behind 23k / 58k, t/s | 83.6 / 81.8 | 93.0 / 84.2 | +11 / +3% (23k carries tokens-per-step noise) |
+| 4 writers sampled, summed (x2) | 263.8, 265.3 | 264.9, 270.6 | +1.2% |
+| edits, greedy and sampled | 237.1, 6/6 exact | **242.6, 6/6 exact** | +2.3% |
+| crossing / vision / greedy code x5 | 3/3 / correct / 5x one transcript | 3/3 / correct / 5x the same transcript | |
+| acceptance over the bench | 68.0% | 66.9% | -1.1 points |
+
+Agent turns through our harness, one each before and after: write 3.87 -> 4.19 tokens per step, whole-file rewrite
+6.91 -> 6.63, small edit 5.19 -> 4.37, prose 2.89 -> 2.62. Single turns of different generated text cannot separate
+acceptance from content; the fixed-prompt prose A/B above is the clean measurement.
 
 ### Combined speculator at every depth
 

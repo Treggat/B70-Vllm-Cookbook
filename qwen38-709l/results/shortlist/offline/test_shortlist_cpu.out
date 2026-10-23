@@ -1,0 +1,45 @@
+seat head rebuilt on CPU in 5s
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+PASS gate: matching head + ids -> ON
+[B70] draft shortlist: OFF: draft vocab ids differ from the artifact's (B70_DRAFT_VOCAB changed?)
+PASS gate: other vocab ids -> OFF
+[B70] draft shortlist: OFF: int4 head differs from the artifact's (nibbles equal 0.06328, max diff 15)
+PASS gate: scrambled head nibbles -> OFF
+[B70] draft shortlist: OFF: int4 head differs from the artifact's (scales differ)
+PASS gate: other scales (checkpoint) -> OFF
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+PASS gate: CPU-quantized head (rounding ties vs the CUDA build) -> ON
+[B70] draft shortlist: OFF: artifact rows/group 98816/128 != head 98808/128
+PASS gate: other row count -> OFF
+[B70] draft shortlist: OFF: no int4 draft head on this model (B70_DRAFT_LMHEAD_INT4 off or another drafter)
+PASS gate: no int4 head -> OFF
+[B70] draft shortlist: OFF: cannot load 'G:\\AI\\Projects\\b70-scratch\\claude\\vllm-709L\\draft-pass\\shortlist\\shortlist_r512.pt.missing': FileNotFoundError(2, 'No such file or directory')
+PASS gate: missing artifact -> OFF
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+PASS N=128 block=0: active
+  N=128 block=0: module == reference 1.00000, module == full head 0.98933, reference == full head 0.98933 (3000 rows)
+PASS N=128 block=0: module matches the fp32 reference (>= 0.999)
+PASS N=128 block=0: agreement with the full-head argmax 0.9893 (sanity >= 0.97)
+[B70] draft shortlist: ON: rank 512, N 64, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+PASS N=64 block=0: active
+  N=64 block=0: module == reference 1.00000, module == full head 0.98000, reference == full head 0.98000 (3000 rows)
+PASS N=64 block=0: module matches the fp32 reference (>= 0.999)
+PASS N=64 block=0: agreement with the full-head argmax 0.9800 (sanity >= 0.97)
+[B70] draft shortlist: ON: rank 512, N 256, block 4, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+PASS N=256 block=4: active
+  N=256 block=4: module == reference 1.00000, module == full head 0.98200, reference == full head 0.98200 (3000 rows)
+PASS N=256 block=4: module matches the fp32 reference (>= 0.999)
+PASS N=256 block=4: agreement with the full-head argmax 0.9820 (sanity >= 0.97)
+[B70] draft shortlist: OFF: block 8 must divide the rows (98816) and N (100)
+PASS gate: block 8 does not divide N 100 -> OFF
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+PASS tie-break: reversed candidate order -> identical drafts (400 rows)
+PASS all NaN hidden states -> valid draft ids
+PASS inf hidden states -> valid draft ids
+PASS zeros hidden states -> valid draft ids
+[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 0.99855, max diff 1), built 2026-10-22 19:15
+PASS shape: 1 rows -> (1,)
+PASS shape: 2 rows -> (2,)
+PASS shape: 4 rows -> (4,)
+PASS shape: [2, 2, D] -> (2, 2)
+ALL PASS

@@ -4,6 +4,7 @@
 #                                                          filler, exact-match check: copy at depth
 # Each depth: one fill call (warms the prefix cache), then the measured call between two /metrics snapshots.
 # Prints t/s, tokens per verify step, drafts per step and ms per step; appends JSON lines to tier_<tag>.jsonl.
+# TIER_TEMP=<t> [TIER_SEED=<n>]: sample at temperature t (seeded) instead of greedy; unset = greedy as before.
 # Endpoint settings as in common.py (BASE_URL, MODEL, API_KEY, METRICS_URL); LLAMACPP_TREE = a llama.cpp checkout at
 # 14964cee3 (the E3 source file, as in editbench.py).
 import glob, json, os, re, sys, sysconfig, time, urllib.request
@@ -34,6 +35,8 @@ def snap():
 def call(prompt, mt):
     body = {"model": MODEL, "stream": True, "max_tokens": mt, "temperature": 0, "chat_template_kwargs": {"enable_thinking": False},
             "reasoning_effort": "none", "stream_options": {"include_usage": True}, "messages": [{"role": "user", "content": prompt}]}
+    if os.environ.get("TIER_TEMP"):  # opt-in: sampled decode at depth (seeded); unset = greedy as before
+        body.update(temperature=float(os.environ["TIER_TEMP"]), seed=int(os.environ.get("TIER_SEED", "1")))
     t0 = time.time(); first = None; usage = None; out = []
     with urllib.request.urlopen(urllib.request.Request(URL, json.dumps(body).encode(), HDRS), timeout=3600) as r:
         for line in r:

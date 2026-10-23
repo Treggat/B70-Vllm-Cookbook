@@ -1,0 +1,27 @@
+19:36:37 cache loaded emb (248320, 5120) head (98816, 5120) torch.bfloat16 int4=False
+19:36:39 artifact factors shortlist_r512.pt: rank 512, fingerprint 3e711752d9ff2799
+  return torch.from_numpy(np.array(a) if not mmap else np.ascontiguousarray(a)).view(torch.bfloat16)
+19:36:40 000000.mtpd id=session-3be8e069-7167-4ddb-bdae-d4bfdd5ef901:0 cat=code T=111415 L=22359
+19:37:31 000001.mtpd id=session-3599836e-9c9e-4a59-97fb-e6c796216e5e:0 cat=rp T=91390 L=8569
+19:37:47 000002.mtpd id=session-1eb73708-aed5-419e-8f90-8a453cb25a95:0 cat=code T=85103 L=10637
+19:38:14 000003.mtpd id=session-b7750028-b0d3-4a77-bc4a-d52eebc4b7b8:0 cat=code T=83236 L=22125
+19:38:50 000004.mtpd id=session-3599836e-9c9e-4a59-97fb-e6c796216e5e:1 cat=rp T=77251 L=8144
+19:39:02 000005.mtpd id=session-c56559c5-f4df-41b8-b1e5-b6a1abf411a2:0 cat=code T=47918 L=9322
+19:39:09 000006.mtpd id=session-5314928b-74a5-4a70-84be-236bcafb4022:0 cat=code T=39253 L=4582
+19:39:13 000007.mtpd id=session-3599836e-9c9e-4a59-97fb-e6c796216e5e:2 cat=rp T=29117 L=272
+19:39:14 EVAL [all] files=8 starts=86010 full-head chain tps=4.6959 hit=[0.9062, 0.8767, 0.8542, 0.8358, 0.821]
+19:39:14   art  r= 512 N= 32: tps 4.6676 (-0.60%)  recall [0.9893, 0.9888, 0.9876, 0.9862, 0.9849]
+19:39:14   art  r= 512 N= 64: tps 4.6841 (-0.25%)  recall [0.9951, 0.9949, 0.9944, 0.9937, 0.9928]
+19:39:14   art  r= 512 N=128: tps 4.6907 (-0.11%)  recall [0.998, 0.9978, 0.9975, 0.9971, 0.9968]
+19:39:14   art  r= 512 N=256: tps 4.6934 (-0.05%)  recall [0.9992, 0.9991, 0.9989, 0.999, 0.9987]
+19:39:14 EVAL [code] files=5 starts=69025 full-head chain tps=4.8172 hit=[0.9219, 0.894, 0.8715, 0.8519, 0.8363]
+19:39:14   art  r= 512 N= 32: tps 4.7885 (-0.60%)  recall [0.9909, 0.9899, 0.9886, 0.9869, 0.9855]
+19:39:14   art  r= 512 N= 64: tps 4.8058 (-0.24%)  recall [0.996, 0.9955, 0.995, 0.9939, 0.9932]
+19:39:14   art  r= 512 N=128: tps 4.8124 (-0.10%)  recall [0.9984, 0.998, 0.9978, 0.9973, 0.9971]
+19:39:14   art  r= 512 N=256: tps 4.8151 (-0.04%)  recall [0.9994, 0.9993, 0.999, 0.9991, 0.9989]
+19:39:14 EVAL [rp] files=3 starts=16985 full-head chain tps=4.2031 hit=[0.842, 0.8063, 0.7836, 0.7703, 0.7591]
+19:39:14   art  r= 512 N= 32: tps 4.1764 (-0.63%)  recall [0.9829, 0.9844, 0.9837, 0.9832, 0.9825]
+19:39:14   art  r= 512 N= 64: tps 4.1892 (-0.33%)  recall [0.9916, 0.9922, 0.9917, 0.9926, 0.9914]
+19:39:14   art  r= 512 N=128: tps 4.1958 (-0.17%)  recall [0.9963, 0.9966, 0.9963, 0.996, 0.9957]
+19:39:14   art  r= 512 N=256: tps 4.1988 (-0.10%)  recall [0.9985, 0.9984, 0.9986, 0.9986, 0.9982]
+19:39:14 done (155s)

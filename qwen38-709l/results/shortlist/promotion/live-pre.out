@@ -1,0 +1,21 @@
+[10:02:32 PM] == bench live pre
+spec before: 4812.0 24130.0 9161.0
+short code: avg of 9: 129.6 t/s
+live-pre-1 deep  23239 tok:   89.7 t/s,  3.60 tok/step,  5.65 drafts/step,  40.0 ms/step
+live-pre-1 deep  61314 tok:   81.7 t/s,  3.75 tok/step,  5.07 drafts/step,  45.6 ms/step
+live-pre-2 deep  23239 tok:   76.7 t/s,  3.05 tok/step,  5.18 drafts/step,  39.7 ms/step
+live-pre-2 deep  61314 tok:   81.7 t/s,  3.75 tok/step,  5.07 drafts/step,  45.6 ms/step
+live-pre-3 deep  23239 tok:   84.4 t/s,  3.36 tok/step,  5.20 drafts/step,  39.7 ms/step
+live-pre-3 deep  61314 tok:   81.9 t/s,  3.76 tok/step,  5.08 drafts/step,  45.8 ms/step
+4 writers: {'each': [52.4, 86.4, 40.4, 84.6], 'summed': 263.8
+4 writers: {'each': [51.2, 87.2, 42.3, 84.6], 'summed': 265.3
+image: {'sec': 22.9, 'prompt': 2251, 'canary': None, 'reply': 'This pixelated fantasy scene depicts a cloaked figure standing on a grassy cliff, gazing toward a majestic castle illuminated by warm golden light. A large red dragon soars through the twilight sky above the castle, while waterfalls cascade down the rocky cliffs into a reflective body of water below. The dramatic sky transitions from fiery orange and red hues on the left to deep blue with a bright'}
+live-pre EDIT avg: greedy 238.6 t/s, sampled 235.6 t/s, all 237.1 t/s; exact 6/6
+crossing clean: 3
+live-pre code rep1: 700 tok in 5.1s -> live-pre-code-1.txt
+live-pre code rep2: 700 tok in 5.1s -> live-pre-code-2.txt
+live-pre code rep3: 700 tok in 5.0s -> live-pre-code-3.txt
+live-pre code rep4: 700 tok in 5.1s -> live-pre-code-4.txt
+live-pre code rep5: 700 tok in 5.1s -> live-pre-code-5.txt
+spec after: 14280.0 83490.0 49534.0
+[10:09:15 PM] bench live pre done

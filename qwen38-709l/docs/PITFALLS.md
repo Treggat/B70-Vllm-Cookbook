@@ -38,6 +38,27 @@
 - **riceharvest's attention `.so` only has the MTP shapes.** A DFlash2 drafter (head 128, non-causal, sliding window)
   dies in warmup with "Chunk prefill kernel tuple not compiled for this configuration". Use the stock kernel, or
   build one that includes that shape.
+- **Greedy output is not run-to-run deterministic once drafts change.** The target's verify numerics depend on how
+  tokens group into steps (packed q_len paths, copy steps), so at an exact near-tie the greedy pick flips. We measured
+  one: the top two tokens 0.016 nats apart, and the unchanged seat produced both transcripts (2 of 5 runs). Do not
+  gate a drafter change on byte-identical greedy output. Gate on "no transcript the baseline never produces" over
+  several runs, exact edits (`bench/editbench.py`) and the crossing test.
+- **The drafter's warm-up feeds garbage hidden states.** vLLM warms the drafter with dummy inputs before graph
+  capture. The shortlist's rescored logits came out NaN there, a tie-break that compared against the max was false
+  everywhere, and its sentinel row indexed past the head: engine init died with an index-out-of-bounds. Anything on
+  the draft path has to return valid ids for NaN, inf and zero inputs; the shortlist tests cover it.
+- **Gate a drafter change on prose, not only on the traffic you fit it on.** The shortlist's offline replay (our own,
+  code-heavy traffic) said -0.1% acceptance; a fixed-prompt prose A/B said -2 to -3% on greedy and thinking prose
+  (none on sampled). Prose is where MTP is weakest on this model (about 2 tokens per step against 4.6 on code), so a
+  drafter change shows there first. `bench/prose_ab.py` is the bench; keep it next to the code benches.
+- **Know what your clients actually sample with.** With no `--generation-config`, vLLM fills missing sampling fields
+  from the model's `generation_config.json` (709-L: temperature 1.0, top-k 20, top-p 0.95), and our router and agent
+  harness send none. So every agent turn is a sampled request, probabilistic drafting applies to all of it, and a
+  greedy-only bench would never have shown the +14-18% on prose. Check the engine's argv and a real request before
+  judging a change that depends on sampling.
+- **An agent harness with cross-chat memory breaks A/B turns.** Ours surfaced the "before" chat's replies to the
+  "after" chat (same example numbers, same story elements), which inflates the second arm's acceptance. Use fresh
+  topics per arm or turn that memory off for A/Bs.
 
 ## Build
 

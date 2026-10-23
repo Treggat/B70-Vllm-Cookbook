@@ -1,0 +1,2 @@
+{"mode": "deep", "tag": "live-post-1", "prompt": 23239, "out": 500, "tps": 85.4, "tok_step": 3.27, "drafts_step": 5.2, "ms_step": 38.2}
+{"mode": "deep", "tag": "live-post-1", "prompt": 61314, "out": 500, "tps": 84.4, "tok_step": 3.75, "drafts_step": 5.07, "ms_step": 44.1}

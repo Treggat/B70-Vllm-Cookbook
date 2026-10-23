@@ -1,0 +1,10 @@
+engine argv: "draft_sample_method":"probabilistic"
+485:[B70] draft shortlist: ON: rank 512, N 128, block off, 98816 rows, head fingerprint 696c55ee3aa87e40 (nibbles equal 1.00000, max diff 0), built 2026-10-22 19:15
+519:Capturing CUDA graphs (PIECEWISE):   0%|          | 0/21 [00:00<?, ?it/s]Capturing CUDA graphs (PIECEWISE):   5%|▍         | 1/21 [00:00<00:04,  4.77it/s]Capturing CUDA graphs (PIECEWISE):  1
+520:Capturing CUDA graphs (FULL):   0%|          | 0/8 [00:00<?, ?it/s]Capturing CUDA graphs (FULL):  25%|██▌       | 2/8 [00:00<00:00, 11.69it/s]Capturing CUDA graphs (FULL):  50%|███�
+521:(EngineCore pid=15691) INFO 10-23 01:32:33 [speculator.py:110] Capturing model for speculator...
+522:Capturing prefill CUDA graphs (PIECEWISE):   0%|          | 0/21 [00:00<?, ?it/s]Capturing prefill CUDA graphs (PIECEWISE):  29%|██▊       | 6/21 [00:00<00:00, 58.86it/s]Capturing prefill
+523:Capturing prefill CUDA graphs (FULL):   0%|          | 0/8 [00:00<?, ?it/s]Capturing prefill CUDA graphs (FULL):  88%|████████▊ | 7/8 [00:00<00:00, 66.37it/s]Capturing prefill
+524:Capturing decode CUDA graphs (FULL):   0%|          | 0/6 [00:00<?, ?it/s]Capturing decode CUDA graphs (FULL):  50%|█████     | 3/6 [00:00<00:00, 20.83it/s]Capturing decode CUDA graph
+"max_model_len":262144
+live .so 8d1bf4d1ea74 (prod 8d1bf4d1ea74); resets 3
