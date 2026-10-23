@@ -1,0 +1,6 @@
+tile-tree3 deep  23239 tok:   73.5 t/s,  3.25 tok/step,  7.13 drafts/step,  44.1 ms/step
+tile-tree3 deep  61314 tok:   68.2 t/s,  3.54 tok/step,  6.97 drafts/step,  51.9 ms/step
+tile-tree3 deep 120355 tok:   55.6 t/s,  3.62 tok/step,  7.14 drafts/step,  65.0 ms/step
+4 writers: {'each': [0, 0, 0, 0], 'summed': 0
+'tok_per_step': 2.6
+urllib.error.HTTPError: HTTP Error 500: Internal Server Error

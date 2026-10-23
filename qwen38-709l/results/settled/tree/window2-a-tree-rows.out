@@ -1,0 +1,32 @@
+tile-w2a deep  23239 tok:   71.2 t/s,  3.16 tok/step,  7.08 drafts/step,  44.3 ms/step
+tile-w2a deep  61314 tok:   69.0 t/s,  3.62 tok/step,  7.09 drafts/step,  52.1 ms/step
+tile-w2a deep 120355 tok:   56.9 t/s,  3.73 tok/step,  7.15 drafts/step,  64.9 ms/step
+tile-w2a deep 209798 tok:   43.9 t/s,  3.66 tok/step,  7.03 drafts/step,  83.0 ms/step
+Traceback (most recent call last):
+  File "<path>", line 66, in <module>
+    call(prompt, 1 if mode == "edit" else mt)  # fill the prefix cache (edit: prompt only)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<path>", line 38, in call
+    with urllib.request.urlopen(urllib.request.Request(URL, json.dumps(body).encode(), HDRS), timeout=3600) as r:
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<path>", line 187, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "<path>", line 493, in open
+    response = meth(req, response)
+  File "<path>", line 602, in http_response
+    response = self.parent.error(
+        'http', request, response, code, msg, hdrs)
+  File "<path>", line 531, in error
+    return self._call_chain(*args)
+           ~~~~~~~~~~~~~~~~^^^^^^^
+  File "<path>", line 464, in _call_chain
+    result = func(*args)
+  File "<path>", line 611, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
+4 writers: {'each': [44.1, 74.2, 40.0, 75.4], 'summed': 233.6
+'tok_per_step': 2.87
+avg of 9: 117.6 t/s
+w2a EDIT avg: greedy 228.4 t/s, sampled 225.1 t/s, all 226.8 t/s; exact 6/6
+W2A_DONE

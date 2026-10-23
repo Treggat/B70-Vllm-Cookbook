@@ -1,0 +1,19 @@
+      1 B70 gdnrows: first spec batch on spec_fused: 4 reqs, 64 rows
+      2 B70 gdnrows: loaded <venv dir>/gdnrows/libgdnrows256.so variant 2 mode fused
+[04:19:30 PM] == bench gdnf
+4 writers: {'each': [50.3, 83.3, 41.5, 84.3], 'summed': 259.4
+'tok_per_step': 2.72
+4 writers: {'each': [51.4, 86.2, 43.0, 84.0], 'summed': 264.6
+'tok_per_step': 2.79
+avg of 9: 134.1 t/s
+gdnf code rep1: 700 tok in 5.1s -> gdnf-code-1.txt
+gdnf code rep2: 700 tok in 5.0s -> gdnf-code-2.txt
+gdnf prose rep1: 700 tok in 10.8s -> gdnf-prose-1.txt
+gdnf prose rep2: 700 tok in 10.9s -> gdnf-prose-2.txt
+vllm:spec_decode_num_drafts_total{engine="0",model_name="qwen38-709l"} 2042.0
+vllm:spec_decode_num_draft_tokens_total{engine="0",model_name="qwen38-709l"} 10640.0
+vllm:spec_decode_num_accepted_tokens_total{engine="0",model_name="qwen38-709l"} 6018.0
+[04:21:22 PM] bench gdnf done
+      1 B70 gdnrows: first spec batch on spec_fused: 4 reqs, 64 rows
+      2 B70 gdnrows: loaded <venv dir>/gdnrows/libgdnrows256.so variant 2 mode fused
+0

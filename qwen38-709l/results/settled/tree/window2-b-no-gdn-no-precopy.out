@@ -1,0 +1,6 @@
+tile-w2b deep  23239 tok:   85.4 t/s,  3.64 tok/step,  7.50 drafts/step,  42.7 ms/step
+tile-w2b deep  61314 tok:   70.3 t/s,  3.51 tok/step,  6.97 drafts/step,  50.0 ms/step
+tile-w2b deep 120355 tok:   56.9 t/s,  3.59 tok/step,  6.97 drafts/step,  62.6 ms/step
+tile-w2b deep 209798 tok:   45.1 t/s,  3.69 tok/step,  7.03 drafts/step,  81.3 ms/step
+avg of 9: 124.3 t/s
+W2B_DONE
