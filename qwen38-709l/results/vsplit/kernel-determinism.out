@@ -1,0 +1,13 @@
+== determinism, V-split on (vsrepeat.py)
+ctx=   200 q_len=6: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx=   200 q_len=8: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx=  1500 q_len=6: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx=  1500 q_len=8: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx=  4000 q_len=6: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx=  4000 q_len=8: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx= 23000 q_len=6: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx= 23000 q_len=8: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx=100000 q_len=6: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+ctx=100000 q_len=8: 500 calls, 0 differ from the first (max |diff| 0.000000), finite=True
+REPEAT PASS
+== done

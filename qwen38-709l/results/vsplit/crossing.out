@@ -1,0 +1,4 @@
+temp 0.0: prompt 160 gen 4000 finish=length | correct funcs in order: 201 | first bad: None
+temp 1.0: prompt 160 gen 4000 finish=length | correct funcs in order: 201 | first bad: None
+temp 1.0: prompt 160 gen 4000 finish=length | correct funcs in order: 185 | first bad: 'def func_186(x):\n    return x * 186 + 4'
+FAIL (1/3)

@@ -1,0 +1,10 @@
+vsplit run 0: gen 4000 correct 201 ok
+vsplit run 1: gen 4000 correct 201 ok
+vsplit run 2: gen 4000 correct 201 ok
+vsplit run 3: gen 4000 correct 201 ok
+vsplit run 4: gen 4000 correct 201 ok
+vsplit run 5: gen 4000 correct 185 FAIL
+   context: 'f func_183(x):\n    return x * 183 + 1\n\ndef func_184(x):\n    return x * 184 + 2\n\ndef func_185(x):\n    return x * 186 + 3\n\ndef func_187(x):\n  '
+vsplit run 6: gen 4000 correct 200 FAIL
+   context: 'f func_198(x):\n    return x * 198 + 2\n\ndef func_199(x):\n    return x * 199 + 3\n\ndef func_200(x):\n    return x * 200'
+vsplit run 7: gen 3674 correct 185 ok

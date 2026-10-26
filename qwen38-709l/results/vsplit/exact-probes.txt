@@ -1,0 +1,9 @@
+Greedy code probe (fixed LRU-cache prompt, temperature 0, seed 7, 700 tokens, thinking off), sha1 of each output;
+the generated text itself is not committed. before = the seat before the V-split, window2 = V-split test load,
+after = the promoted seat. 2026-10-25.
+4b44b95dfc161ec0dd2c8d0ad1d3c339a86b1140  2396 bytes  before-code-1
+4b44b95dfc161ec0dd2c8d0ad1d3c339a86b1140  2396 bytes  before-code-2
+4b44b95dfc161ec0dd2c8d0ad1d3c339a86b1140  2396 bytes  window2-code-1
+4b44b95dfc161ec0dd2c8d0ad1d3c339a86b1140  2396 bytes  window2-code-2
+4b44b95dfc161ec0dd2c8d0ad1d3c339a86b1140  2396 bytes  after-code-1
+4b44b95dfc161ec0dd2c8d0ad1d3c339a86b1140  2396 bytes  after-code-2

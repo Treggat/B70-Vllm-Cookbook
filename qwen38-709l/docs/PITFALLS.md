@@ -8,6 +8,13 @@
   shared-prefix checkpoint (`--enable-mamba-shared-prefix-checkpoint` on 0.31) together with SergiioB's
   boundary/backward-copy patches. **Run `bench/crossing.py` after every change to MTP, prefix caching or the
   mamba/GDN cache flags.**
+- **Open (2026-10-25): sampled replies can still go wrong near the 4th page boundary.** On our current seat a sampled
+  `bench/crossing.py` reply goes wrong at `func_185`, about 3,840 tokens in (four 960-token pages), in roughly 1 run
+  in 10-20: a wrong digit, a dropped token or an early end, at a spot where the model gives the right token
+  probability 1.0000. It shows with the V-split kernel on and off, and not from a prefilled prefix, so it needs the
+  reply itself decoded up to there ([RESULTS](RESULTS.md#v-split-verify-kernel)). Greedy runs pass. Run the sampled
+  case many times without fixed seeds (`patches/vsplit-verify/tests/crossing_repeat.py`): with fixed seeds,
+  `crossing.py`'s two sampled runs only ever test two paths.
 - **riceharvest v1 kernel + packed verify gives `!!!!` output** at some KV lengths. Use the v2 `.so` (zero-sum guard).
   `apply_stack.sh` refuses the v1 hash.
 - **The GDN sync patches hung the card twice** (GPU copy-engine reset). The card recovered after unload both times. We
@@ -25,6 +32,11 @@
 - **Packed verify only for checked shapes.** riceharvest's `spec_packed.py` packs any uniform q_len; only q_len 2, 3
   and 6 are measured on the b70 `.so`. Turning on 6, 7 or 15 drafts with `B70_SPEC_PACKED=1` silently packs an
   unchecked shape. `patches/combo-spec/patch_spec_packed_guard_032.py` sends other q_len values to the stock path.
+- **A wide verify tile needs its own split count.** The V-split tile runs one work-group per KV head and split, and is
+  fastest at exactly 4 work-groups per Xe core (32 splits at one request). riceharvest's split rule, sized for the
+  8-row tile, makes it 1.8-2.6x slower, and 36 splits (one work-group past a full wave) cost 52-104%. The rule only
+  acts during graph capture: a kernel test outside a graph has to pass the seat's split count itself, or it times
+  the kernel's own default ([V-split README](../patches/vsplit-verify/README.md)).
 - **A copy detector that trusts the rightmost match.** In code, 4-grams repeat, so `rfind` of the last few tokens
   keeps landing on a nearer repeat instead of the real source. Confirm a copy by comparing the newly generated
   tokens with what follows the source; do not track the match offset.
@@ -92,6 +104,10 @@
   `-O.cudagraph_mode` form is silently ignored on 0.32), read the kernel durations from there, and take the step
   time from the graphed load. Ops launched after the engine step's annotation closes (the target LM head, the MTP
   draft loop, rejection sampling) are easy to miss: count them separately.
+- **`apply_stack.sh` reinstalls riceharvest's attention library and runtime.** With the V-split kernel installed, a
+  re-run silently puts the 8-row library back while `prod.env` still sets `B70_SPEC_VSPLIT=1`; the stock library
+  ignores the switch, so nothing fails, the depth gain is just gone. Install the V-split library and runtime patch
+  again after every `apply_stack.sh` run and check the library's sha256.
 - **Compile cache keyed on flags, not env:** give each switch combination its own `VLLM_CACHE_ROOT`.
 - **`--max-num-batched-tokens 16384`** made cold prefill 2–3× slower on this XPU build. We use 3584.
 - **Memory query reads 0 GiB free** under some Level Zero driver/container combinations. Fixed by `patch_meminfo_fallback`.

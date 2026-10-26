@@ -1,0 +1,4 @@
+2026-10-25 08:01 PM
+n=184 pad=0 prompt_tokens=3803 (page edge 3840 at +37): 0/30 wrong
+n=183 pad=0 prompt_tokens=3782 (page edge 3840 at +58): 0/30 wrong
+n=184 pad=300 prompt_tokens=4104 (page edge 3840 at +-264): 0/30 wrong

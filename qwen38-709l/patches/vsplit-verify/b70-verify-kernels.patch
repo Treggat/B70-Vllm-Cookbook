@@ -1,0 +1,1032 @@
+diff --git a/csrc/xpu/attn/xe_2/collective/chunk_prefill_epilogue.hpp b/csrc/xpu/attn/xe_2/collective/chunk_prefill_epilogue.hpp
+index 5dbb8b3..24192bb 100644
+--- a/csrc/xpu/attn/xe_2/collective/chunk_prefill_epilogue.hpp
++++ b/csrc/xpu/attn/xe_2/collective/chunk_prefill_epilogue.hpp
+@@ -585,6 +585,37 @@ class DecodeFwdEpilogue {
+       }
+     }
+ 
++    // B70 V-split verify (2026-10-25): a subgroup tile taller than one subgroup (e.g. 24 rows) keeps row
++    // base + lane + 16 j in element j of the subgroup-shared row fragments; the single-row write below would skip
++    // rows 16.. of every subgroup (wrong ReduceSplitK weights). Write all of them. Tiles of <= 16 rows per subgroup
++    // (every other decode policy) take the original branch unchanged.
++    constexpr int kSgRowsO = cute::size<0>(SGTileShapeO{});
++    if constexpr (kSgRowsO > intel::sg_size && !Sink) {
++      if (active && (num_kv_splits > 1 || ptr_lse != nullptr)) {
++        const int lane_r = static_cast<int>(
++            sycl::ext::oneapi::this_work_item::get_sub_group().get_local_id()[0]);
++        const int base_r = cute::get<0>(tOgO(cute::_0{}, cute::_0{}, cute::_0{}));
++        CUTLASS_PRAGMA_UNROLL
++        for (int j = 0; j < rA_sum.size(); ++j) {
++          const int rl = lane_r + j * intel::sg_size;
++          const int qr = base_r + rl;
++          if (rl < kSgRowsO && qr < head_group_q) {
++            const ElementA ss = rA_sum(j);
++            ElementLSE lse = static_cast<ElementLSE>(
++                static_cast<float>(rA_max(j)) * kLn2 + sycl::log(static_cast<float>(ss)));
++            if (!(ss > ElementA(0))) {
++              lse = ElementLSE(-1e30f);
++            }
++            if (num_kv_splits > 1) {
++              softmax_lse_accum(qr, idx_kv_split) = lse;
++            }
++            if (ptr_lse != nullptr) {
++              ptr_lse[qr * lse_stride] = lse;
++            }
++          }
++        }
++      }
++    } else
+     // Store one natural-log LSE for this KV split. ReduceSplitK uses it exactly
+     // like CUDA FlashAttention: weight_i = exp(LSE_i - logsumexp(LSE)).
+     // Assume seq_len_qo == 1.
+diff --git a/csrc/xpu/attn/xe_2/collective/chunk_prefill_mainloop.hpp b/csrc/xpu/attn/xe_2/collective/chunk_prefill_mainloop.hpp
+index fe73ddc..706db83 100644
+--- a/csrc/xpu/attn/xe_2/collective/chunk_prefill_mainloop.hpp
++++ b/csrc/xpu/attn/xe_2/collective/chunk_prefill_mainloop.hpp
+@@ -883,6 +883,11 @@ struct DecodeFwdMainloop<
+     // B70 speculative-verify packing
+     int spec_qlen;
+     int spec_group;
++    // B70 tree verify (2026-10-22): when spec_tree_on, draft position j (packed row r = j * spec_group + head) sees
++    // the prefix plus the draft slots s (0 = the step's first token, at key column seq_len - spec_qlen + s) whose bit
++    // is set in spec_tree[j]. The chain is spec_tree[j] = (2 << j) - 1. Up to 64 positions per step.
++    int spec_tree_on;
++    cute::array<unsigned long long, 64> spec_tree;
+   };
+ 
+   // Kernel-facing parameters
+@@ -915,7 +920,9 @@ struct DecodeFwdMainloop<
+         args.window_size_right,
+         args.page_stride_elements,
+         args.spec_qlen,
+-        args.spec_group};
++        args.spec_group,
++        args.spec_tree_on,
++        args.spec_tree};
+   }
+ 
+   CUTLASS_HOST_DEVICE static bool can_implement(Arguments const&) {
+@@ -1297,6 +1304,19 @@ struct DecodeFwdMainloop<
+           Tensor gP = local_tile(
+               cPgP, take<0, 2>(TileShapeQK{}), make_coord(get<0>(blk_qv), K));
+           auto cS_thread = thr_mma_qk.partition_C(gP);
++          if (params.spec_tree_on) {
++            // B70 tree verify: slot s = col - (seq_len - spec_qlen); hide any slot not in the row's ancestor mask.
++            const int slot0 = seq_len - params.spec_qlen;
++            CUTLASS_PRAGMA_UNROLL
++            for (int i = 0; i < tSrS.size(); ++i) {
++              int row_idx = get<0>(cS_thread(i));
++              int col_idx = get<1>(cS_thread(i));
++              int s = col_idx - slot0;
++              if (s >= 0 && !((params.spec_tree[row_idx / params.spec_group] >> s) & 1ULL)) {
++                tSrS(i) = ElementS(-INFINITY);
++              }
++            }
++          } else {
+           CUTLASS_PRAGMA_UNROLL
+           for (int i = 0; i < tSrS.size(); ++i) {
+             int row_idx = get<0>(cS_thread(i));
+@@ -1305,6 +1325,7 @@ struct DecodeFwdMainloop<
+               tSrS(i) = ElementS(-INFINITY);
+             }
+           }
++          }
+         }
+       }
+ 
+diff --git a/csrc/xpu/attn/xe_2/collective/decode_vsplit_mainloop.hpp b/csrc/xpu/attn/xe_2/collective/decode_vsplit_mainloop.hpp
+new file mode 100644
+index 0000000..2aa8173
+--- /dev/null
++++ b/csrc/xpu/attn/xe_2/collective/decode_vsplit_mainloop.hpp
+@@ -0,0 +1,670 @@
++/***************************************************************************************************
++ * B70 (2026-10-25): V-split decode mainloop for packed speculative verify (patches/vsplit-verify/README.md).
++ *
++ * The default decode mainloop (XeDefault) splits each work-group's subgroups along the KEY dimension for both GEMMs, so
++ * one work-group covers only 8 packed rows; a q_len-6 verify on the 709L (6 positions x 6 GQA heads = 36 rows) runs
++ * 5 work-groups per (KV head, split) and each of them loads and converts the same fp8 K/V. This mainloop covers all
++ * rows in ONE work-group:
++ *   Q*K : subgroups tiled (rows x keys) by SubgroupLayoutQK, e.g. 2 x 4 -> 24 rows x 16 keys each (K loaded by the
++ *         2 row groups instead of 5 work-groups).
++ *   S   : every subgroup writes its scores to SLM by work-group tile coordinates (partition_C of an identity tensor,
++ *         the same coordinates the verify mask uses).
++ *   softmax : one online-softmax pass over the whole 64-key tile per row, rows spread over the subgroups (SIMT on
++ *         SLM): running max m, sum l and the per-tile rescale a per row live in SLM, P is written as ElementQ.
++ *   P*V : subgroups tiled (rows x V columns) by SubgroupLayoutPV, e.g. 2 x 4 -> 24 rows x 64 V columns each, no key
++ *         split. Each subgroup rescales its O rows by a, fills its P A-fragment from SLM element by element (the
++ *         fragment's tv_layout gives each value's logical coordinate) and multiplies by its V slice (V loaded by the
++ *         2 row groups instead of 5 work-groups).
++ * Every subgroup ends with the full-row m and l (copied from SLM into tA_max / tA_sum), so the stock decode epilogue
++ * runs with ReduceK = 1 (no cross-subgroup O reduction). Scale conventions are the XeDefault ones: m in the scaled
++ * log2 domain, scale_k folded into the softmax scale, scale_v applied once after the loop.
++ * Selected by PagedDecodeConfig when its PipelineStages argument is 2 (B70_SPEC_VSPLIT=1 in paged_decode_xe2.cpp).
++ **************************************************************************************************/
++
++#pragma once
++
++#include "collective/chunk_prefill_mainloop.hpp"
++
++namespace cutlass::fmha {
++inline namespace vllm_xpu_xe2 {
++template <int Stages>
++class XeVSplit {};  // B70: one work-group for all packed verify rows, P exchanged through SLM, V-split P*V.
++}  // namespace vllm_xpu_xe2
++}  // namespace cutlass::fmha
++
++namespace cutlass::fmha::collective {
++inline namespace vllm_xpu_xe2 {
++
++using namespace cute;
++
++template <
++    int Stages,
++    bool PagedKV_,
++    bool CausalMask_,
++    class TiledMMAQK_,
++    class TiledMMAPV_,
++    int VTiles_,
++    class TensorQ_,
++    class TensorK_,
++    class TensorV_,
++    class TiledCopyQ_,
++    class TiledCopyK_,
++    class TiledCopyV_,
++    bool LocalMask_>
++struct DecodeFwdMainloop<
++    XeVSplit<Stages>,
++    PagedKV_,
++    CausalMask_,
++    TiledMMAQK_,
++    TiledMMAPV_,
++    VTiles_,
++    TensorQ_,
++    TensorK_,
++    TensorV_,
++    TiledCopyQ_,
++    TiledCopyK_,
++    TiledCopyV_,
++    LocalMask_> {
++  using TiledMMAQK = TiledMMAQK_;
++  using TiledMMAPV = TiledMMAPV_;
++  using TileShapeQK = decltype(TiledMMAQK{}.tile_mnk());
++  using TileShapePV = decltype(TiledMMAPV{}.tile_mnk());
++  static constexpr int VTiles = VTiles_;
++  using SubgroupLayoutQK = decltype(TiledMMAQK{}.get_atom_layout_mnk());
++  using SGPerWG = decltype(product(
++      take<1, 4>(shape(typename TiledMMAQK::ThrLayoutVMNK{}))));
++
++  using TensorQ = TensorQ_;
++  using TensorK = TensorK_;
++  using TensorV = TensorV_;
++
++  using ElementQ = typename TensorQ::engine_type::value_type;
++  using ElementK = typename TensorK::engine_type::value_type;
++
++  using TensorQ2D =
++      decltype(TensorQ_{}(append<rank_v<TensorQ_>>(make_coord(_, _), 0)));
++  using TensorK2D =
++      decltype(TensorK_{}(append<rank_v<TensorK_>>(make_coord(_, _), 0)));
++  using TensorV2D =
++      decltype(TensorV_{}(append<rank_v<TensorV_>>(make_coord(_, _), 0)));
++
++  using TiledCopyQ = conditional_t<
++      is_void_v<TiledCopyQ_>,
++      decltype(make_block_2d_copy_A(TiledMMAQK{}, TensorQ2D{})),
++      TiledCopyQ_>;
++  using TiledCopyK = conditional_t<
++      is_void_v<TiledCopyK_>,
++      decltype(make_block_2d_copy_B(TiledMMAQK{}, TensorK2D{})),
++      TiledCopyK_>;
++  using TiledCopyV = conditional_t<
++      is_void_v<TiledCopyV_>,
++      decltype(make_block_2d_copy_B(TiledMMAPV{}, TensorV2D{})),
++      TiledCopyV_>;
++
++  template <typename TiledMMA>
++  using FragC = decltype(TiledMMA{}.get_slice(0).partition_sg_fragment_C(
++      make_identity_tensor(select<0, 1>(TiledMMA{}.tile_mnk()))));
++
++  using FragS = FragC<TiledMMAQK>;
++  using FragSRow = decltype(reduce<1>(FragS{}, sycl::plus<void>{}));
++  using FragSCol = decltype(reduce<0>(FragS{}, sycl::plus<void>{}));
++  using ElementS = typename TiledMMAQK::ValTypeD;
++
++  using SingleFragA = FragC<TiledMMAPV>;
++  using FragA = expand_sg_fragment_t<SingleFragA, 1, VTiles>;
++  using FragARow = decltype(reduce<1>(FragA{}, sycl::plus<void>{}));
++  using ElementA = typename TiledMMAPV::ValTypeD;
++
++  static constexpr bool PagedKV = PagedKV_;
++  static constexpr bool CausalMask = CausalMask_;
++  static constexpr bool Fp8KV =
++      is_any_of_v<ElementK, float_e5m2_t, float_e4m3_t>;
++  static constexpr bool LocalMask = LocalMask_;
++
++  // XeVSplit<Stages>: Stages 1 = the kernel; timing-only variants (WRONG results): 2 skip the P fragment fill,
++  // 3 skip the O rescale, 4 skip the S store + softmax; 5 = the kernel + a printf dump of the first work-group's
++  // P / O fragment coordinates (lane, value) -> (row, col) on its first key tile.
++  static constexpr int DBG = Stages - 1;
++
++  // work-group tile: QT packed rows x KT keys per mainloop iteration
++  static constexpr int QT = get<0>(TileShapeQK{});
++  static constexpr int KT = get<1>(TileShapeQK{});
++  static constexpr int SST = KT + 4;   // S row stride in SLM (floats)
++  static constexpr int NSG = SGPerWG::value;
++  // P*V runs in key chunks of the PV tile's K extent (e.g. 16): KC chunks per 64-key QK tile; V tile indices are in
++  // chunk units (64-key tile index x KC + chunk), which keeps the page arithmetic of the 64-key tiles.
++  // split short contexts too (paged_decode_kernel.hpp b70_min_split_blocks): one work-group per KV head and split
++  // leaves the card almost idle on a single split (short code -1.5% with the default 32-tile minimum)
++  static constexpr int kMinBlocksForSplit = 2;
++
++  static constexpr int PVK = get<2>(TileShapePV{});
++  static constexpr int KC = KT / PVK;
++  // rows per P*V subgroup (the P*V row group); the vector P fill needs lane = key (key chunk = subgroup size) and
++  // whole 8-half vectors of rows (layout dump: P A fragment lane = key, value i = row)
++  static constexpr int RGP = QT / int(size<0>(decltype(TiledMMAPV{}.get_atom_layout_mnk()){}));
++  static constexpr bool kPVecFill = (PVK == intel::sg_size) && (RGP % 8 == 0);
++  static_assert(get<0>(TileShapePV{}) == QT && KT % PVK == 0, "PV tile: same rows as QK, key chunks dividing the QK tile");
++  static_assert(size<3>(typename TiledMMAPV::ThrLayoutVMNK{}) == 1, "V-split mainloop: no key split in P*V");
++  static_assert(VTiles == 1, "V-split mainloop: one V tile (each subgroup owns contiguous V columns)");
++  static_assert(KT % intel::sg_size == 0, "softmax: keys per row must be a multiple of the subgroup size");
++
++  struct Arguments {
++    ElementS const scale;
++    void* const scale_k;
++    void* const scale_v;
++    int const* ptr_page_table;
++    int page_size;
++    int max_pages_per_seq;
++    int total_seqlen_kv;
++    int window_size_left;
++    int window_size_right;
++    int page_stride_elements;
++    int spec_qlen;
++    int spec_group;
++    int spec_tree_on;
++    cute::array<unsigned long long, 64> spec_tree;
++  };
++  using Params = Arguments;
++
++  struct SharedStorage {
++    float s[QT * SST];       // raw scores of the current key tile
++    // softmax numerators of the current key tile, KEY-major (pT[key * QT + row]): the P*V A fragment has lane = key,
++    // value i = row (layout dump), so each lane fills its rows with contiguous vector loads
++    ElementQ pT[KT * QT];
++    int moved[QT];           // per P*V row group (index = first row of the group): a row max moved this tile
++    float m[QT];             // running max (scaled, log2 domain)
++    float l[QT];             // running sum
++    float a[QT];             // this tile's rescale of O
++  };
++
++  Params params;
++  SharedStorage& smem;
++
++  DecodeFwdMainloop(Params const& params_, SharedStorage& smem_) : params(params_), smem(smem_) {}
++
++  static constexpr Params
++  to_underlying_arguments(Arguments const& args, void* /* workspace */) {
++    constexpr double kLog2e = 1.4426950408889634074;
++    ElementS val = args.scale * static_cast<ElementS>(kLog2e);
++    return Params{
++        val,
++        args.scale_k,
++        args.scale_v,
++        args.ptr_page_table,
++        args.page_size,
++        args.max_pages_per_seq,
++        args.total_seqlen_kv,
++        args.window_size_left,
++        args.window_size_right,
++        args.page_stride_elements,
++        args.spec_qlen,
++        args.spec_group,
++        args.spec_tree_on,
++        args.spec_tree};
++  }
++
++  CUTLASS_HOST_DEVICE static bool can_implement(Arguments const&) {
++    return true;
++  }
++
++  template <bool has_large_surface, typename QVCoord>
++  CUTLASS_DEVICE void operator()(
++      TensorQ2D const& Q_2D,
++      TensorK2D const& K_2D,
++      TensorV2D const& V_2D,
++      FragA& tArA,
++      FragARow& tA_max,
++      FragARow& tA_sum,
++      QVCoord blk_qv,
++      int const& idx_b,
++      int blk_k0,
++      int blk_k1,
++      int total_blk,
++      int thr_id,
++      int seq_len,
++      int full_tile_offset,
++      int discard_seq_coord) {
++    using namespace sycl::ext::oneapi::this_work_item;
++
++    auto tile_shape_v =
++        make_shape(get<1>(TileShapePV{}) * C<VTiles>{}, get<2>(TileShapePV{}));
++
++    Tensor cQ = make_identity_tensor(Q_2D.shape());
++    Tensor cK = make_identity_tensor(K_2D.shape());
++    Tensor cV = make_identity_tensor(V_2D.shape());
++    Tensor cP = make_identity_tensor(take<0, 2>(TileShapeQK{}));
++    Tensor cPc = make_identity_tensor(make_shape(get<0>(TileShapePV{}), get<2>(TileShapePV{})));   // (q, key chunk)
++
++    auto K_2D_0 = K_2D;
++    auto V_2D_0 = V_2D;
++
++    // --- Xe 2D-block surface-height split (unchanged from XeDefault) ---
++    constexpr int tile_k = get<1>(TileShapeQK{});
++    [[maybe_unused]] int tiles_per_surface = 0x3fffffff;
++    [[maybe_unused]] int rows_per_surface = 0;
++    [[maybe_unused]] int k_rows_total = get<0>(K_2D.shape());
++    [[maybe_unused]] int v_cols_total = get<1>(V_2D.shape());
++    [[maybe_unused]] int64_t k_surf_shift = 0;
++    [[maybe_unused]] int64_t v_surf_shift = 0;
++    [[maybe_unused]] int k_pre_surf = -1;
++
++    [[maybe_unused]] auto make_k_surface = [&](int surf) {
++      int64_t rem = int64_t(k_rows_total) - int64_t(surf) * rows_per_surface;
++      int rows = rem > rows_per_surface ? rows_per_surface : int(rem);
++      if (rows < 1) {
++        rows = 1;
++      }
++      return make_tensor(
++          K_2D.data() + int64_t(surf) * k_surf_shift,
++          make_layout(make_shape(rows, get<1>(K_2D.shape())), K_2D.stride()));
++    };
++    [[maybe_unused]] auto make_v_surface = [&](int surf) {
++      int64_t rem = int64_t(v_cols_total) - int64_t(surf) * rows_per_surface;
++      int cols = rem > rows_per_surface ? rows_per_surface : int(rem);
++      if (cols < 1) {
++        cols = 1;
++      }
++      return make_tensor(
++          V_2D.data() + int64_t(surf) * v_surf_shift,
++          make_layout(make_shape(get<0>(V_2D.shape()), cols), V_2D.stride()));
++    };
++
++    if constexpr (has_large_surface) {
++      constexpr int kXeMaxSurfaceRows = 1 << 24;
++      if constexpr (PagedKV) {
++        int page_stride_tiles = params.page_stride_elements / tile_k;
++        int blocks_per_surface =
++            kXeMaxSurfaceRows / params.page_stride_elements;
++        if (blocks_per_surface < 1) {
++          blocks_per_surface = 1;
++        }
++        tiles_per_surface = blocks_per_surface * page_stride_tiles;
++        rows_per_surface = tiles_per_surface * tile_k;
++      }
++      int k_rows0, v_cols0;
++      if constexpr (PagedKV) {
++        k_rows0 =
++            k_rows_total < rows_per_surface ? k_rows_total : rows_per_surface;
++        k_surf_shift = int64_t(rows_per_surface) * get<0>(K_2D.stride());
++        v_cols0 =
++            v_cols_total < rows_per_surface ? v_cols_total : rows_per_surface;
++        v_surf_shift = int64_t(rows_per_surface) * get<1>(V_2D.stride());
++      } else {
++        k_rows0 = k_rows_total;
++        v_cols0 = v_cols_total;
++      }
++      K_2D_0 = make_tensor(
++          K_2D.data(),
++          make_layout(
++              make_shape(k_rows0, get<1>(K_2D.shape())), K_2D.stride()));
++      V_2D_0 = make_tensor(
++          V_2D.data(),
++          make_layout(
++              make_shape(get<0>(V_2D.shape()), v_cols0), V_2D.stride()));
++      cK = make_identity_tensor(make_shape(
++          PagedKV ? rows_per_surface : k_rows_total,
++          get<1>(K_2D.shape())));
++      cV = make_identity_tensor(make_shape(
++          get<0>(V_2D.shape()),
++          PagedKV ? rows_per_surface : v_cols_total));
++    }
++
++    Tensor gQ = local_tile(
++        cQ, TileShapeQK{}, append(blk_qv, _), Step<_1, X, _1>{});
++    Tensor gK = local_tile(
++        cK, TileShapeQK{}, make_coord(_, _, _), Step<X, _1, _1>{});
++    Tensor gV = local_tile(cV, tile_shape_v, make_coord(get<1>(blk_qv), _));
++    Tensor gV_split = local_tile(
++        gV, TileShapePV{}, make_coord(_, _, 0), Step<X, _1, _1>{});
++
++    TiledCopyQ copy_q{Q_2D};
++    TiledCopyK copy_k{K_2D_0};
++    TiledCopyV copy_v{V_2D_0};
++
++    TiledMMAQK mma_qk{};
++    TiledMMAPV mma_pv{};
++
++    auto thr_copy_q = copy_q.get_slice(thr_id);
++    auto thr_copy_k = copy_k.get_slice(thr_id);
++    auto thr_copy_v = copy_v.get_slice(thr_id);
++    auto thr_mma_qk = mma_qk.get_slice(thr_id);
++    auto thr_mma_pv = mma_pv.get_slice(thr_id);
++
++    auto tQgQ = thr_copy_q.partition_S(gQ);
++    auto tKgK = thr_copy_k.partition_S(gK);
++    auto tVgV = thr_copy_v.partition_S(gV_split);
++
++    auto tQrQ = thr_copy_q.partition_sg_fragment_D(gQ(_, _, 0));
++    auto tSrQ = thr_mma_qk.partition_sg_fragment_A(gQ(_, _, 0));
++
++    auto tKrK = thr_copy_k.partition_sg_fragment_D(gK(_, _, 0, 0));
++    auto tSrK = thr_mma_qk.partition_sg_fragment_B(gK(_, _, 0, 0));
++
++    auto tSrS = thr_mma_qk.partition_sg_fragment_C(cP);
++    auto tArP = thr_mma_pv.partition_sg_fragment_A(cPc);   // one key chunk of P
++    // (vector P fill assumes tArP holds RGP values per lane, one per row: checked by the exactness test)
++
++    auto tVrV = thr_copy_v.partition_sg_fragment_D(gV_split(_, _, 0, 0));
++    auto tArV = thr_mma_pv.partition_sg_fragment_B(gV_split(_, _, 0, 0));
++
++    auto prefetch_q = make_block_2d_prefetch(copy_q);
++    auto prefetch_k = make_block_2d_prefetch(copy_k);
++    auto prefetch_v =
++        make_block_2d_prefetch<SGPerWG::value>(tile_shape_v, V_2D_0);
++
++    auto pQgQ = prefetch_q.get_slice(thr_id).partition_S(gQ);
++    auto pKgK = prefetch_k.get_slice(thr_id).partition_S(gK);
++    auto pVgV = prefetch_v.get_slice(thr_id).partition_S(gV);
++
++    // B70 V-split: work-group tile coordinates of this work-item's S values (QK layout) and of its O values (PV
++    // layout). The fragments' tv_layout() coordinates are those of subgroup 0; o_off adds this subgroup's offset.
++    auto cS_tile = thr_mma_qk.partition_C(make_identity_tensor(take<0, 2>(TileShapeQK{})));
++    auto cO_tile = thr_mma_pv.partition_C(make_identity_tensor(take<0, 2>(TileShapePV{})));
++    const int lane = thr_id % intel::sg_size;
++    const int sg_id = thr_id / intel::sg_size;
++    SingleFragA tArA0;
++    const int o_row_off = int(get<0>(cO_tile(0))) - int(get<0>(tArA0.tv_layout()(lane, 0)));
++
++    int tiles_per_page = params.page_size / get<1>(TileShapeQK{});
++    int page_stride_tiles = params.page_stride_elements / get<1>(TileShapeQK{});
++    int tile_idx = blk_k0;
++    int b_offset = idx_b * params.max_pages_per_seq;
++    if constexpr (PagedKV) {
++      int page_local_idx = tile_idx * get<1>(TileShapeQK{}) / params.page_size;
++      int block_idx = params.ptr_page_table[b_offset + page_local_idx];
++      tile_idx = block_idx * page_stride_tiles + tile_idx % tiles_per_page;
++    }
++
++    for (int D = 0; D < size<3>(pQgQ); D++) {
++      prefetch(prefetch_q, pQgQ(_, _, _, D));
++    }
++
++    [[maybe_unused]] auto update_surface_info = [&](int& next_page_idx) {
++      int k_surf = PagedKV ? next_page_idx / tiles_per_surface : 0;
++      next_page_idx = next_page_idx - k_surf * tiles_per_surface;
++      if (k_pre_surf != k_surf) {
++        k_pre_surf = k_surf;
++        auto K_2D_n = make_k_surface(k_surf);
++        auto V_2D_n = make_v_surface(k_surf);
++        copy_k = TiledCopyK{K_2D_n};
++        copy_v = TiledCopyV{V_2D_n};
++        auto thr_copy_k_n = copy_k.get_slice(thr_id);
++        auto thr_copy_v_n = copy_v.get_slice(thr_id);
++        prefetch_k = make_block_2d_prefetch(copy_k);
++        prefetch_v =
++            make_block_2d_prefetch<SGPerWG::value>(tile_shape_v, V_2D_n);
++        Tensor cK_n = make_identity_tensor(K_2D_n.shape());
++        Tensor cV_n = make_identity_tensor(V_2D_n.shape());
++        Tensor gK_n = local_tile(
++            cK_n, TileShapeQK{}, make_coord(_, _, _), Step<X, _1, _1>{});
++        Tensor gV_n = local_tile(
++            cV_n, tile_shape_v, make_coord(get<1>(blk_qv), _));
++        Tensor gV_split_n = local_tile(
++            gV_n, TileShapePV{}, make_coord(_, _, 0), Step<X, _1, _1>{});
++        tKgK = thr_copy_k_n.partition_S(gK_n);
++        tVgV = thr_copy_v_n.partition_S(gV_split_n);
++        pKgK = prefetch_k.get_slice(thr_id).partition_S(gK_n);
++        pVgV = prefetch_v.get_slice(thr_id).partition_S(gV_n);
++      }
++    };
++
++    if constexpr (has_large_surface) {
++      update_surface_info(tile_idx);
++    }
++
++    for (int D = 0; D < size<4>(pKgK); D++) {
++      prefetch(prefetch_k, pKgK(_, _, _, tile_idx, D));
++    }
++
++    clear(tArA);
++    for (int r = thr_id; r < QT; r += NSG * intel::sg_size) {
++      smem.m[r] = cutlass::platform::numeric_limits<float>::lowest();
++      smem.l[r] = 0.f;
++    }
++
++    bool check_remainder_k = (seq_len % get<1>(TileShapeQK{}) != 0);
++
++    ElementS effective_scale = params.scale;
++    float scale_v = 1.f;
++    if constexpr (Fp8KV) {
++      const float scale_k = *static_cast<const float*>(params.scale_k);
++      scale_v = *static_cast<const float*>(params.scale_v);
++      effective_scale = params.scale * ElementS(scale_k);
++#ifdef B70_E4M3_HALF_UNSCALED
++      if constexpr (std::is_same_v<ElementK, float_e4m3_t> &&
++                    std::is_same_v<ElementQ, half_t>) {
++        effective_scale *= ElementS(256.f);
++        scale_v *= 256.f;
++      }
++#endif
++    }
++
++    int next_tile_idx;
++    for (int K = blk_k0; K < blk_k1; K++) {
++      auto tKgK_cache =
++          PagedKV ? tKgK(_, _, _, tile_idx, _) : tKgK(_, _, _, K, _);
++
++      /* GEMM 1: S = K * Q (rows x keys tiled over the subgroups) */
++      clear(tSrS);
++      for (int D = 0; D < size<4>(tKgK); D++) {
++        copy(copy_q, tQgQ(_, _, _, D), tQrQ);
++        copy(copy_k, tKgK_cache(_, _, _, D), tKrK);
++        reorder(tQrQ, tSrQ);
++        reorder(tKrK, tSrK);
++        cute::gemm(mma_qk, tSrQ, tSrK, tSrS);
++      }
++
++      CUTLASS_PRAGMA_UNROLL
++      for (int kc = 0; kc < KC; ++kc) {
++        prefetch(prefetch_v, pVgV(_, _, _, (PagedKV ? tile_idx : K) * KC + kc));
++      }
++
++      if constexpr (LocalMask) {
++        int decode_row = seq_len - 1 - full_tile_offset;
++        Tensor cPgP = make_identity_tensor(make_shape(seq_len, seq_len));
++        Tensor gP = local_tile(
++            cPgP, take<0, 2>(TileShapeQK{}), make_coord(get<0>(blk_qv), K));
++        auto cS_thread = thr_mma_qk.partition_C(gP);
++        CUTLASS_PRAGMA_UNROLL
++        for (int i = 0; i < tSrS.size(); ++i) {
++          int col_idx = get<1>(cS_thread(i)) - full_tile_offset;
++          bool left_mask = col_idx < decode_row - params.window_size_left;
++          bool right_mask = col_idx > decode_row + params.window_size_right;
++          if (left_mask || right_mask) {
++            tSrS(i) = ElementS(-INFINITY);
++          }
++        }
++      }
++
++      /* B70: per-row causal limit for packed speculative-verify rows (as XeDefault). */
++      if (params.spec_qlen > 1) {
++        const int tail0 = seq_len - (params.spec_qlen - 1);
++        if ((K + 1) * int(get<1>(TileShapeQK{})) > tail0) {
++          Tensor cPgP = make_identity_tensor(make_shape(seq_len, seq_len));
++          Tensor gP = local_tile(
++              cPgP, take<0, 2>(TileShapeQK{}), make_coord(get<0>(blk_qv), K));
++          auto cS_thread = thr_mma_qk.partition_C(gP);
++          if (params.spec_tree_on) {
++            const int slot0 = seq_len - params.spec_qlen;
++            CUTLASS_PRAGMA_UNROLL
++            for (int i = 0; i < tSrS.size(); ++i) {
++              int row_idx = get<0>(cS_thread(i));
++              int col_idx = get<1>(cS_thread(i));
++              int s = col_idx - slot0;
++              if (s >= 0 && !((params.spec_tree[row_idx / params.spec_group] >> s) & 1ULL)) {
++                tSrS(i) = ElementS(-INFINITY);
++              }
++            }
++          } else {
++            CUTLASS_PRAGMA_UNROLL
++            for (int i = 0; i < tSrS.size(); ++i) {
++              int row_idx = get<0>(cS_thread(i));
++              int col_idx = get<1>(cS_thread(i));
++              if (col_idx >= tail0 + row_idx / params.spec_group) {
++                tSrS(i) = ElementS(-INFINITY);
++              }
++            }
++          }
++        }
++      }
++
++      /* k masking for remainder tiles */
++      if (check_remainder_k && K == blk_k1 - 1) {
++        CUTLASS_PRAGMA_UNROLL
++        for (int i = 0; i < tSrS.size(); ++i) {
++          if (K * KT + int(get<1>(cS_tile(i))) >= seq_len) {
++            tSrS(i) = ElementS(-INFINITY);
++          }
++        }
++      }
++
++      /* B70 V-split: S -> SLM by work-group tile coordinates */
++      CUTLASS_PRAGMA_UNROLL
++      for (int i = 0; DBG != 3 && i < tSrS.size(); ++i) {
++        smem.s[int(get<0>(cS_tile(i))) * SST + int(get<1>(cS_tile(i)))] = float(tSrS(i));
++      }
++      // clear the "row max moved" flags: the previous tile's P*V read them before the loop-end barrier
++      if (thr_id < QT) {
++        smem.moved[thr_id] = 0;
++      }
++      sycl::group_barrier(get_work_group<3>());
++
++      /* online softmax over the whole key tile: subgroup sg_id owns rows sg_id, sg_id + NSG, ... */
++      {
++        auto sg = get_sub_group();
++        for (int r = sg_id; DBG != 3 && r < QT; r += NSG) {
++          float x[KT / intel::sg_size];
++          float bmax = -INFINITY;
++          CUTLASS_PRAGMA_UNROLL
++          for (int j = 0; j < KT / intel::sg_size; ++j) {
++            x[j] = smem.s[r * SST + lane + j * intel::sg_size];
++            bmax = sycl::fmax(bmax, x[j]);
++          }
++          bmax = sycl::reduce_over_group(sg, bmax, sycl::maximum<float>());
++          const float m_old = smem.m[r];
++          // as XeDefault: m = max(m, scale * tile max); all -inf -> m stays at lowest, p = 0, a = 1
++          const float m_new = sycl::fmax(m_old, float(effective_scale) * bmax);
++          float sum = 0.f;
++          CUTLASS_PRAGMA_UNROLL
++          for (int j = 0; j < KT / intel::sg_size; ++j) {
++            const float pe = sycl::native::exp2(float(effective_scale) * x[j] - m_new);
++            sum += pe;
++            smem.pT[(lane + j * intel::sg_size) * QT + r] = ElementQ(pe);
++          }
++          sum = sycl::reduce_over_group(sg, sum, sycl::plus<float>());
++          if (lane == 0) {
++            const float a = sycl::native::exp2(m_old - m_new);
++            if (a != 1.f) {
++              smem.moved[(r / RGP) * RGP] = 1;
++            }
++            smem.a[r] = a;
++            smem.m[r] = m_new;
++            smem.l[r] = smem.l[r] * a + sum;
++          }
++        }
++      }
++      sycl::group_barrier(get_work_group<3>());
++
++      /* GEMM 2: A = A * a + P * V, V columns tiled over the subgroups */
++      // rescale O only when a row max of this subgroup's row group moved this tile (rare deep in the context)
++      if (DBG != 2 && smem.moved[o_row_off]) {
++        CUTLASS_PRAGMA_UNROLL
++        for (int i = 0; i < tArA.size(); ++i) {
++          tArA(i) *= ElementA(smem.a[o_row_off + int(get<0>(tArA.tv_layout()(lane, i)))]);
++        }
++      }
++      CUTLASS_PRAGMA_UNROLL
++      for (int kc = 0; kc < KC; ++kc) {
++        if constexpr (kPVecFill) {
++          // lane = key, value i = row (static_assert below): RGP contiguous halves of key (kc * PVK + lane)
++          if (DBG != 1 || K == blk_k0) {
++            const ElementQ* src = &smem.pT[(kc * PVK + lane) * QT + o_row_off];
++            CUTLASS_PRAGMA_UNROLL
++            for (int v8 = 0; v8 < RGP / 8; ++v8) {
++              const cute::array<ElementQ, 8> w = *reinterpret_cast<const cute::array<ElementQ, 8>*>(src + v8 * 8);
++              CUTLASS_PRAGMA_UNROLL
++              for (int e = 0; e < 8; ++e) {
++                tArP(v8 * 8 + e) = w[e];
++              }
++            }
++          }
++        } else {
++          CUTLASS_PRAGMA_UNROLL
++          for (int i = 0; (DBG != 1 || K == blk_k0) && i < tArP.size(); ++i) {
++            auto c = tArP.tv_layout()(lane, i);
++            tArP(i) = smem.pT[(kc * PVK + int(get<1>(c))) * QT + o_row_off + int(get<0>(c))];
++          }
++        }
++#if defined(__SYCL_DEVICE_ONLY__)
++        if constexpr (DBG == 4) {
++          if (K == blk_k0 && kc == 0 && BlockIdxX() == 0 && BlockIdxY() == 0 && BlockIdxZ() == 0 && sg_id < 2) {
++            static const __attribute__((opencl_constant)) char FP[] = "VSDUMP P sg %d lane %d i %d row %d key %d\n";
++            static const __attribute__((opencl_constant)) char FO[] = "VSDUMP O sg %d lane %d i %d row %d col %d\n";
++            for (int i = 0; i < int(tArP.size()); ++i) {
++              auto c = tArP.tv_layout()(lane, i);
++              printf(FP, sg_id, lane, i, int(get<0>(c)) + o_row_off, int(get<1>(c)));
++            }
++            for (int i = 0; i < int(tArA.size()) && i < 24; ++i) {
++              auto c = tArA.tv_layout()(lane, i);
++              printf(FO, sg_id, lane, i, int(get<0>(c)) + o_row_off, int(get<1>(c)));
++            }
++          }
++        }
++#endif
++        const int vt = (PagedKV ? tile_idx : K) * KC + kc;
++        copy(copy_v, tVgV(_, _, _, 0, vt), tVrV);
++        reorder(tVrV, tArV);
++        cute::gemm(mma_pv, tArP, tArV, tArA(_, _, _, 0));
++      }
++
++      // the next iteration's S store / softmax rewrite SLM read above
++      barrier();
++
++      next_tile_idx = K + 1;
++      if constexpr (PagedKV) {
++        int next_page_local_idx =
++            next_tile_idx * get<1>(TileShapeQK{}) / params.page_size;
++        if (next_page_local_idx < params.max_pages_per_seq) {
++          int next_block_idx =
++              params.ptr_page_table[b_offset + next_page_local_idx];
++          next_tile_idx = next_block_idx * page_stride_tiles +
++                          next_tile_idx % tiles_per_page;
++        } else {
++          next_tile_idx = params.max_pages_per_seq * tiles_per_page - 1;
++        }
++      }
++      tile_idx = next_tile_idx;
++
++      if constexpr (has_large_surface) {
++        update_surface_info(tile_idx);
++      }
++
++      for (int D = 0; D < size<4>(pKgK); D++) {
++        prefetch(prefetch_k, pKgK(_, _, _, tile_idx, D));
++      }
++    }
++
++    // full-row statistics for the epilogue (ReduceK = 1). FragARow is subgroup-shared: its rank-1 tv_layout spreads
++    // the subgroup's rows over the lanes (lane L, element j holds index L + 16 j).
++    constexpr int kRowVals = size(FragARow{}.tv_layout());
++    CUTLASS_PRAGMA_UNROLL
++    for (int j = 0; j < tA_max.size(); ++j) {
++      const int idx = lane + j * intel::sg_size;
++      if (idx < kRowVals) {
++        const int r = o_row_off + int(FragARow{}.tv_layout()(idx).value());   // rank-1: a bare ScaledBasis<int, 0>
++        tA_max(j) = ElementA(smem.m[r]);
++        tA_sum(j) = ElementA(smem.l[r]);
++      }
++    }
++
++    if constexpr (Fp8KV) {
++      CUTLASS_PRAGMA_UNROLL
++      for (int i = 0; i < tArA.size(); ++i) {
++        tArA(i) *= ElementA(scale_v);
++      }
++    }
++  }
++};
++
++}  // namespace vllm_xpu_xe2
++}  // namespace cutlass::fmha::collective
+diff --git a/csrc/xpu/attn/xe_2/kernel/paged_decode_kernel.hpp b/csrc/xpu/attn/xe_2/kernel/paged_decode_kernel.hpp
+index dc7c35e..35c568c 100644
+--- a/csrc/xpu/attn/xe_2/kernel/paged_decode_kernel.hpp
++++ b/csrc/xpu/attn/xe_2/kernel/paged_decode_kernel.hpp
+@@ -50,6 +50,22 @@ inline namespace vllm_xpu_xe2 {
+ 
+ using namespace cute;
+ 
++// B70 (2026-10-25): minimum key tiles before a sequence is split across KV splits. A mainloop may override the
++// default (32 tiles for kv tiles <= 64, else 128) with a static constexpr int kMinBlocksForSplit; the V-split verify
++// mainloop does (one work-group per KV head and split, so a single split leaves the card nearly idle). The FMHA
++// kernel and ReduceSplitK must use the same value.
++template <class Mainloop, class = void>
++struct b70_min_split_blocks {
++  static constexpr int value = -1;
++};
++template <class Mainloop>
++struct b70_min_split_blocks<Mainloop, std::void_t<decltype(Mainloop::kMinBlocksForSplit)>> {
++  static constexpr int value = Mainloop::kMinBlocksForSplit;
++};
++template <class Mainloop, int TileN>
++inline constexpr int b70_min_blocks_for_split =
++    b70_min_split_blocks<Mainloop>::value >= 0 ? b70_min_split_blocks<Mainloop>::value : ((TileN <= 64) ? 32 : 128);
++
+ ///////////////////////////////////////////////////////////////////////////////
+ template <bool IsVarLen_ = false>
+ struct DecodeProblemShape {
+@@ -383,7 +399,7 @@ class XeFMHAFwdSplitKVKernel {
+             cute::ceil_div(windowed_k_blocks, seq_num_kv_splits);
+ 
+         constexpr int tile_n = get<1>(TileShapeQK{});
+-        constexpr int kMinBlocksForSplit = (tile_n <= 64) ? 32 : 128;
++        constexpr int kMinBlocksForSplit = b70_min_blocks_for_split<CollectiveMainloop, tile_n>;
+         is_single_split =
+             (seq_num_kv_splits > 1) && (windowed_k_blocks < kMinBlocksForSplit);
+ 
+@@ -740,7 +756,8 @@ class ReduceSplitK {
+         effective_splits = seq_num_kv_splits;
+       } else {
+         constexpr int tile_n = get<1>(typename FMHAKernel_::TileShapeQK{});
+-        constexpr int kMinBlocksForSplit = (tile_n <= 64) ? 32 : 128;
++        constexpr int kMinBlocksForSplit =
++            b70_min_blocks_for_split<typename FMHAKernel_::CollectiveMainloop, tile_n>;
+         bool is_single_split =
+             (seq_num_kv_splits > 1) && (windowed_k_blocks < kMinBlocksForSplit);
+         effective_splits = is_single_split ? 1 : seq_num_kv_splits;
+diff --git a/csrc/xpu/attn/xe_2/paged_decode.hpp b/csrc/xpu/attn/xe_2/paged_decode.hpp
+index 6c61145..d1af6b8 100644
+--- a/csrc/xpu/attn/xe_2/paged_decode.hpp
++++ b/csrc/xpu/attn/xe_2/paged_decode.hpp
+@@ -21,6 +21,7 @@
+ 
+ #include "collective/chunk_prefill_scheduler.hpp"
+ #include "collective/chunk_prefill_epilogue.hpp"
++#include "collective/decode_vsplit_mainloop.hpp"   // B70: XeVSplit (PipelineStages == 2)
+ #include "kernel/paged_decode_kernel.hpp"
+ 
+ #include "csrc/xpu/attn/fmha_utils.hpp"
+@@ -161,6 +162,9 @@ struct paged_decode_args_t {
+   // B70: speculative-verify packing (q rows = spec_qlen positions x spec_group heads)
+   int spec_qlen = 1;
+   int spec_group = 1;
++  // B70 tree verify (2026-10-22): per-position ancestor bitmasks over the step's draft slots (see the mainloop)
++  int spec_tree_on = 0;
++  cute::array<unsigned long long, 64> spec_tree = {};
+   // softmax_lse output [num_heads_q, total_seqlen_q] (nullptr if disabled).
+   // Written by the FMHA kernel epilogue when num_kv_splits <= 1 (no reduce
+   // pass), otherwise by the ReduceSplitK kernel.
+@@ -356,7 +360,9 @@ struct DecodeKernelLauncher {
+          // seq-position units. It includes interleaved and cross-layer gaps.
+          args.page_stride_elements,
+          args.spec_qlen,
+-         args.spec_group},
++         args.spec_group,
++         args.spec_tree_on,
++         args.spec_tree},
+         {},
+         hw_info,
+         args.num_kv_splits};
+@@ -553,7 +559,12 @@ struct PagedDecodeConfig {
+     using TensorLSE = decltype(make_dummy_tensor(float{}, StrideO{}));
+ 
+     // Mainloop
+-    using MainloopDispatchPolicy = cutlass::fmha::XeDefault<PipelineStages>;
++    // B70 (2026-10-25): PipelineStages >= 2 selects the V-split verify mainloop (decode_vsplit_mainloop.hpp);
++    // XeVSplit<PipelineStages - 1>: 1 = the kernel, 2..5 = timing / layout-dump variants (B70_SPEC_VSPLIT=2..5).
++    using MainloopDispatchPolicy = cute::conditional_t<
++        (PipelineStages >= 2),
++        cutlass::fmha::XeVSplit<(PipelineStages >= 2 ? PipelineStages - 1 : 1)>,
++        cutlass::fmha::XeDefault<PipelineStages>>;
+     using CollectiveMainloop = cutlass::fmha::collective::DecodeFwdMainloop<
+         MainloopDispatchPolicy,
+         Paged,
+diff --git a/csrc/xpu/attn/xe_2/paged_decode_xe2.cpp b/csrc/xpu/attn/xe_2/paged_decode_xe2.cpp
+index 4f8e6bd..c12b4de 100644
+--- a/csrc/xpu/attn/xe_2/paged_decode_xe2.cpp
++++ b/csrc/xpu/attn/xe_2/paged_decode_xe2.cpp
+@@ -27,6 +27,59 @@ template <typename H, bool C, bool L, bool S>
+ struct is_decode_policy_tuple_enabled<decode_policy_spec_q32<H>, C, L, S>
+     : std::true_type {};
+ 
++// B70 tile work (2026-10-22): 64-row verify tile = the q32 policy with 8 subgroups
++// along Q (8 rows each), so up to 10 packed positions (x 6 GQA heads on the 709L)
++// stream each KV tile once. Allows 8 x 16 = 128 KV splits. Opt-in: B70_SPEC_QTILE=64.
++template <typename head_dim>
++struct decode_policy_spec_q64 {
++  using HeadDim = head_dim;
++  using ShapeQK = Shape<_64, _64, _64>;
++  using ShapePV = Shape<_64, _32, _64>;
++  using ShapeOut = Shape<_64, head_dim>;
++  using SubgroupLayoutQK = Layout<Shape<_8, _1, _1>>;
++};
++template <typename H>
++struct is_decode_policy_enabled<decode_policy_spec_q64<H>> : std::true_type {};
++template <typename H, bool C, bool L, bool S>
++struct is_decode_policy_tuple_enabled<decode_policy_spec_q64<H>, C, L, S>
++    : std::true_type {};
++
++// B70 tree16 (2026-10-23): 128-row verify tile = 16 subgroups along Q (8 rows each, the same per-subgroup registers as
++// q64), so the 16-row comb tree (16 x 6 GQA heads = 96 packed rows) streams each KV tile ONCE instead of twice on
++// two q64 work-groups. Allows 16 x 16 = 256 KV splits. Opt-in: B70_SPEC_QTILE=128 (rows <= 64 keep the q64 tile).
++template <typename head_dim>
++struct decode_policy_spec_q128 {
++  using HeadDim = head_dim;
++  using ShapeQK = Shape<_128, _64, _64>;
++  using ShapePV = Shape<_128, _32, _64>;
++  using ShapeOut = Shape<_128, head_dim>;
++  using SubgroupLayoutQK = Layout<Shape<_16, _1, _1>>;
++};
++template <typename H>
++struct is_decode_policy_enabled<decode_policy_spec_q128<H>> : std::true_type {};
++template <typename H, bool C, bool L, bool S>
++struct is_decode_policy_tuple_enabled<decode_policy_spec_q128<H>, C, L, S>
++    : std::true_type {};
++
++// B70 V-split verify (2026-10-25): ALL packed verify rows (q_len x GQA, <= 48) in one work-group of
++// 8 subgroups: Q*K tiled 2 (rows) x 4 (keys), P*V tiled 2 (rows) x 4 (V columns), P exchanged through SLM
++// (collective/decode_vsplit_mainloop.hpp, PipelineStages == 2). Opt-in: B70_SPEC_VSPLIT=1.
++// Register budget (24 rows per subgroup): O 24 x 64 fp32 = 96 GRF is fixed, so Q*K runs in 16-wide head-dim chunks
++// and P*V in 16-key chunks (the P fragment is 24 x 16). 32-wide Q chunks with the whole 64-key P spilled ~213; a 12-
++// subgroup 3 x 4 layout does not tile (cute divisibility).
++template <typename head_dim>
++struct decode_policy_spec_vs {
++  using HeadDim = head_dim;
++  using ShapeQK = Shape<_48, _64, _16>;
++  // ONE V tile of all 256 columns (VTiles = 1): each subgroup owns 64 contiguous V columns. With several V tiles the
++  // expanded O fragment's coordinates (expand_sg_fragment: tile VV at VV x the subgroup's own width) disagree with a
++  // V split across subgroups, and the epilogue scattered O into the wrong columns (an early build).
++  using ShapePV = Shape<_48, head_dim, _16>;
++  using ShapeOut = Shape<_48, head_dim>;
++  using SubgroupLayoutQK = Layout<Shape<_2, _4, _1>>;
++  using SubgroupLayoutPV = Layout<Shape<_2, _4, _1>>;
++};
++
+ using namespace cute;
+ 
+ void cutlass_paged_decode_xe2(
+@@ -253,6 +306,22 @@ void cutlass_paged_decode_impl(
+     if (sq > 1 && grp % sq == 0) {
+       args.spec_qlen = sq;
+       args.spec_group = grp / sq;
++      // B70 tree verify: B70_SPEC_TREE = comma-separated hex ancestor masks, one per draft position (exactly
++      // spec_qlen of them, each with bit 0 set). Read per call like B70_SPEC_QLEN, so a captured graph bakes the tree
++      // of its q_len. Anything malformed falls back to the chain mask.
++      const char* t = std::getenv("B70_SPEC_TREE");
++      if (t && t[0]) {
++        int n = 0; bool ok = true; const char* p = t;
++        while (*p && n < 64) {
++          char* end = nullptr;
++          unsigned long long v = std::strtoull(p, &end, 16);
++          if (end == p || !(v & 1ULL)) { ok = false; break; }
++          args.spec_tree[n++] = v;
++          p = end;
++          if (*p == ',') ++p; else if (*p) { ok = false; break; }
++        }
++        args.spec_tree_on = (ok && n == sq) ? 1 : 0;
++      }
+     }
+   }
+ 
+@@ -345,16 +414,75 @@ void cutlass_paged_decode_impl(
+   // B70: the _16 tile spills registers at head_size 256 (ShapeOut_V stays 256),
+   // so large GQA ratios at head_size > 128 use ceil(ratio/8) _8 work-groups instead.
+   // B70: 32-row verify tile is opt-in (B70_SPEC_Q32=1): faster in isolation, slower in serving (NOTES.md).
+-  static const bool b70_q32 = [] { const char* e = std::getenv("B70_SPEC_Q32"); return e && e[0] == '1'; }();
+-  if (b70_q32 && args.spec_qlen > 1 && head_case == 4 && block_size % 64 == 0 &&
++  // B70 tile work (2026-10-22): B70_SPEC_QTILE=32|64 picks the wide verify tile (B70_SPEC_Q32=1 still means 32).
++  // The wide tile is used only when the packed rows fit it; otherwise the stock _8 path below.
++  static const int b70_qtile = [] {
++    const char* t = std::getenv("B70_SPEC_QTILE");
++    if (t && t[0]) return std::atoi(t);
++    const char* e = std::getenv("B70_SPEC_Q32");
++    return (e && e[0] == '1') ? 32 : 0;
++  }();
++  const bool b70_wide_ok = b70_qtile >= 32 && args.spec_qlen > 1 && head_case == 4 && block_size % 64 == 0 &&
++      cuQKType.q_type == CutlassDType::half && cuQKType.k_type == CutlassDType::float8_e4m3 &&
++      !args.is_local && !args.is_sink;
++  // B70_SPEC_VSPLIT=1: the V-split kernel; 2..5: timing / layout-dump variants of it (decode_vsplit_mainloop.hpp DBG)
++  static const int b70_vsplit = [] {
++    const char* e = std::getenv("B70_SPEC_VSPLIT");
++    const int v = (e && e[0]) ? std::atoi(e) : 0;
++    return (v >= 1 && v <= 5) ? v : 0;
++  }();
++  const bool b70_vs_ok = b70_vsplit && args.spec_qlen > 1 && head_case == 4 && block_size % 64 == 0 &&
+       cuQKType.q_type == CutlassDType::half && cuQKType.k_type == CutlassDType::float8_e4m3 &&
+-      num_q_group_size <= 32 && !args.is_local && !args.is_sink) {
++      !args.is_local && !args.is_sink && num_q_group_size <= 48;
++  if (b70_vs_ok) {
++    using P = decode_policy_spec_vs<_256>;
++    switch (b70_vsplit) {
++      case 2:
++        PagedDecodeConfig<typename P::ShapeQK, typename P::ShapePV, typename P::ShapeOut,
++                          typename P::SubgroupLayoutQK, typename P::SubgroupLayoutPV, 3, false, false, false,
++                          half_t, float_e4m3_t, float_e4m3_t, half_t>::kernel_dispatch(queue, args);
++        break;
++      case 3:
++        PagedDecodeConfig<typename P::ShapeQK, typename P::ShapePV, typename P::ShapeOut,
++                          typename P::SubgroupLayoutQK, typename P::SubgroupLayoutPV, 4, false, false, false,
++                          half_t, float_e4m3_t, float_e4m3_t, half_t>::kernel_dispatch(queue, args);
++        break;
++      case 4:
++        PagedDecodeConfig<typename P::ShapeQK, typename P::ShapePV, typename P::ShapeOut,
++                          typename P::SubgroupLayoutQK, typename P::SubgroupLayoutPV, 5, false, false, false,
++                          half_t, float_e4m3_t, float_e4m3_t, half_t>::kernel_dispatch(queue, args);
++        break;
++      case 5:
++        PagedDecodeConfig<typename P::ShapeQK, typename P::ShapePV, typename P::ShapeOut,
++                          typename P::SubgroupLayoutQK, typename P::SubgroupLayoutPV, 6, false, false, false,
++                          half_t, float_e4m3_t, float_e4m3_t, half_t>::kernel_dispatch(queue, args);
++        break;
++      default:
++        PagedDecodeConfig<typename P::ShapeQK, typename P::ShapePV, typename P::ShapeOut,
++                          typename P::SubgroupLayoutQK, typename P::SubgroupLayoutPV, 2, false, false, false,
++                          half_t, float_e4m3_t, float_e4m3_t, half_t>::kernel_dispatch(queue, args);
++        break;
++    }
++  } else if (b70_wide_ok && num_q_group_size <= 32 && b70_qtile <= 32) {
+     // Only one instantiation (fp16 Q, e4m3 KV; causality comes from the per-row spec mask): the full 6-dtype x 8-flag
+     // expansion OOMs the compiler (>20 GB for one TU).
+     using P = decode_policy_spec_q32<_256>;
+     PagedDecodeConfig<typename P::ShapeQK, typename P::ShapePV, typename P::ShapeOut,
+                       typename P::SubgroupLayoutQK, void, 1, false, false, false,
+                       half_t, float_e4m3_t, float_e4m3_t, half_t>::kernel_dispatch(queue, args);
++  } else if (b70_wide_ok && num_q_group_size > 64 && num_q_group_size <= 128 && b70_qtile >= 128) {
++    using P = decode_policy_spec_q128<_256>;
++    PagedDecodeConfig<typename P::ShapeQK, typename P::ShapePV, typename P::ShapeOut,
++                      typename P::SubgroupLayoutQK, void, 1, false, false, false,
++                      half_t, float_e4m3_t, float_e4m3_t, half_t>::kernel_dispatch(queue, args);
++  } else if (b70_wide_ok && num_q_group_size <= 128 && b70_qtile >= 64) {
++    // B70 tree16 (2026-10-23): 65..128 packed rows (a 16-row comb tree x 6 GQA heads = 96) run as ceil(rows/64)
++    // work-groups of the 64-row tile (the scheduler tiles the head group over grid Q; rows past the group are masked),
++    // i.e. 2 KV passes instead of the 12 the 8-row fallback made.
++    using P = decode_policy_spec_q64<_256>;
++    PagedDecodeConfig<typename P::ShapeQK, typename P::ShapePV, typename P::ShapeOut,
++                      typename P::SubgroupLayoutQK, void, 1, false, false, false,
++                      half_t, float_e4m3_t, float_e4m3_t, half_t>::kernel_dispatch(queue, args);
+   } else if (num_q_group_size <= 8 || args.head_size > 128) {
+     dispatch_by_page_size<_8>(block_size, head_case, queue, cuQKType, args);
+   } else {

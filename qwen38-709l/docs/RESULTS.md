@@ -7,8 +7,9 @@ configs with no riceharvest switch on).
 
 Newest first within each topic. Older sections stay as they were measured, with a note where something replaced them.
 
-- [Current seat](#current-seat-2026-10-23)
+- [Current seat](#current-seat-2026-10-25)
 - [Speculative decoding](#speculative-decoding)
+  - [V-split verify kernel](#v-split-verify-kernel) (live)
   - [Probabilistic MTP drafting](#probabilistic-mtp-drafting) (live)
   - [Shortlist draft head](#shortlist-draft-head) (live)
   - [Combined speculator at every depth](#combined-speculator-at-every-depth) (live)
@@ -26,10 +27,11 @@ Newest first within each topic. Older sections stay as they were measured, with 
 - [Quality checks](#quality-checks)
 - [What we tried and dropped](#what-we-tried-and-dropped): where a decode step's time goes, and five settled experiments
 
-## Current seat (2026-10-23)
+## Current seat (2026-10-25)
 
-What our live seat runs, and the checks it passed after its last reload (2026-10-23 1:32 AM). Each line links the
-section with the full numbers and raw files.
+What our live seat runs, and the checks it passed. The last reload was the V-split promotion (2026-10-25 6:50 PM);
+rows dated 2026-10-23 were measured on the same config before the V-split kernel, which only changes verify step time
+at depth. Each line links the section with the full numbers and raw files.
 
 - **Engine:** vLLM 0.32.0 with the stack in [RECIPE.md](RECIPE.md), the 709-L AWQ W4A16, fp8 KV in a 14.5 GiB pool,
   `--max-model-len 262144` (375,067 tokens of KV with the combined speculator on), 4 streams,
@@ -38,10 +40,17 @@ section with the full numbers and raw files.
   (MTP-5 by default, 15 copied drafts when the output copies its context, block verification), with the
   [shortlist draft head](../patches/shortlist/README.md) (N = 128) and **probabilistic drafts**
   (`draft_sample_method: "probabilistic"`).
+- **Verify kernel:** the [V-split verify kernel](../patches/vsplit-verify/README.md) for MTP-5 steps
+  (`B70_SPEC_VSPLIT=1`); the 16-row copy steps keep riceharvest's 8-row tile.
 
 | check | result | section |
 |---|---|---|
-| short code (avg of 9) | 135.0 t/s | [probabilistic drafting](#probabilistic-mtp-drafting) |
+| decode behind 64k / 105k / 210k, greedy | 91.2 / 92.1 / 63.6-64.8 t/s (41.8 / 49.7 / 55.8-56.0 ms per step) | [V-split](#v-split-verify-kernel) |
+| short code (avg of 9), 2026-10-25 | 134.4-134.7 t/s | same |
+| `bench/bench.py`: short code / 4 writers / cold 100k read | 142.4 / 286.8 t/s / 71.0 t/s, first token 77.0 s | same |
+| greedy code probe x2 | byte-identical to the seat before the V-split | same |
+| page-boundary test (`bench/crossing.py`), 2026-10-25 | FAIL (1/3); 20 more sampled runs clean on this seat, and the same fault at the same place with the V-split off | same |
+| short code (avg of 9), 2026-10-23 | 135.0 t/s | [probabilistic drafting](#probabilistic-mtp-drafting) |
 | edit bench (3 whole-file edits, greedy + sampled) | 238.8 t/s, 6/6 exact | same |
 | prose, one stream, the model's default sampling (20 requests) | 63.6 t/s, 2.19 tokens per step | same |
 | prose, thinking on at effort medium (10) | 74.9 t/s, 2.59 | same |
@@ -49,7 +58,7 @@ section with the full numbers and raw files.
 | 4 writers sampled, summed (x2) | 292.4, 284.5 t/s | same |
 | decode behind 61k / 120k, sampled, 3 seeds | 83.3 / 65.1 t/s (3.77 / 3.52 tokens per step) | same |
 | decode behind 23k / 61k, greedy, ms per step (x3) | 38.3-39.1 / 44.0-44.2 | same |
-| page-boundary test (`bench/crossing.py`) | 3/3 | same |
+| page-boundary test (`bench/crossing.py`), 2026-10-23 | 3/3 (sampled runs with fixed seeds) | same |
 | image and video | correct | same |
 | greedy code x5 | one transcript, the one the seat already produced before | same |
 | whole-file edit behind 94k of context | 171.1 t/s, exact (2026-10-21, not re-measured) | [combined speculator at every depth](#combined-speculator-at-every-depth) |
@@ -58,14 +67,92 @@ section with the full numbers and raw files.
 
 Not re-measured on this exact config:
 
-- **Decode after a cold 100k prompt, greedy** (56–60 t/s) comes from plain MTP-5 runs on 0.32; the combined
-  speculator matched them wherever we checked ([at every depth](#combined-speculator-at-every-depth)), and the
-  shortlist cut every measured step time by 3.4% ([shortlist](#shortlist-draft-head)).
-- **First token at 100k** was about 75 s before the prefill threshold went on. The threshold makes one big cold prefill
-  about 22% slower (1,326 → 1,097 t/s at 83k, [sweep](#sharing-the-card-chunked-prefill-sweep)), so expect about
-  90 s now.
+- **Decode behind 61k / 120k, sampled** (83 / 65 t/s) is from 2026-10-23, before the V-split kernel, which cut greedy
+  step time 3.2 ms at 64k and 4.4 ms at 105k ([V-split](#v-split-verify-kernel)).
+- **First token at 100k** is measured again: 77.0 s for a 97,825-token cold prompt with `bench/bench.py`
+  ([V-split](#v-split-verify-kernel)), against the 75 s before the prefill threshold and the about 90 s we had
+  estimated for it.
 
 ## Speculative decoding
+
+### V-split verify kernel
+
+0.32, 2026-10-25, live since 6:50 PM. Raw in `results/vsplit/`. Design, build and install:
+[patches/vsplit-verify/](../patches/vsplit-verify/README.md). This is the live config.
+
+At depth a decode step is mostly the target's verify pass over the KV cache. The 8-row tile runs MTP-5's 36 packed
+verify rows as 5 work-groups per KV head, each streaming the same KV. The V-split kernel runs all of them in one
+8-subgroup work-group per KV head and split (Q·K and P·V both split across subgroups, P exchanged through shared
+local memory), so each KV tile is read once per step.
+
+**One attention layer** (`kernel-exact-and-timing.out`, run on the seat's own card beside the loaded seat, q_len 6,
+fp8 KV, one request, each tile with the split count the seat's captured graph uses: 12 for the 8-row tile, 32 for the
+V-split, microseconds):
+
+| context | 8-row tile | V-split (two passes) | change |
+|---|---|---|---|
+| 23k | 370.6 | 245.0 / 224.7 | -34% / -39% |
+| 61k | 619.2 | 380.6 / 378.5 | -39% |
+| 100k | 975.1 | 565.7 / 566.0 | -42% |
+| 150k | 1,429.6 | 818.1 / 820.4 | -43% |
+| 200k | 1,898.8 | 1,066.6 / 1,066.6 | -44% |
+| 250k | 2,352.5 | 1,285.5 / 1,297.5 | -45% |
+
+The split count matters as much as the kernel (`kernel-split-sweep.out`): 32 splits = 128 work-groups = exactly 4 per
+Xe core is the fastest at every depth; 28 cost 8-13%, 36 52-104%, and riceharvest's 12 take 1.8-2.6x as long. So the
+runtime patch gives the V-split tile its own rule, `4 x Xe cores / (requests x KV heads)`.
+
+**On the seat.** Two windows on our live seat, the live config first in each, then a test load of the same config with
+the new library and runtime plus `B70_SPEC_VSPLIT=1`, then the live config restored. `bench/tierbench.py`, greedy,
+one stream, cold prompts of the size shown; tokens per step are the same in both arms (same output), so the change is
+all step time. Window 1 ran the first build, window 2 the final one (the same kernel plus a lower single-split
+threshold, which fixed the short-code dip); the final build matched the first at 23k and 210k.
+
+| bench | before | V-split | change | raw |
+|---|---|---|---|---|
+| decode behind 23k, t/s (ms per step) | 80.5 (38.3) / 80.9 (38.3) | 96.7-99.5 (37.7) / 87.0 (37.2) | -0.6 to -1.1 ms per step | both windows |
+| decode behind 64k | 84.7 (45.0) | 91.2 (41.8) | +7.7%, -3.2 ms | window 1 |
+| decode behind 105k | 84.7 (54.1) | 92.1 (49.7) | +8.7%, -4.4 ms | window 1 |
+| decode behind 210k | 52.5 (67.9) / 51.1 (67.8) | 64.8 (55.8) / 63.6 (56.0) | +23-24%, -11.8 to -12.1 ms | both windows |
+| whole-file edit behind 47k / 94k (exact) | 222.7 / 169.1 | 216.7 / 171.6 | noise (copy steps keep the 8-row tile) | window 1 |
+| 4 writers, summed | 271.7 | 271.8 | flat | window 1 |
+| short code, avg of 9 | 134.9 / 134.3, 135.0 | 132.9 (first build) / 134.7, 134.7 | parity with the final build | both windows |
+
+Raw: window 1 `seat-window1-before.out`, `seat-window1-vsplit-build1.out`; window 2 `seat-window2-before.out`,
+`seat-window2-vsplit.out` (the files label the arms by our internal build names: `prodvs*` = before, `vs8` = first
+build, `vs9` = final build). After promotion the live seat read 134.4 / 134.6 short code, 86.6 t/s (37.2 ms) at 23k and
+63.8 t/s (55.8 ms) at 210k (`seat-after-promotion.out`). The 23k "before" row has a 107.6 t/s run that hit copy steps;
+we compare ms per step there.
+
+The kernel predicted -13.3 ms per step at 200k over 16 layers; the seat measured -12 ms at 210k.
+
+**Exactness.** Against the stock per-position path: max difference 2e-5 in 416 cases with the verify rows straddling
+a 960-token page boundary (one request and four, 6 and 8 rows) and in 135 mixed-length batches (2-4 requests, the
+straddling one in every position) (`kernel-exact-and-timing.out`). The same call 500 times gives 500 bit-identical
+outputs at 200 to 100k tokens (`kernel-determinism.out`). On the seat the greedy code probe is byte-identical before,
+in the test load and after promotion (`exact-probes.txt`).
+
+**Sanity on the promoted seat** (`bench.out`, `bench.json`, `bench/bench.py`, 2026-10-25, nothing else running at
+its start): short code 142.4 t/s, 4 writers 286.8 summed, cold reads at 24k / 32k / 65k / 74k / 100k decode 80.2 / 72.6
+/ 73.9 / 69.7 / 71.0 t/s, first token at 97,825 tokens 77.0 s, no canary hits, 0 preemptions. bench.py has no run on
+the 2026-10-23 seat to compare with; the tierbench windows above are the before/after.
+
+**The page-boundary test failed, and it is not this kernel.** `bench/crossing.py` printed FAIL (1/3) on the promoted
+seat (`crossing.out`): one sampled reply skipped `func_185`. Repeated sampled runs (`crossing-repeat-1.out`, an
+earlier version of `tests/crossing_repeat.py` that also counted a reply cut mid-line by `max_tokens` as wrong) failed
+once more at the same place: `func_185` returning `x * 186`. That is about 3,840 tokens in, the 4th 960-token page
+boundary, and the model gives the right digit probability 1.0000 there (`crossing-func185-logprobs.out`). Then an A/B
+on the seat, 20 sampled runs each (`crossing-ab-vsplit-on.out`, `crossing-ab-vsplit-off.out`):
+
+| arm | runs | wrong at func_185 | ended early at func_185 |
+|---|---|---|---|
+| V-split on (the promoted seat) | 20 | 0 | 0 |
+| V-split off (test load: the same config without `B70_SPEC_VSPLIT`) | 20 | 1 | 1 |
+
+Both arms fail at the same spot, so the fault was there before the V-split kernel. It needs the reply itself to be
+decoded up to that point: 90 short sampled continuations from a prefilled assistant turn across the same boundary gave
+0 wrong (`crossing-func185-prefilled.out`). Our earlier crossing checks sampled with fixed seeds, so they only ever
+tested two sampled paths. Open; see [PITFALLS.md](PITFALLS.md#speculative-decoding).
 
 ### Probabilistic MTP drafting
 

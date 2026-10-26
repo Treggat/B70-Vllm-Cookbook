@@ -1,0 +1,21 @@
+off run 0: gen 4000 finish=length correct 200 ok
+off run 1: gen 4000 finish=length correct 200 ok
+off run 2: gen 4000 finish=length correct 185 FAIL
+   context: 'x * 183 + 1\n\ndef func_184(x):\n    return x * 184 + 2\n\ndef func_185(x * 185 + 3\n\ndef func_186(x):\n    return x * 186 + 4\n\ndef func_187(x):\n  '
+off run 3: gen 4000 finish=length correct 200 ok
+off run 4: gen 4000 finish=length correct 200 ok
+off run 5: gen 4000 finish=length correct 200 ok
+off run 6: gen 4000 finish=length correct 200 ok
+off run 7: gen 4000 finish=length correct 200 ok
+off run 8: gen 4000 finish=length correct 200 ok
+off run 9: gen 4000 finish=length correct 200 ok
+off run 10: gen 3674 finish=stop correct 185 ok
+off run 11: gen 4000 finish=length correct 200 ok
+off run 12: gen 4000 finish=length correct 200 ok
+off run 13: gen 4000 finish=length correct 200 ok
+off run 14: gen 4000 finish=length correct 200 ok
+off run 15: gen 4000 finish=length correct 200 ok
+off run 16: gen 4000 finish=length correct 200 ok
+off run 17: gen 4000 finish=length correct 200 ok
+off run 18: gen 4000 finish=length correct 200 ok
+off run 19: gen 4000 finish=length correct 200 ok

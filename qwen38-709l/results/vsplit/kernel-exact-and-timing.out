@@ -1,0 +1,296 @@
+so 2420cf7921a5 runtime 03307288ae16
+== bound (vsbound.py, B70_SPEC_VSPLIT=1, splits 0 = the count the seat's captured graph uses)
+B=1 splits= 32 L=   960 q_len=6 max_seqlen_k=262144 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   960 q_len=6 max_seqlen_k=   960 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   960 q_len=8 max_seqlen_k=262144 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   960 q_len=8 max_seqlen_k=   960 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   961 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   961 q_len=6 max_seqlen_k=   961 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   961 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   961 q_len=8 max_seqlen_k=   961 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   962 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   962 q_len=6 max_seqlen_k=   962 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   962 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   962 q_len=8 max_seqlen_k=   962 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   963 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   963 q_len=6 max_seqlen_k=   963 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   963 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   963 q_len=8 max_seqlen_k=   963 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   964 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   964 q_len=6 max_seqlen_k=   964 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   964 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   964 q_len=8 max_seqlen_k=   964 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   965 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   965 q_len=6 max_seqlen_k=   965 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   965 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   965 q_len=8 max_seqlen_k=   965 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   966 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   966 q_len=8 max_seqlen_k=   966 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   967 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=   967 q_len=8 max_seqlen_k=   967 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1920 q_len=6 max_seqlen_k=262144 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1920 q_len=6 max_seqlen_k=  1920 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1920 q_len=8 max_seqlen_k=262144 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1920 q_len=8 max_seqlen_k=  1920 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1921 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1921 q_len=6 max_seqlen_k=  1921 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1921 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1921 q_len=8 max_seqlen_k=  1921 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1922 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1922 q_len=6 max_seqlen_k=  1922 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1922 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1922 q_len=8 max_seqlen_k=  1922 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1923 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1923 q_len=6 max_seqlen_k=  1923 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1923 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1923 q_len=8 max_seqlen_k=  1923 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1924 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1924 q_len=6 max_seqlen_k=  1924 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1924 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1924 q_len=8 max_seqlen_k=  1924 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1925 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1925 q_len=6 max_seqlen_k=  1925 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1925 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1925 q_len=8 max_seqlen_k=  1925 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1926 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1926 q_len=8 max_seqlen_k=  1926 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1927 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  1927 q_len=8 max_seqlen_k=  1927 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3840 q_len=6 max_seqlen_k=262144 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3840 q_len=6 max_seqlen_k=  3840 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3840 q_len=8 max_seqlen_k=262144 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3840 q_len=8 max_seqlen_k=  3840 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3841 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3841 q_len=6 max_seqlen_k=  3841 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3841 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3841 q_len=8 max_seqlen_k=  3841 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3842 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3842 q_len=6 max_seqlen_k=  3842 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3842 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3842 q_len=8 max_seqlen_k=  3842 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3843 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3843 q_len=6 max_seqlen_k=  3843 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3843 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3843 q_len=8 max_seqlen_k=  3843 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3844 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3844 q_len=6 max_seqlen_k=  3844 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3844 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3844 q_len=8 max_seqlen_k=  3844 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3845 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3845 q_len=6 max_seqlen_k=  3845 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3845 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3845 q_len=8 max_seqlen_k=  3845 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3846 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3846 q_len=8 max_seqlen_k=  3846 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3847 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=  3847 q_len=8 max_seqlen_k=  3847 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115200 q_len=6 max_seqlen_k=262144 straddle=0: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115200 q_len=6 max_seqlen_k=115200 straddle=0: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115200 q_len=8 max_seqlen_k=262144 straddle=0: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115200 q_len=8 max_seqlen_k=115200 straddle=0: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115201 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115201 q_len=6 max_seqlen_k=115201 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115201 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115201 q_len=8 max_seqlen_k=115201 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115202 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115202 q_len=6 max_seqlen_k=115202 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115202 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115202 q_len=8 max_seqlen_k=115202 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115203 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115203 q_len=6 max_seqlen_k=115203 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115203 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115203 q_len=8 max_seqlen_k=115203 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115204 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115204 q_len=6 max_seqlen_k=115204 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115204 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115204 q_len=8 max_seqlen_k=115204 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115205 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115205 q_len=6 max_seqlen_k=115205 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115205 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115205 q_len=8 max_seqlen_k=115205 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115206 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115206 q_len=8 max_seqlen_k=115206 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115207 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=1 splits= 32 L=115207 q_len=8 max_seqlen_k=115207 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   960 q_len=6 max_seqlen_k=262144 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   960 q_len=6 max_seqlen_k=   960 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   960 q_len=8 max_seqlen_k=262144 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   960 q_len=8 max_seqlen_k=   960 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   961 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   961 q_len=6 max_seqlen_k=   961 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   961 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   961 q_len=8 max_seqlen_k=   961 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   962 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   962 q_len=6 max_seqlen_k=   962 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   962 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   962 q_len=8 max_seqlen_k=   962 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   963 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   963 q_len=6 max_seqlen_k=   963 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   963 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   963 q_len=8 max_seqlen_k=   963 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   964 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   964 q_len=6 max_seqlen_k=   964 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   964 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   964 q_len=8 max_seqlen_k=   964 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   965 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   965 q_len=6 max_seqlen_k=   965 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   965 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   965 q_len=8 max_seqlen_k=   965 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   966 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   966 q_len=8 max_seqlen_k=   966 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   967 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=   967 q_len=8 max_seqlen_k=   967 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1920 q_len=6 max_seqlen_k=262144 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1920 q_len=6 max_seqlen_k=  1920 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1920 q_len=8 max_seqlen_k=262144 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1920 q_len=8 max_seqlen_k=  1920 straddle=0: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1921 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1921 q_len=6 max_seqlen_k=  1921 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1921 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1921 q_len=8 max_seqlen_k=  1921 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1922 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1922 q_len=6 max_seqlen_k=  1922 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1922 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1922 q_len=8 max_seqlen_k=  1922 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1923 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1923 q_len=6 max_seqlen_k=  1923 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1923 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1923 q_len=8 max_seqlen_k=  1923 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1924 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1924 q_len=6 max_seqlen_k=  1924 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1924 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1924 q_len=8 max_seqlen_k=  1924 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1925 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1925 q_len=6 max_seqlen_k=  1925 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1925 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1925 q_len=8 max_seqlen_k=  1925 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1926 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1926 q_len=8 max_seqlen_k=  1926 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1927 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  1927 q_len=8 max_seqlen_k=  1927 straddle=1: max 0.00002 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3840 q_len=6 max_seqlen_k=262144 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3840 q_len=6 max_seqlen_k=  3840 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3840 q_len=8 max_seqlen_k=262144 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3840 q_len=8 max_seqlen_k=  3840 straddle=0: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3841 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3841 q_len=6 max_seqlen_k=  3841 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3841 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3841 q_len=8 max_seqlen_k=  3841 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3842 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3842 q_len=6 max_seqlen_k=  3842 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3842 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3842 q_len=8 max_seqlen_k=  3842 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3843 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3843 q_len=6 max_seqlen_k=  3843 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3843 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3843 q_len=8 max_seqlen_k=  3843 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3844 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3844 q_len=6 max_seqlen_k=  3844 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3844 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3844 q_len=8 max_seqlen_k=  3844 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3845 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3845 q_len=6 max_seqlen_k=  3845 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3845 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3845 q_len=8 max_seqlen_k=  3845 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3846 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3846 q_len=8 max_seqlen_k=  3846 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3847 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=  3847 q_len=8 max_seqlen_k=  3847 straddle=1: max 0.00001 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115200 q_len=6 max_seqlen_k=262144 straddle=0: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115200 q_len=6 max_seqlen_k=115200 straddle=0: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115200 q_len=8 max_seqlen_k=262144 straddle=0: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115200 q_len=8 max_seqlen_k=115200 straddle=0: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115201 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115201 q_len=6 max_seqlen_k=115201 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115201 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115201 q_len=8 max_seqlen_k=115201 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115202 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115202 q_len=6 max_seqlen_k=115202 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115202 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115202 q_len=8 max_seqlen_k=115202 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115203 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115203 q_len=6 max_seqlen_k=115203 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115203 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115203 q_len=8 max_seqlen_k=115203 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115204 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115204 q_len=6 max_seqlen_k=115204 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115204 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115204 q_len=8 max_seqlen_k=115204 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115205 q_len=6 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115205 q_len=6 max_seqlen_k=115205 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115205 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115205 q_len=8 max_seqlen_k=115205 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115206 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115206 q_len=8 max_seqlen_k=115206 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115207 q_len=8 max_seqlen_k=262144 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+B=4 splits=  8 L=115207 q_len=8 max_seqlen_k=115207 straddle=1: max 0.00000 per row 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+median non-straddling max diff 0.000008; cases 416; BOUND PASS
+== mix (vsmix.py, B70_SPEC_VSPLIT=1, splits 0 = the count the seat's captured graph uses)
+B=2 splits=16 lens=[3842, 1500] straddling #0: max 0.00001 per seq 0.00001 0.00001
+B=2 splits=16 lens=[1500, 3842] straddling #1: max 0.00002 per seq 0.00002 0.00001
+B=2 splits=16 lens=[4802, 1500] straddling #0: max 0.00002 per seq 0.00001 0.00002
+B=2 splits=16 lens=[1500, 4802] straddling #1: max 0.00002 per seq 0.00002 0.00001
+B=2 splits=16 lens=[1922, 1500] straddling #0: max 0.00001 per seq 0.00001 0.00001
+B=2 splits=16 lens=[1500, 1922] straddling #1: max 0.00002 per seq 0.00002 0.00001
+B=3 splits=10 lens=[3842, 1500, 23000] straddling #0: max 0.00002 per seq 0.00001 0.00002 0.00000
+B=3 splits=10 lens=[1500, 3842, 23000] straddling #1: max 0.00002 per seq 0.00002 0.00001 0.00000
+B=3 splits=10 lens=[1500, 23000, 3842] straddling #2: max 0.00002 per seq 0.00002 0.00000 0.00001
+B=3 splits=10 lens=[4802, 1500, 23000] straddling #0: max 0.00001 per seq 0.00001 0.00001 0.00000
+B=3 splits=10 lens=[1500, 4802, 23000] straddling #1: max 0.00002 per seq 0.00002 0.00001 0.00000
+B=3 splits=10 lens=[1500, 23000, 4802] straddling #2: max 0.00002 per seq 0.00002 0.00000 0.00001
+B=3 splits=10 lens=[1922, 1500, 23000] straddling #0: max 0.00002 per seq 0.00001 0.00002 0.00000
+B=3 splits=10 lens=[1500, 1922, 23000] straddling #1: max 0.00002 per seq 0.00002 0.00001 0.00000
+B=3 splits=10 lens=[1500, 23000, 1922] straddling #2: max 0.00002 per seq 0.00002 0.00000 0.00002
+B=4 splits= 8 lens=[3842, 1500, 23000, 61000] straddling #0: max 0.00001 per seq 0.00001 0.00001 0.00000 0.00000
+B=4 splits= 8 lens=[1500, 3842, 23000, 61000] straddling #1: max 0.00002 per seq 0.00002 0.00001 0.00000 0.00000
+B=4 splits= 8 lens=[1500, 23000, 3842, 61000] straddling #2: max 0.00002 per seq 0.00002 0.00000 0.00001 0.00000
+B=4 splits= 8 lens=[1500, 23000, 61000, 3842] straddling #3: max 0.00002 per seq 0.00002 0.00000 0.00000 0.00001
+B=4 splits= 8 lens=[4802, 1500, 23000, 61000] straddling #0: max 0.00002 per seq 0.00001 0.00002 0.00000 0.00000
+B=4 splits= 8 lens=[1500, 4802, 23000, 61000] straddling #1: max 0.00002 per seq 0.00002 0.00001 0.00000 0.00000
+B=4 splits= 8 lens=[1500, 23000, 4802, 61000] straddling #2: max 0.00002 per seq 0.00002 0.00000 0.00001 0.00000
+B=4 splits= 8 lens=[1500, 23000, 61000, 4802] straddling #3: max 0.00002 per seq 0.00002 0.00000 0.00000 0.00001
+B=4 splits= 8 lens=[1922, 1500, 23000, 61000] straddling #0: max 0.00002 per seq 0.00001 0.00002 0.00000 0.00000
+B=4 splits= 8 lens=[1500, 1922, 23000, 61000] straddling #1: max 0.00002 per seq 0.00002 0.00001 0.00000 0.00000
+B=4 splits= 8 lens=[1500, 23000, 1922, 61000] straddling #2: max 0.00002 per seq 0.00002 0.00000 0.00001 0.00000
+B=4 splits= 8 lens=[1500, 23000, 61000, 1922] straddling #3: max 0.00002 per seq 0.00002 0.00000 0.00000 0.00001
+median max diff 0.000015; cases 135; MIX PASS
+== on (kt_depth.py, B70_SPEC_VSPLIT=1, splits 32 = the count the seat's captured graph uses)
+ctx= 23000 q_len=6 splits=  32:   245.0 us/layer  x16 =  3.92 ms  KV   192 GB/s
+ctx= 23000 q_len=1 splits=heur:   189.0 us/layer  x16 =  3.02 ms  KV   249 GB/s
+ctx= 61000 q_len=6 splits=  32:   380.6 us/layer  x16 =  6.09 ms  KV   328 GB/s
+ctx= 61000 q_len=1 splits=heur:   355.1 us/layer  x16 =  5.68 ms  KV   352 GB/s
+ctx=100000 q_len=6 splits=  32:   565.7 us/layer  x16 =  9.05 ms  KV   362 GB/s
+ctx=100000 q_len=1 splits=heur:   513.8 us/layer  x16 =  8.22 ms  KV   399 GB/s
+ctx=150000 q_len=6 splits=  32:   818.1 us/layer  x16 = 13.09 ms  KV   376 GB/s
+ctx=150000 q_len=1 splits=heur:   718.1 us/layer  x16 = 11.49 ms  KV   428 GB/s
+ctx=200000 q_len=6 splits=  32:  1066.6 us/layer  x16 = 17.07 ms  KV   384 GB/s
+ctx=200000 q_len=1 splits=heur:   925.0 us/layer  x16 = 14.80 ms  KV   443 GB/s
+ctx=250000 q_len=6 splits=  32:  1285.5 us/layer  x16 = 20.57 ms  KV   398 GB/s
+ctx=250000 q_len=1 splits=heur:  1126.4 us/layer  x16 = 18.02 ms  KV   455 GB/s
+== off (kt_depth.py, B70_SPEC_VSPLIT=0, splits 12 = the count the seat's captured graph uses)
+ctx= 23000 q_len=6 splits=  12:   370.6 us/layer  x16 =  5.93 ms  KV   127 GB/s
+ctx= 23000 q_len=1 splits=heur:   187.9 us/layer  x16 =  3.01 ms  KV   251 GB/s
+ctx= 61000 q_len=6 splits=  12:   619.2 us/layer  x16 =  9.91 ms  KV   202 GB/s
+ctx= 61000 q_len=1 splits=heur:   354.5 us/layer  x16 =  5.67 ms  KV   352 GB/s
+ctx=100000 q_len=6 splits=  12:   975.1 us/layer  x16 = 15.60 ms  KV   210 GB/s
+ctx=100000 q_len=1 splits=heur:   517.6 us/layer  x16 =  8.28 ms  KV   396 GB/s
+ctx=150000 q_len=6 splits=  12:  1429.6 us/layer  x16 = 22.87 ms  KV   215 GB/s
+ctx=150000 q_len=1 splits=heur:   718.0 us/layer  x16 = 11.49 ms  KV   428 GB/s
+ctx=200000 q_len=6 splits=  12:  1898.8 us/layer  x16 = 30.38 ms  KV   216 GB/s
+ctx=200000 q_len=1 splits=heur:   920.0 us/layer  x16 = 14.72 ms  KV   445 GB/s
+ctx=250000 q_len=6 splits=  12:  2352.5 us/layer  x16 = 37.64 ms  KV   218 GB/s
+ctx=250000 q_len=1 splits=heur:  1127.6 us/layer  x16 = 18.04 ms  KV   454 GB/s
+== on2 (kt_depth.py, B70_SPEC_VSPLIT=1, splits 32 = the count the seat's captured graph uses)
+ctx= 23000 q_len=6 splits=  32:   224.7 us/layer  x16 =  3.60 ms  KV   210 GB/s
+ctx= 23000 q_len=1 splits=heur:   187.6 us/layer  x16 =  3.00 ms  KV   251 GB/s
+ctx= 61000 q_len=6 splits=  32:   378.5 us/layer  x16 =  6.06 ms  KV   330 GB/s
+ctx= 61000 q_len=1 splits=heur:   355.6 us/layer  x16 =  5.69 ms  KV   351 GB/s
+ctx=100000 q_len=6 splits=  32:   566.0 us/layer  x16 =  9.06 ms  KV   362 GB/s
+ctx=100000 q_len=1 splits=heur:   513.2 us/layer  x16 =  8.21 ms  KV   399 GB/s
+ctx=150000 q_len=6 splits=  32:   820.4 us/layer  x16 = 13.13 ms  KV   374 GB/s
+ctx=150000 q_len=1 splits=heur:   718.8 us/layer  x16 = 11.50 ms  KV   427 GB/s
+ctx=200000 q_len=6 splits=  32:  1066.6 us/layer  x16 = 17.07 ms  KV   384 GB/s
+ctx=200000 q_len=1 splits=heur:   919.1 us/layer  x16 = 14.71 ms  KV   446 GB/s
+ctx=250000 q_len=6 splits=  32:  1297.5 us/layer  x16 = 20.76 ms  KV   395 GB/s
+ctx=250000 q_len=1 splits=heur:  1124.7 us/layer  x16 = 18.00 ms  KV   455 GB/s
+== end
