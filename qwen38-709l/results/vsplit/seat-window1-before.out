@@ -1,0 +1,9 @@
+prodvs deep  23239 tok:  107.6 t/s,  4.23 tok/step,  6.01 drafts/step,  39.0 ms/step
+prodvs deep  23239 tok:   80.5 t/s,  3.10 tok/step,  5.19 drafts/step,  38.3 ms/step
+prodvs deep  64493 tok:   84.7 t/s,  3.81 tok/step,  5.31 drafts/step,  45.0 ms/step
+prodvs deep 104512 tok:   84.7 t/s,  4.59 tok/step,  6.47 drafts/step,  54.1 ms/step
+prodvs deep 209798 tok:   52.5 t/s,  3.59 tok/step,  5.07 drafts/step,  67.9 ms/step
+prodvs edit  47001 tok:  222.7 t/s, 11.57 tok/step, 12.71 drafts/step,  52.0 ms/step, exact=True
+prodvs edit  93977 tok:  169.1 t/s, 10.81 tok/step, 11.90 drafts/step,  63.9 ms/step, exact=True
+4 writers: {'each': [59.3, 88.8, 42.9, 80.7], 'summed': 271.7
+avg of 9: 134.9 t/s

@@ -1,0 +1,8 @@
+short code: {'tps': [141.2, 146.9, 139.1], 'avg': 142.4, 'canary': [None, None, None], 'mtp': {'per_token': 0.707, 'tok_per_step': 4.94, 'preempt': 0.0}}
+4 writers: {'each': [60.1, 93.5, 50.3, 82.9], 'summed': 286.8, 'gen_over_wall': 198.8, 'wall': 16.1, 'canary': [None, None, None, None], 'mtp': {'per_token': 0.419, 'tok_per_step': 3.1, 'preempt': 0.0}}
+depth 24k: {'prompt': 21809, 'cold_ttft': 12.0, 'prefill_tps': 1815, 'decode': 80.2, 'gen': 400, 'canary': None, 'cites': 4, 'names_in_prompt': 4, 'mtp': {'per_token': 0.4, 'tok_per_step': 3.0, 'preempt': 0.0}}
+depth 32k: {'prompt': 30049, 'cold_ttft': 17.1, 'prefill_tps': 1752, 'decode': 72.6, 'gen': 376, 'canary': None, 'cites': 4, 'names_in_prompt': 4, 'mtp': {'per_token': 0.36, 'tok_per_step': 2.8, 'preempt': 0.0}}
+depth 65k: {'prompt': 64094, 'cold_ttft': 43.6, 'prefill_tps': 1469, 'decode': 73.9, 'gen': 390, 'canary': None, 'cites': 4, 'names_in_prompt': 4, 'mtp': {'per_token': 0.422, 'tok_per_step': 3.11, 'preempt': 0.0}}
+depth 74k: {'prompt': 73306, 'cold_ttft': 52.0, 'prefill_tps': 1411, 'decode': 69.7, 'gen': 370, 'canary': None, 'cites': 4, 'names_in_prompt': 4, 'mtp': {'per_token': 0.4, 'tok_per_step': 3.0, 'preempt': 0.0}}
+depth 100k: {'prompt': 97825, 'cold_ttft': 77.0, 'prefill_tps': 1271, 'decode': 71.0, 'gen': 353, 'canary': None, 'cites': 4, 'names_in_prompt': 4, 'mtp': {'per_token': 0.445, 'tok_per_step': 3.23, 'preempt': 0.0}}
+greedy: [{'sha': '060afbf84e84', 'gen': 229, 'canary': None}, {'sha': 'd7d1ac599f9f', 'gen': 225, 'canary': None}, {'sha': 'e0b52f6b5e00', 'gen': 174, 'canary': None}]

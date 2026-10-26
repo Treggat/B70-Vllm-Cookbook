@@ -1,0 +1,44 @@
+so 2420cf7921a5 runtime 03307288ae16
+== sweep (kt_depth.py, B70_SPEC_VSPLIT=1, splits 12)
+ctx= 23000 q_len=6 splits=  12:   551.7 us/layer  x16 =  8.83 ms  KV    85 GB/s
+ctx= 61000 q_len=6 splits=  12:   694.7 us/layer  x16 = 11.12 ms  KV   180 GB/s
+ctx=100000 q_len=6 splits=  12:  1100.3 us/layer  x16 = 17.60 ms  KV   186 GB/s
+ctx=150000 q_len=6 splits=  12:  1629.7 us/layer  x16 = 26.07 ms  KV   189 GB/s
+ctx=200000 q_len=6 splits=  12:  2156.9 us/layer  x16 = 34.51 ms  KV   190 GB/s
+ctx=250000 q_len=6 splits=  12:  2677.0 us/layer  x16 = 42.83 ms  KV   191 GB/s
+== sweep (kt_depth.py, B70_SPEC_VSPLIT=1, splits 24)
+ctx= 23000 q_len=6 splits=  24:   251.4 us/layer  x16 =  4.02 ms  KV   187 GB/s
+ctx= 61000 q_len=6 splits=  24:   475.7 us/layer  x16 =  7.61 ms  KV   263 GB/s
+ctx=100000 q_len=6 splits=  24:   701.5 us/layer  x16 = 11.22 ms  KV   292 GB/s
+ctx=150000 q_len=6 splits=  24:  1018.0 us/layer  x16 = 16.29 ms  KV   302 GB/s
+ctx=200000 q_len=6 splits=  24:  1316.5 us/layer  x16 = 21.06 ms  KV   311 GB/s
+ctx=250000 q_len=6 splits=  24:  1638.1 us/layer  x16 = 26.21 ms  KV   313 GB/s
+== sweep (kt_depth.py, B70_SPEC_VSPLIT=1, splits 28)
+ctx= 23000 q_len=6 splits=  28:   232.3 us/layer  x16 =  3.72 ms  KV   203 GB/s
+ctx= 61000 q_len=6 splits=  28:   419.7 us/layer  x16 =  6.72 ms  KV   298 GB/s
+ctx=100000 q_len=6 splits=  28:   633.7 us/layer  x16 = 10.14 ms  KV   323 GB/s
+ctx=150000 q_len=6 splits=  28:   909.7 us/layer  x16 = 14.55 ms  KV   338 GB/s
+ctx=200000 q_len=6 splits=  28:  1194.6 us/layer  x16 = 19.11 ms  KV   343 GB/s
+ctx=250000 q_len=6 splits=  28:  1447.6 us/layer  x16 = 23.16 ms  KV   354 GB/s
+== sweep (kt_depth.py, B70_SPEC_VSPLIT=1, splits 32)
+ctx= 23000 q_len=6 splits=  32:   214.4 us/layer  x16 =  3.43 ms  KV   220 GB/s
+ctx= 61000 q_len=6 splits=  32:   379.6 us/layer  x16 =  6.07 ms  KV   329 GB/s
+ctx=100000 q_len=6 splits=  32:   565.9 us/layer  x16 =  9.05 ms  KV   362 GB/s
+ctx=150000 q_len=6 splits=  32:   817.7 us/layer  x16 = 13.08 ms  KV   376 GB/s
+ctx=200000 q_len=6 splits=  32:  1061.5 us/layer  x16 = 16.98 ms  KV   386 GB/s
+ctx=250000 q_len=6 splits=  32:  1281.9 us/layer  x16 = 20.51 ms  KV   399 GB/s
+== sweep (kt_depth.py, B70_SPEC_VSPLIT=1, splits 36)
+ctx= 23000 q_len=6 splits=  36:   437.4 us/layer  x16 =  7.00 ms  KV   108 GB/s
+ctx= 61000 q_len=6 splits=  36:   578.1 us/layer  x16 =  9.25 ms  KV   216 GB/s
+ctx=100000 q_len=6 splits=  36:   902.5 us/layer  x16 = 14.44 ms  KV   227 GB/s
+ctx=150000 q_len=6 splits=  36:  1311.6 us/layer  x16 = 20.99 ms  KV   234 GB/s
+ctx=200000 q_len=6 splits=  36:  1658.3 us/layer  x16 = 26.53 ms  KV   247 GB/s
+ctx=250000 q_len=6 splits=  36:  2030.2 us/layer  x16 = 32.48 ms  KV   252 GB/s
+== sweep (kt_depth.py, B70_SPEC_VSPLIT=1, splits 48)
+ctx= 23000 q_len=6 splits=  48:   382.6 us/layer  x16 =  6.12 ms  KV   123 GB/s
+ctx= 61000 q_len=6 splits=  48:   508.3 us/layer  x16 =  8.13 ms  KV   246 GB/s
+ctx=100000 q_len=6 splits=  48:   754.2 us/layer  x16 = 12.07 ms  KV   272 GB/s
+ctx=150000 q_len=6 splits=  48:  1064.7 us/layer  x16 = 17.03 ms  KV   289 GB/s
+ctx=200000 q_len=6 splits=  48:  1385.9 us/layer  x16 = 22.17 ms  KV   296 GB/s
+ctx=250000 q_len=6 splits=  48:  1683.2 us/layer  x16 = 26.93 ms  KV   304 GB/s
+== end

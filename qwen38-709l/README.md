@@ -25,6 +25,8 @@ Most B70 write-ups cover base Qwen3.8 in GPTQ or EXL3. This one covers:
   whole file go from 155 to 235 t/s, exact, with everything else at MTP-5 speed ([patches/combo-spec/](patches/combo-spec/README.md))
 - a shortlist draft head: the MTP drafter scores 128 candidates from a rank-512 factorization instead of reading its
   whole int4 head every pass, -3.4% step time at every depth ([patches/shortlist/](patches/shortlist/README.md))
+- a V-split verify kernel: MTP-5's 36 verify rows read the KV once per step instead of five times, one attention
+  layer 34-45% faster from 23k to 250k, decode behind 210k of context +23% ([patches/vsplit-verify/](patches/vsplit-verify/README.md))
 - probabilistic MTP drafts: sampled prose +14-18% tokens per step, 4 writers +8%, greedy unchanged, and why that
   applies to every ordinary request on the seat ([docs/RESULTS.md](docs/RESULTS.md#probabilistic-mtp-drafting))
 - a fixed-prompt prose bench next to the code benches, because prose is where MTP is weakest (`bench/prose_ab.py`)
@@ -37,24 +39,25 @@ Before vLLM we ran the same model on llama.cpp SYCL with our own kernel patches.
 
 ## Results
 
-Our live seat on 2026-10-23: vLLM 0.32, the full stack below plus the combined speculator, the shortlist draft head
-and probabilistic drafts, 262k window, fp8 KV in a 14.5 GiB pool. Through an OpenAI-compatible endpoint, one stream
-unless said, single runs (treat about ±5% as noise). "Sampled" is the model's default sampling (temperature 1.0,
+Our live seat on 2026-10-25: vLLM 0.32, the full stack below plus the combined speculator, the shortlist draft head,
+probabilistic drafts and the V-split verify kernel, 262k window, fp8 KV in a 14.5 GiB pool. Through an
+OpenAI-compatible endpoint, one stream unless said, single runs (treat about ±5% as noise). "Sampled" is the model's default sampling (temperature 1.0,
 top-k 20, top-p 0.95), which is what every request without its own sampling fields gets. Conditions, older configs
 and raw files: [docs/RESULTS.md](docs/RESULTS.md).
 
 | | live seat | MTP-5, greedy drafts, full draft head |
 |---|---|---|
-| short code, greedy | **135.0 t/s** | 131.7 |
+| short code, greedy | **135.0 t/s**⁶ | 131.7 |
 | whole-file edits (3 tasks, greedy and sampled, all 6 exact) | **238.8 t/s** | 155 |
 | whole-file edit behind 94k tokens of context | **171.1 t/s**¹ | 110.7 |
 | prose, sampled | **63.6 t/s** (2.19 tokens per step) | 53.9 (1.94)² |
 | prose, thinking on at effort medium | **74.9 t/s** (2.59) | 65.0 (2.35)² |
 | prose, greedy | 66.4 t/s (2.24) | 66.1 (2.34)² |
 | 4 writers, sampled, summed | **284–292 t/s** | 265–270³ |
-| decode behind 61k / 120k of context, sampled | **83 / 65 t/s** | 71 / 57³ |
+| decode behind 61k / 120k of context, sampled | **83 / 65 t/s**⁶ | 71 / 57³ |
+| decode behind 64k / 105k / 210k of context, greedy | **91.2 / 92.1 / 63.6–64.8 t/s** | 84.7 / 84.7 / 51.1–52.5⁷ |
 | decode after a cold 100k prompt, greedy | 56–60 t/s⁴ | 56–60 |
-| first token, cold 100k prompt | about 90 s (est.)⁵ | 75 s |
+| first token, cold 98k prompt | 77.0 s⁵ | 75 s |
 | KV pool | 375,067 tokens: one 262k chat, or 4 of ~93k | 416,591 |
 
 ¹ Measured 2026-10-21 with the combined speculator and greedy drafts; not re-measured since.
@@ -67,8 +70,13 @@ combined speculator never copies on prose, so this is MTP-5 with the full draft 
 ⁴ Measured with MTP-5 alone. The combined speculator matched MTP-5 at depth wherever we checked (23k–120k), and the
 shortlist cut every measured step time by 3.4%.
 
-⁵ 75 s was measured before we turned on `--long-prefill-token-threshold 512`, which keeps other chats decoding during a
-big prefill (2.2 → 10.7 t/s) and makes that prefill about 22% slower. Not re-measured.
+⁵ `bench/bench.py` on 2026-10-25 (97,825 tokens). The 75 s was measured before we turned on
+`--long-prefill-token-threshold 512`, which keeps other chats decoding during a big prefill (2.2 → 10.7 t/s).
+
+⁶ Measured 2026-10-23, before the V-split kernel. It left short code at parity (134.7 t/s, 2026-10-25) and cut greedy
+step time 3.2 ms at 64k and 4.4 ms at 105k; the sampled depth rows were not re-measured.
+
+⁷ The live seat the same evening before the V-split kernel, in the same test window.
 
 How we got here, each step measured on the same box ([docs/RESULTS.md](docs/RESULTS.md)):
 
@@ -80,6 +88,8 @@ How we got here, each step measured on the same box ([docs/RESULTS.md](docs/RESU
   +4%, edits +2%; costs 2-3% acceptance on short greedy prose, none on sampled prose, no mode slower.
 - **Probabilistic drafts** (2026-10-23): sampled prose +14.5% tokens per step, thinking prose +11%, 4 writers +8%,
   sampled decode behind 61k / 120k +17% / +14%; greedy requests unchanged.
+- **V-split verify kernel** (2026-10-25): one attention layer -34 to -45% from 23k to 250k; decode behind 64k / 105k /
+  210k +7.7% / +8.7% / +23%, short code, edits and 4 writers at parity, greedy output byte-identical.
 - **DFlash2:** the published drafter is about 3× slower than MTP-5 on this merge; the drafter we trained for it missed
   its gate, so MTP-5 stays.
 - **Dropped, with numbers** ([what we tried](docs/RESULTS.md#what-we-tried-and-dropped)): a sliding window for the MTP
@@ -119,6 +129,10 @@ VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/shortlist/patch_shortlist_032.py
 mkdir -p /opt/b70/vllm032/shortlist   # the artifact: build it with patches/shortlist/build_factors.py or download ours (its README)
 ```
 
+The V-split verify kernel is a rebuilt attention library: build it, install it and patch the runtime as in
+[patches/vsplit-verify/](patches/vsplit-verify/README.md), then uncomment its `B70_SPEC_VSPLIT=1` line in
+`serve/prod.env`.
+
 Then check it before trusting it, from `bench/` with `BASE_URL` pointing at the server (see `bench/common.py`):
 `python crossing.py && python bench.py mine`, `python editbench.py mine` for the speculator, `python prose_ab.py mine`
 for prose, and once per engine change `python maxlen.py` (sent to the server directly, see the script).
@@ -132,6 +146,7 @@ for prose, and once per engine change `python maxlen.py` (sent to the server dir
 | `patches/shortlist/` | the shortlist draft head: module, installer, artifact builder, CPU tests ([README](patches/shortlist/README.md)) |
 | `patches/dflash2/` | Vcvzgbzz's DFlash2 drafter patches re-based onto 0.32, for the drafter measurements (not in the live stack) |
 | `patches/kernels-union/` | a kernel library config that serves both MTP and DFlash2 shapes ([README](patches/kernels-union/README.md)) |
+| `patches/vsplit-verify/` | the V-split verify kernel: vllm-xpu-kernels patch (Apache-2.0), runtime installer, exactness, determinism and timing tests ([README](patches/vsplit-verify/README.md)) |
 | `scripts/build_venv.sh` | vLLM 0.32.0 XPU source build in its own venv (indexes, pins, a flag check of the serve line) |
 | `scripts/apply_stack.sh` | clones the upstream cookbooks at pinned commits, points their patches at one tree, applies the whole stack fail-closed |
 | `scripts/ct2awq.py` | compressed-tensors pack-quantized W4A16 → AutoAWQ gemm, bit-identical |
@@ -162,7 +177,9 @@ We link to the upstream patches and don't copy them in. `apply_stack.sh` fetches
 
 ## License
 
-Our code and docs: MIT ([LICENSE](../LICENSE)). Upstream patches and kernels keep their own licenses.
+Our code and docs: MIT ([LICENSE](../LICENSE)). Upstream patches and kernels keep their own licenses. The exception is
+`patches/vsplit-verify/b70-verify-kernels.patch`: it modifies vllm-xpu-kernels sources, which are Apache-2.0, and is
+offered under Apache-2.0 too (its license file sits beside it).
 
 [sergiiob]: https://github.com/SergiioB/intel-arc-pro-b70-inference-cookbook
 [vcv]: https://github.com/Vcvzgbzz/b70-cookbook

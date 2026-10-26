@@ -115,6 +115,17 @@ requests (RESULTS.md). It needs the combo speculator revision in this repo (one-
 shortlist's probabilistic path; both are in `patches/`. Without the combined speculator, stock vLLM supports the flag
 as is.
 
+### Optional: the V-split verify kernel
+
+[`patches/vsplit-verify/`](../patches/vsplit-verify/README.md) (live since 2026-10-25): a rebuilt attention library
+whose packed-verify path runs all of an MTP-5 step's 36 rows in one work-group per KV head and split, so the KV is
+read once per step instead of five times. One attention layer is 34-45% faster from 23k to 250k; on the seat, decode
+behind 210k of context goes from 51-53 to 64-65 t/s and behind 105k from 84.7 to 92.1 t/s, with short code, edits
+and 4 writers at parity and greedy output byte-identical (RESULTS.md). Build the library (its README gives the three
+changes to the gpt-oss build script), install it over riceharvest's, run `patch_spec_packed_vsplit_032.py` after the
+combo-spec guard patch, and set `B70_SPEC_VSPLIT=1` in `prod.env`. Unset, the new library behaves like riceharvest's.
+`apply_stack.sh` reinstalls riceharvest's library and runtime, so install both again after running it.
+
 ## 3. Model
 
 See [AWQ.md](AWQ.md). Short version: TheUnderscore's W4A16 quant of the 709-L comes in compressed-tensors
@@ -181,7 +192,7 @@ that does the same.
 
 ```sh
 cd bench
-python crossing.py          # page-boundary corruption test: must print PASS
+python crossing.py          # page-boundary corruption test: must print PASS (see PITFALLS for the open sampled case)
 python bench.py mine        # speed + canary + greedy hashes
 python editbench.py mine    # whole-file edits, greedy and sampled: all 6 must match exactly (the copy speculator's path)
 python prose_ab.py mine     # prose: greedy, the model's default sampling, thinking on; tokens per step and t/s per mode

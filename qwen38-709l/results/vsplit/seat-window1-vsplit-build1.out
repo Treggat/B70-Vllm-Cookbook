@@ -1,0 +1,9 @@
+vs8 deep  23239 tok:   96.7 t/s,  3.64 tok/step,  5.66 drafts/step,  37.7 ms/step
+vs8 deep  23239 tok:   99.5 t/s,  3.76 tok/step,  5.68 drafts/step,  37.7 ms/step
+vs8 deep  64493 tok:   91.2 t/s,  3.81 tok/step,  5.31 drafts/step,  41.8 ms/step
+vs8 deep 104512 tok:   92.1 t/s,  4.59 tok/step,  6.47 drafts/step,  49.7 ms/step
+vs8 deep 209798 tok:   64.8 t/s,  3.64 tok/step,  5.07 drafts/step,  55.8 ms/step
+vs8 edit  47001 tok:  216.7 t/s, 11.14 tok/step, 12.30 drafts/step,  51.4 ms/step, exact=True
+vs8 edit  93977 tok:  171.6 t/s, 11.07 tok/step, 12.28 drafts/step,  64.5 ms/step, exact=True
+4 writers: {'each': [58.4, 91.1, 42.2, 80.1], 'summed': 271.8
+avg of 9: 132.9 t/s

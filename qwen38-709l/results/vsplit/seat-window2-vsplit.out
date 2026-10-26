@@ -1,0 +1,4 @@
+avg of 9: 134.7 t/s
+avg of 9: 134.7 t/s
+vs9 deep  23239 tok:   87.0 t/s,  3.25 tok/step,  5.19 drafts/step,  37.2 ms/step
+vs9 deep 209798 tok:   63.6 t/s,  3.59 tok/step,  5.07 drafts/step,  56.0 ms/step
