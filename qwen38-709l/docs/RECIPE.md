@@ -92,9 +92,12 @@ honors. Our own patches refuse to run without an explicit `VLLM_ROOT`.
 
 Our live seat also runs [`patches/combo-spec/`](../patches/combo-spec/README.md): one engine that verifies 15 copied
 drafts when the output copies its context (a whole-file edit, a refactor) and runs MTP-5 otherwise. Edits that return
-the whole file go from 155 to 235 t/s, exact; everything else stays at MTP-5 speed (RESULTS.md). Apply its three
+the whole file go from 155 to 235 t/s, exact; everything else stays at MTP-5 speed (RESULTS.md). Apply its four
 scripts after `apply_stack.sh`, which does not apply them, then switch it on in `prod.env` (section 4). Every hook is a
-no-op with its switch unset, so a tree with the patches applied still serves plain MTP-5.
+no-op with its switch unset, so a tree with the patches applied still serves plain MTP-5. One of the four,
+`patch_align_backward_precopy_032.py` (`B70_ALIGN_BACKWARD_PRECOPY=1`), fixes a stale GDN state that the combined
+speculator's mixed 16- and 6-token steps can cause at a block edge (RESULTS.md, PITFALLS.md): set it whenever the
+combined speculator is on.
 
 ### Optional: the shortlist draft head
 
@@ -192,7 +195,7 @@ that does the same.
 
 ```sh
 cd bench
-python crossing.py          # page-boundary corruption test: must print PASS (see PITFALLS for the open sampled case)
+python crossing.py          # page-boundary corruption test: must print PASS (and see PITFALLS: run the sampled case with many seeds)
 python bench.py mine        # speed + canary + greedy hashes
 python editbench.py mine    # whole-file edits, greedy and sampled: all 6 must match exactly (the copy speculator's path)
 python prose_ab.py mine     # prose: greedy, the model's default sampling, thinking on; tokens per step and t/s per mode

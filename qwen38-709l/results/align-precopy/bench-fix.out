@@ -1,0 +1,9 @@
+fixB deep  23239 tok:   85.9 t/s,  3.21 tok/step,  5.19 drafts/step,  37.2 ms/step
+fixB deep  23239 tok:   85.4 t/s,  3.18 tok/step,  5.19 drafts/step,  37.2 ms/step
+fixB deep  64493 tok:   91.2 t/s,  3.81 tok/step,  5.31 drafts/step,  41.8 ms/step
+fixB deep 104512 tok:   94.6 t/s,  4.72 tok/step,  6.51 drafts/step,  49.7 ms/step
+fixB deep 209798 tok:   66.1 t/s,  3.68 tok/step,  5.00 drafts/step,  55.5 ms/step
+fixB edit  47001 tok:  216.5 t/s, 11.14 tok/step, 12.30 drafts/step,  51.5 ms/step, exact=True
+fixB edit  93977 tok:  170.2 t/s, 10.81 tok/step, 11.90 drafts/step,  63.5 ms/step, exact=True
+4 writers: {'each': [60.2, 94.9, 45.8, 91.9], 'summed': 292.8
+avg of 9: 134.1 t/s
