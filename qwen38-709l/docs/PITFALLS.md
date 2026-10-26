@@ -8,13 +8,18 @@
   shared-prefix checkpoint (`--enable-mamba-shared-prefix-checkpoint` on 0.31) together with SergiioB's
   boundary/backward-copy patches. **Run `bench/crossing.py` after every change to MTP, prefix caching or the
   mamba/GDN cache flags.**
-- **Open (2026-10-25): sampled replies can still go wrong near the 4th page boundary.** On our current seat a sampled
-  `bench/crossing.py` reply goes wrong at `func_185`, about 3,840 tokens in (four 960-token pages), in roughly 1 run
-  in 10-20: a wrong digit, a dropped token or an early end, at a spot where the model gives the right token
-  probability 1.0000. It shows with the V-split kernel on and off, and not from a prefilled prefix, so it needs the
-  reply itself decoded up to there ([RESULTS](RESULTS.md#v-split-verify-kernel)). Greedy runs pass. Run the sampled
-  case many times without fixed seeds (`patches/vsplit-verify/tests/crossing_repeat.py`): with fixed seeds,
-  `crossing.py`'s two sampled runs only ever test two paths.
+- **A stale GDN state when the step length changes (fixed 2026-10-25).** With prefix caching, a 16-token copy step that
+  starts just before a 960-token block edge moves the request's GDN state column to the next block; if the next step
+  is shorter and ends inside the old block, the column moves back, and SergiioB's backward-copy guard skips the copy.
+  The GDN layers then start from a state that missed the tokens accepted in the copy step. About 1 sampled
+  `bench/crossing.py` reply in 20 went wrong near a page edge: a wrong digit, a dropped token or an early end, where
+  the healthy model gives the right token probability 1.0. Greedy runs passed. It needs a variable step length (the
+  combined speculator, or `num_speculative_tokens_per_batch_size`); apply
+  `patches/combo-spec/patch_align_backward_precopy_032.py` and set `B70_ALIGN_BACKWARD_PRECOPY=1`
+  ([RESULTS](RESULTS.md#gdn-state-after-a-backward-block-move)).
+- **A crossing test with fixed seeds tests two paths.** `crossing.py`'s sampled runs found nothing for weeks because
+  each check sampled the same two replies. Run the sampled case many times with different seeds
+  (`patches/combo-spec/tests/crossing_trace.py` also prints the target's logprobs at the fault).
 - **riceharvest v1 kernel + packed verify gives `!!!!` output** at some KV lengths. Use the v2 `.so` (zero-sum guard).
   `apply_stack.sh` refuses the v1 hash.
 - **The GDN sync patches hung the card twice** (GPU copy-engine reset). The card recovered after unload both times. We

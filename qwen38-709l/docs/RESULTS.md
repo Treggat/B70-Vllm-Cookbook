@@ -9,6 +9,7 @@ Newest first within each topic. Older sections stay as they were measured, with 
 
 - [Current seat](#current-seat-2026-10-25)
 - [Speculative decoding](#speculative-decoding)
+  - [GDN state after a backward block move](#gdn-state-after-a-backward-block-move) (live)
   - [V-split verify kernel](#v-split-verify-kernel) (live)
   - [Probabilistic MTP drafting](#probabilistic-mtp-drafting) (live)
   - [Shortlist draft head](#shortlist-draft-head) (live)
@@ -29,7 +30,7 @@ Newest first within each topic. Older sections stay as they were measured, with 
 
 ## Current seat (2026-10-25)
 
-What our live seat runs, and the checks it passed. The last reload was the V-split promotion (2026-10-25 6:50 PM);
+What our live seat runs, and the checks it passed. The last reload was the GDN state fix (2026-10-25 10:45 PM);
 rows dated 2026-10-23 were measured on the same config before the V-split kernel, which only changes verify step time
 at depth. Each line links the section with the full numbers and raw files.
 
@@ -42,6 +43,8 @@ at depth. Each line links the section with the full numbers and raw files.
   (`draft_sample_method: "probabilistic"`).
 - **Verify kernel:** the [V-split verify kernel](../patches/vsplit-verify/README.md) for MTP-5 steps
   (`B70_SPEC_VSPLIT=1`); the 16-row copy steps keep riceharvest's 8-row tile.
+- **GDN state fix:** [`patch_align_backward_precopy_032.py`](../patches/combo-spec/patch_align_backward_precopy_032.py)
+  (`B70_ALIGN_BACKWARD_PRECOPY=1`), since 2026-10-25 10:45 PM.
 
 | check | result | section |
 |---|---|---|
@@ -49,7 +52,7 @@ at depth. Each line links the section with the full numbers and raw files.
 | short code (avg of 9), 2026-10-25 | 134.4-134.7 t/s | same |
 | `bench/bench.py`: short code / 4 writers / cold 100k read | 142.4 / 286.8 t/s / 71.0 t/s, first token 77.0 s | same |
 | greedy code probe x2 | byte-identical to the seat before the V-split | same |
-| page-boundary test (`bench/crossing.py`), 2026-10-25 | FAIL (1/3); 20 more sampled runs clean on this seat, and the same fault at the same place with the V-split off | same |
+| sampled page-boundary test, 60 seeded runs (`crossing_trace.py`), 2026-10-25 | 0 of 60 wrong (3 of 60 before the GDN state fix) | [GDN state](#gdn-state-after-a-backward-block-move) |
 | short code (avg of 9), 2026-10-23 | 135.0 t/s | [probabilistic drafting](#probabilistic-mtp-drafting) |
 | edit bench (3 whole-file edits, greedy + sampled) | 238.8 t/s, 6/6 exact | same |
 | prose, one stream, the model's default sampling (20 requests) | 63.6 t/s, 2.19 tokens per step | same |
@@ -74,6 +77,65 @@ Not re-measured on this exact config:
   estimated for it.
 
 ## Speculative decoding
+
+### GDN state after a backward block move
+
+0.32, 2026-10-25, live since 10:45 PM. Raw in `results/align-precopy/`. Fix:
+[`patches/combo-spec/patch_align_backward_precopy_032.py`](../patches/combo-spec/patch_align_backward_precopy_032.py)
+(`B70_ALIGN_BACKWARD_PRECOPY=1`). This is the live config.
+
+This is the fault the [V-split section](#v-split-verify-kernel) found: sampled `bench/crossing.py` replies that go
+wrong near a 960-token page boundary. It was not the attention kernel.
+
+**What the logprobs show.** `patches/combo-spec/tests/crossing_trace.py` reruns the crossing prompt with a seed per run
+and asks for the target's logprobs. On a wrong reply the target's own distribution is off, starting several tokens
+before the page edge: at position 3,833 (edge at 3,840) it gave the right `
+` 0.63 and end-of-text 0.25, where a
+healthy state gives about 1.0 (`crossing-trace-first.out`; that file's two fails at position 160 are a leading code
+fence, which a later version of the script no longer counts). A wrong token the target itself was unsure about, with
+the damage starting before the edge, means the state the step started from was wrong, not the sampler and not a key
+at the edge.
+
+**The mechanism.** With prefix caching, vLLM 0.32 keeps each request's GDN state in per-block columns: the running
+column is `(num_computed + query_len - 1) // 960` (`preprocess_mamba_align_fused_kernel`). A combined-speculator copy
+step verifies 16 tokens. If it starts a few tokens before a block edge, it moves the column to the next block, and
+the state is copied there. If only a few of its drafts are accepted, the next MTP step (6 tokens) ends inside the old
+block again, and the column moves **back**. vLLM then resets `num_accepted` to 1 so the kernels read the state at the
+start of the column. But the backward-copy guard from SergiioB's `patch_fix_backward_copy.py` (vllm#53505), which
+`apply_stack.sh` applies, returns before copying when the column moves back. So the GDN layers start from the old
+column: a state that has not seen the tokens accepted in the copy step. With a constant step length the column never
+moves back; the combined speculator's 16-then-6 steps can, and so can `num_speculative_tokens_per_batch_size` (15
+drafts at one request, 5 at two).
+
+**The test.** Live seat, then two test loads, the same 60 seeds in each (2000-2059), temperature 1.0, 4,000 tokens:
+
+| config | wrong replies | where |
+|---|---|---|
+| live seat | 3 of 60 | all at position 2,877, the 3rd page edge, the same text and distribution on all three seeds |
+| combined speculator off (plain MTP-5, constant q_len 6) | 0 of 60 | |
+| live seat + the fix (`B70_ALIGN_BACKWARD_PRECOPY=1`) | 0 of 60 | |
+
+(`crossing-prod.out`, `crossing-combo-off.out`, `crossing-fix.out`; the bench files label the two test loads `fixA` and
+`fixB`.) Turning the combined speculator off removes the
+fault and confirms the mechanism, but it costs the copy speed: edits behind 47k / 94k at 141.9 / 126.4 t/s
+(`bench-combo-off.out`). The fix copies the running state back in the same way it copies it forward
+(`state[col + num_accepted - 1] -> state[new col]`). The column it writes is always the block that holds the
+request's current position, never a completed block in the prefix cache.
+
+**Speed with the fix** (`bench-fix.out`, `bench/tierbench.py`, greedy, one stream), against the live seat the same
+evening ([V-split](#v-split-verify-kernel)):
+
+| bench | live seat | with the fix |
+|---|---|---|
+| decode behind 23k, ms per step | 37.2 | 37.2 |
+| decode behind 64k / 105k / 210k, t/s | 91.2 / 92.1 / 63.6-64.8 | 91.2 / 94.6 / 66.1 |
+| whole-file edit behind 47k / 94k, exact | 216.7 / 171.6 | 216.5 / 170.2 |
+| 4 writers, summed | 271.8 | 292.8 |
+| short code, avg of 9 | 134.7 | 134.1 |
+
+Parity (single runs, so we read the 4-writer gap as noise, not a gain): a backward move needs a copy step to
+straddle a block edge, and the copy it adds is one state per GDN layer.
+Promoted with a backup of both changed files, then rolled back and promoted again to check the rollback.
 
 ### V-split verify kernel
 
@@ -152,7 +214,7 @@ on the seat, 20 sampled runs each (`crossing-ab-vsplit-on.out`, `crossing-ab-vsp
 Both arms fail at the same spot, so the fault was there before the V-split kernel. It needs the reply itself to be
 decoded up to that point: 90 short sampled continuations from a prefilled assistant turn across the same boundary gave
 0 wrong (`crossing-func185-prefilled.out`). Our earlier crossing checks sampled with fixed seeds, so they only ever
-tested two sampled paths. Open; see [PITFALLS.md](PITFALLS.md#speculative-decoding).
+tested two sampled paths. Found and fixed the same evening: [GDN state after a backward block move](#gdn-state-after-a-backward-block-move).
 
 ### Probabilistic MTP drafting
 
