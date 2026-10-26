@@ -125,6 +125,7 @@ P=/opt/b70/vllm032/venv/bin/python
 VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/combo-spec/patch_gdn_varlen_spec_032.py
 VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/combo-spec/patch_combo_spec_032.py
 VLLM032_ROOT=/opt/b70/vllm032 $P patches/combo-spec/patch_spec_packed_guard_032.py
+VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/combo-spec/patch_align_backward_precopy_032.py
 VLLM_ROOT=/opt/b70/vllm032/src/vllm $P patches/shortlist/patch_shortlist_032.py
 mkdir -p /opt/b70/vllm032/shortlist   # the artifact: build it with patches/shortlist/build_factors.py or download ours (its README)
 ```
@@ -142,7 +143,7 @@ for prose, and once per engine change `python maxlen.py` (sent to the server dir
 | path | what |
 |---|---|
 | `patches/*.py` | our four vLLM patches (memory-query fallback, BF16 MTP `fc`, video sent as `image_url`, SergiioB's MTP boundary fix re-based onto 0.32); `apply_stack.sh` applies them |
-| `patches/combo-spec/` | the combined copy + MTP speculator: scheduler policy, speculator (with one-hot draft-logit rows for probabilistic drafts), GDN and packed-verify fixes, tests ([README](patches/combo-spec/README.md)) |
+| `patches/combo-spec/` | the combined copy + MTP speculator: scheduler policy, speculator (with one-hot draft-logit rows for probabilistic drafts), GDN, GDN-state and packed-verify fixes, tests ([README](patches/combo-spec/README.md)) |
 | `patches/shortlist/` | the shortlist draft head: module, installer, artifact builder, CPU tests ([README](patches/shortlist/README.md)) |
 | `patches/dflash2/` | Vcvzgbzz's DFlash2 drafter patches re-based onto 0.32, for the drafter measurements (not in the live stack) |
 | `patches/kernels-union/` | a kernel library config that serves both MTP and DFlash2 shapes ([README](patches/kernels-union/README.md)) |

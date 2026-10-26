@@ -46,6 +46,13 @@ step:
   - The kernel's row mask is right for any q_len (it derives the group from the packed tensor). `tests/pk16.py` checks
     q_len 11 and 16 against the stock path at 2k-115k context: identical output, 1.2-1.3x faster at depth. The live
     seat packs 2,3,6,16.
+- **GDN state at a block edge** (`patch_align_backward_precopy_032.py`, `B70_ALIGN_BACKWARD_PRECOPY=1`, since
+  2026-10-25): with prefix caching, vLLM keeps the GDN state in per-block columns picked by where the step *ends*. A
+  16-token copy step that starts just before a 960-token edge moves the column forward; when few drafts are
+  accepted, the next 6-token step ends in the old block and the column moves back. SergiioB's backward-copy guard
+  then skips the copy and the GDN layers start from a stale state (about 1 sampled crossing reply in 20 went wrong).
+  The fix copies the running state back the same way it is copied forward. Needs `apply_stack.sh` first (it acts on
+  SergiioB's guard). See [RESULTS](../../docs/RESULTS.md#gdn-state-after-a-backward-block-move).
 - `patch_combo_capture_032.py` (`B70_COMBO_CAPTURE_KS`, optional): Dynamic SD captures graphs for at most one K per
   batch size (4 with `max_num_seqs` 4). This adds more K values to the capture set, for the depth-tier experiments.
 - `patch_combo_spec_032.py` installs both modules, hooks `scheduler.py` (`choose_k` after Dynamic SD, `observe` after
@@ -62,7 +69,7 @@ and `py_compile` what they touch. Every hook is a no-op with its switch unset. A
 
 ```sh
 export B70_SPEC_PACKED=1 B70_SPEC_PACKED_QLENS=2,3,6,16 B70_GDN_VARLEN_SPEC=6,16 B70_COMBO_SPEC=1
-export B70_COMBO_MAX_CTX=262144 B70_COMBO_SCAN_CTX=262144
+export B70_COMBO_MAX_CTX=262144 B70_COMBO_SCAN_CTX=262144 B70_ALIGN_BACKWARD_PRECOPY=1
 SPEC='{"method":"mtp","num_speculative_tokens":15,"num_speculative_tokens_per_batch_size":[[1,1,15],[2,4,5]],"rejection_sample_method":"block","draft_sample_method":"probabilistic"}'
 ```
 
@@ -94,6 +101,8 @@ on this seat ([docs/RESULTS.md](../../docs/RESULTS.md)), so the live seat sets n
 - `tests/test_kernels.py`: the scan + finalize kernels against a Python reference. It runs under `TRITON_INTERPRET=1`
   on CPU tensors, no card needed: 145 rows, 41 through the copy path, 0 mismatches.
 - `tests/pk16.py`: packed vs stock verify at q_len 6/11/16 on the card (no server).
+- `tests/crossing_trace.py`: `bench/crossing.py`'s prompt sampled with a seed per run, printing the target's logprobs
+  around any fault (the GDN state hunt; 60 seeds: 3 faults before the fix, 0 after).
 - On the card: `bench/editbench.py` (6/6 exact), `bench/tierbench.py` (decode and copy-edit at depth with per-run spec
   counters), `bench/snap.py` (spec counters around agent turns), `bench/crossing.py`, `bench/maxlen.py` at 262k, short code, depth and
   4 writers. The numbers are in [docs/RESULTS.md](../../docs/RESULTS.md).
