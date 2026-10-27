@@ -1,0 +1,1 @@
+--no-enforce-eager --compilation-config {"mode":0,"cudagraph_mode":"FULL_DECODE_ONLY","cudagraph_capture_sizes":[1,2,4,8,12,16,20,24,32]} --enable-prefix-caching

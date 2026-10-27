@@ -1,0 +1,7 @@
+160 already done, 40 to run on nemotron
+[1/40] ok   stop 4057 tok 131.7s openbmb/UltraInteract_sft
+[2/40] ok   stop 6764 tok 217.0s DigitalLearningGmbH/MATH-lighteval
+[3/40] ok   stop 5223 tok 239.9s Post-training-Data-Flywheel/AutoIF-instruct-61k
+[4/40] ok   stop 7739 tok 329.8s cais/mmlu
+[5/40] ok   stop 10339 tok 384.9s LiquidAI/ifstruct_generated
+[6/40] ok   stop 21937 tok 612.9s allenai/math_qa

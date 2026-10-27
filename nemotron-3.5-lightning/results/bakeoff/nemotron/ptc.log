@@ -1,0 +1,57 @@
+nemotron: 16/72 valid run_code calls | per call: median 6.5s, slowest 40.3s | avg output 974 tok, avg reasoning 3468 chars | 4 at once, whole probe 245s | leaked control text 0
+   task 1: wrong tool name 'tools.write'
+   task 2: NO tool call (finish=length, said: '')
+   task 3: wrong tool name 'tools.grep'
+   task 4: NO tool call (finish=length, said: '')
+   task 5: code never calls tools
+   task 6: code never calls tools
+   task 8: NO tool call (finish=length, said: '')
+   task 9: code never calls tools
+   task 10: wrong tool name 'tools.read'
+   task 11: code never calls tools
+   task 12: wrong tool name 'tools.grep'
+   task 1: code never calls tools
+   task 2: wrong tool name 'tools.edit'
+   task 3: wrong tool name 'tools.grep'
+   task 4: code never calls tools
+   task 5: wrong tool name 'tools.bash'
+   task 6: code never calls tools
+   task 7: code never calls tools
+   task 8: NO tool call (finish=length, said: '')
+   task 9: NO tool call (finish=length, said: '')
+   task 10: wrong tool name 'tools.edit'
+   task 1: wrong tool name 'tools.write'
+   task 4: code never calls tools
+   task 5: code never calls tools
+   task 6: INVALID JSON args: Unterminated string starting at: line 1 column 10 (char 9)
+   task 7: code never calls tools
+   task 10: wrong tool name 'tools.edit'
+   task 11: code never calls tools
+   task 12: wrong tool name 'grep'
+   task 1: wrong tool name 'tools.write'
+   task 2: wrong tool name 'tools.edit'
+   task 4: code never calls tools
+   task 5: code never calls tools
+   task 8: NO tool call (finish=length, said: '')
+   task 9: code never calls tools
+   task 10: wrong tool name 'tools.edit'
+   task 11: NO tool call (finish=length, said: '')
+   task 1: wrong tool name 'tools.write'
+   task 2: wrong tool name 'tools.edit'
+   task 3: wrong tool name 'tools.grep'
+   task 4: code never calls tools
+   task 6: NO tool call (finish=length, said: '')
+   task 8: code never calls tools
+   task 9: code never calls tools
+   task 10: wrong tool name 'tools.edit'
+   task 1: wrong tool name 'tools.write'
+   task 2: wrong tool name 'tools.edit'
+   task 3: wrong tool name 'tools.grep'
+   task 4: code never calls tools
+   task 6: code never calls tools
+   task 7: code never calls tools
+   task 8: NO tool call (finish=length, said: '')
+   task 9: code is not valid Python: unterminated string literal (detected at line 2) (line 2)
+   task 10: wrong tool name 'tools.edit'
+   task 11: code never calls tools
+   task 12: wrong tool name 'tools.grep'
