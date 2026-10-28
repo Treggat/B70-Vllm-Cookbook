@@ -1,0 +1,97 @@
+{
+ "runs": [
+  "2026-10-27 05:06 AM"
+ ],
+ "pool": {
+  "pool_tokens": 1668189,
+  "context_per_stream_at_16": 104261,
+  "cache_dtype": "fp8",
+  "num_gpu_blocks": "700",
+  "block_size": "4288"
+ },
+ "speed": {
+  "x1": {
+   "per_stream": [
+    227.7
+   ],
+   "summed": 227.7,
+   "mean": 227.7,
+   "tokens": [
+    700
+   ],
+   "peak_running": 1.0,
+   "contaminated": false
+  },
+  "x4": {
+   "per_stream": [
+    125.0,
+    131.9,
+    131.5,
+    134.7
+   ],
+   "summed": 523.1,
+   "mean": 130.8,
+   "tokens": [
+    700,
+    700,
+    700,
+    700
+   ],
+   "peak_running": 4.0,
+   "contaminated": false
+  },
+  "x16": {
+   "per_stream": [
+    68.0,
+    68.6,
+    72.0,
+    69.5,
+    68.2,
+    71.9,
+    72.4,
+    69.2,
+    67.8,
+    72.4,
+    70.1,
+    69.7,
+    70.4,
+    69.5,
+    68.8,
+    69.7
+   ],
+   "summed": 1118.2,
+   "mean": 69.9,
+   "tokens": [
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700,
+    700
+   ],
+   "peak_running": 16.0,
+   "contaminated": false
+  }
+ },
+ "long": {
+  "ttft": 8.07,
+  "decode_tps": 319.9,
+  "wall": 8.1,
+  "completion_tokens": 9,
+  "prompt_tokens": 45433,
+  "finish": "stop",
+  "cached_tokens": 0,
+  "text": "51313123",
+  "needle_ok": true
+ }
+}

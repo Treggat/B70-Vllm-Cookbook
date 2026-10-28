@@ -10,11 +10,14 @@
 #   SERVED_NAME  model id clients send (default nemotron)
 #   CARD         Level Zero device index for ZE_AFFINITY_MASK (default 0; on our 2-card box 0 = first, 1 = second)
 #   SSM_CONFIGS  folder with the tuned Mamba state-update config (default ../ssm-configs); empty = vLLM's default
+#   LMHEAD_FP8   1 (default) = fp8 lm_head; needs ../patches/lmhead-fp8 applied to the venv, else it does nothing
+#   PLUGIN_DIR   folder with nemoeffort/ + its dist-info (default ../plugin); empty = no effort -> budget mapping
+#   NEMO_EFFORT_BUDGETS, NEMO_DEFAULT_BUDGET   the plugin's thinking budgets (defaults below, see docs/RECIPE.md)
 #   EXTRA_FILE   plain flags appended LAST, the last flag wins (default ./nemotron.extra; copy nemotron.extra.example)
 #
-# Measured on vLLM 0.32.0, 2026-10-26, with nemotron.extra.example and the tuned SSM config (docs/RESULTS.md):
-#   121.5 / 317.7 / 691.4 tok/s at 1 / 4 / 16 streams, KV pool 2,630,376 tokens (164k per stream at 16).
-#   Without the .extra (eager, no prefix caching): 24.6 / 97.4 / 385.4 tok/s.
+# Measured on vLLM 0.32.0, 2026-10-27, with nemotron.extra.example (MTP-3 int4 head, fp8 lm_head; docs/RESULTS.md):
+#   220.9 / 550.8 / 1,114.4 tok/s at 1 / 4 / 16 streams, KV pool 1,827,858 tokens (114k per stream at 16).
+#   Without the .extra (eager, no prefix caching, no speculation): 24.6 / 97.4 / 385.4 tok/s.
 HERE=$(cd "$(dirname "$0")" && pwd)
 V=${VENV:?set VENV to the venv dir from build_venv.sh}
 MODEL=${MODEL:?set MODEL to the Nemotron W4A16 model dir}
@@ -29,10 +32,19 @@ export VLLM_TARGET_DEVICE=xpu ZE_FLAT_DEVICE_HIERARCHY=COMPOSITE PYTORCH_ALLOC_C
 # torch 2.13+ picks the card the Level Zero way; ONEAPI_DEVICE_SELECTOR would fight ZE_AFFINITY_MASK.
 unset ONEAPI_DEVICE_SELECTOR
 export ZE_AFFINITY_MASK="${CARD:-0}"
-# Tuned selective_state_update config for this card (163 -> 86 us per call at 16 streams, +6.6% decode). vLLM ships
-# B70 configs too, but our driver names the card "Intel(R)_Graphics_[0xe223]", so the bundled ones never match.
+# Tuned selective_state_update config for this card (163 -> 86 us per call at 16 streams). vLLM ships B70 configs
+# too, but our driver names the card "Intel(R)_Graphics_[0xe223]", so the bundled ones never match.
 SSM_CONFIGS=${SSM_CONFIGS-$HERE/../ssm-configs}
 [ -n "$SSM_CONFIGS" ] && export VLLM_TUNED_CONFIG_FOLDER="$SSM_CONFIGS"
+# fp8 lm_head (riceharvest helper, ../patches/lmhead-fp8): +11 % at 1 stream, +5 % at 16, more KV pool.
+export B70_TARGET_LMHEAD_FP8="${LMHEAD_FP8:-1}"
+# reasoning_effort -> thinking budget (../plugin): graded 700 went 540 (no budget) -> 557-567 with budgets.
+PLUGIN_DIR=${PLUGIN_DIR-$HERE/../plugin}
+if [ -n "$PLUGIN_DIR" ]; then
+  export PYTHONPATH="$PLUGIN_DIR"
+  export NEMO_EFFORT_BUDGETS="${NEMO_EFFORT_BUDGETS:-minimal=512,low=2048,medium=4096,high=8192}"
+  export NEMO_DEFAULT_BUDGET="${NEMO_DEFAULT_BUDGET-8192}"
+fi
 # One compile cache per flag combination: a changed flag must not reuse a stale cache.
 if [ -s "$EXTRA_FILE" ]; then
   TAG=$(tr -d '\r' < "$EXTRA_FILE" | md5sum | cut -c1-8)

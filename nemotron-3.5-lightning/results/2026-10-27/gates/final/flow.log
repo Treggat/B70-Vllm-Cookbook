@@ -1,0 +1,17 @@
+[s8]   5.8s t1:grep t2:read t3:write t4:final(stop)
+[s2]  12.0s t1:grep t2:read t3:write t4:final(stop)
+[s11]  14.4s t1:read t2:edit t3:read t4:edit t5:edit t6:read t7:bash t8:read
+[s0]  14.7s t1:write t1:write t2:bash t3:bash t4:bash t5:final(stop)
+[s7]  14.7s t1:read t2:edit t3:bash t4:bash t5:read t6:edit t7:bash t8:final(stop)
+[s1]  15.4s t1:read t2:edit t3:bash t4:bash t5:bash t6:read t7:edit t8:bash
+[s12]  15.6s t1:write t1:write t2:bash t3:bash t4:bash t5:final(stop)
+[s5]  16.2s t1:read t2:edit t3:read t4:edit t5:edit t6:read t7:grep t8:read
+[s14]  17.6s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s6]  18.5s t1:write t1:write t2:bash t3:bash t4:bash t5:bash t6:bash t7:final(stop)
+[s13]  22.2s t1:read t2:edit t3:bash t4:bash t5:bash t6:read t7:edit t8:bash
+[s4]  30.1s t1:write t2:write t3:bash t4:bash t5:bash t6:final(stop)
+[s10]  36.2s t1:bash t2:write t3:write t4:bash t5:bash t6:bash t7:bash t8:bash
+[s15]  46.5s t1:final(length)
+[s9]  46.7s t1:final(length)
+[s3]  47.0s t1:final(length)
+TOTAL nemotron-exp effort=medium: sessions 16, turns 90, calls 83, done 10, unfinished 6, bad_name 0, bad_json 0, http_err 0, bang 0, markup_leak 0, ctrl_leak 0 | faults 0

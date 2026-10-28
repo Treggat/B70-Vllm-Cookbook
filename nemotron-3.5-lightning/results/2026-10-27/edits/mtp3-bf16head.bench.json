@@ -1,0 +1,61 @@
+{
+ "tag": "mtp3",
+ "when": "2026-10-27 02:30",
+ "short_code": {
+  "tps": [
+   198.9,
+   207.9,
+   197.9
+  ],
+  "avg": 201.6,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.85,
+   "tok_per_step": 3.55,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   83.4,
+   111.2,
+   77.7,
+   98.9
+  ],
+  "summed": 371.2,
+  "gen_over_wall": 283.3,
+  "wall": 10.4,
+  "canary": [
+   null,
+   "loop",
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.511,
+   "tok_per_step": 2.53,
+   "preempt": 0.0
+  }
+ },
+ "greedy": [
+  {
+   "sha": "e65ff59bcfb4",
+   "gen": 266,
+   "canary": null
+  },
+  {
+   "sha": "40b435e5e9a9",
+   "gen": 250,
+   "canary": null
+  },
+  {
+   "sha": "550516493a2b",
+   "gen": 239,
+   "canary": null
+  }
+ ]
+}

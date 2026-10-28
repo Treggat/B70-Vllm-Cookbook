@@ -1,0 +1,61 @@
+{
+ "tag": "c8p",
+ "when": "2026-10-27 18:26",
+ "short_code": {
+  "tps": [
+   251.1,
+   260.7,
+   233.8
+  ],
+  "avg": 248.5,
+  "canary": [
+   null,
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.841,
+   "tok_per_step": 3.52,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   99.4,
+   135.2,
+   94.0,
+   116.7
+  ],
+  "summed": 445.3,
+  "gen_over_wall": 336.1,
+  "wall": 8.7,
+  "canary": [
+   null,
+   "loop",
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.49,
+   "tok_per_step": 2.47,
+   "preempt": 0.0
+  }
+ },
+ "greedy": [
+  {
+   "sha": "e65ff59bcfb4",
+   "gen": 266,
+   "canary": null
+  },
+  {
+   "sha": "0e43cd940408",
+   "gen": 256,
+   "canary": null
+  },
+  {
+   "sha": "6af46ab1a56c",
+   "gen": 239,
+   "canary": null
+  }
+ ]
+}

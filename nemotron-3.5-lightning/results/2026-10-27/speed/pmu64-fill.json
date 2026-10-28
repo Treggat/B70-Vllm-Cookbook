@@ -1,0 +1,61 @@
+{
+ "runs": [
+  "2026-10-27 01:55 AM"
+ ],
+ "pool": {
+  "pool_tokens": 2630376,
+  "context_per_stream_at_16": 164398,
+  "cache_dtype": "fp8",
+  "num_gpu_blocks": "883",
+  "block_size": "4224"
+ },
+ "fill16": {
+  "streams": 16,
+  "target_tokens": 69000,
+  "prime_wall": 170.9,
+  "wall": 2.0,
+  "prompt_tokens_total": 961075,
+  "cache_hit": 0.999,
+  "needle_hits": 16,
+  "preemptions": 0.0,
+  "ttft": [
+   0.19,
+   0.33,
+   0.37,
+   0.52,
+   0.59,
+   0.66,
+   0.74,
+   0.81,
+   0.9,
+   1.0,
+   1.1,
+   1.2,
+   1.3,
+   1.38,
+   1.45,
+   1.54
+  ],
+  "decode_tps": [
+   16.8,
+   16.2,
+   13.7,
+   14.9,
+   13.0,
+   12.5,
+   12.4,
+   14.4,
+   12.4,
+   12.4,
+   17.2,
+   33.9,
+   26.5,
+   21.0,
+   46.7,
+   80.1
+  ],
+  "peak_kv_usage": 0.0,
+  "peak_running": 0.0,
+  "peak_waiting": 0.0
+ }
+}

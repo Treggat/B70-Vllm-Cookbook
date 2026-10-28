@@ -1,0 +1,61 @@
+{
+ "tag": "ng5",
+ "when": "2026-10-27 02:15",
+ "short_code": {
+  "tps": [
+   87.8,
+   99.5,
+   102.3
+  ],
+  "avg": 96.5,
+  "canary": [
+   "loop",
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.08,
+   "tok_per_step": 1.4,
+   "preempt": 0.0
+  }
+ },
+ "four_writers": {
+  "each": [
+   43.4,
+   47.5,
+   39.9,
+   50.3
+  ],
+  "summed": 181.1,
+  "gen_over_wall": 161.8,
+  "wall": 18.5,
+  "canary": [
+   null,
+   "loop",
+   null,
+   null
+  ],
+  "mtp": {
+   "per_token": 0.021,
+   "tok_per_step": 1.11,
+   "preempt": 0.0
+  }
+ },
+ "greedy": [
+  {
+   "sha": "947bb428e24e",
+   "gen": 270,
+   "canary": null
+  },
+  {
+   "sha": "fd39c0bbcfa1",
+   "gen": 240,
+   "canary": null
+  },
+  {
+   "sha": "663567e39063",
+   "gen": 243,
+   "canary": null
+  }
+ ]
+}

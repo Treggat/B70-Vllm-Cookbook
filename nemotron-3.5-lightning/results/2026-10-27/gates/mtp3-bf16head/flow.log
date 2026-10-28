@@ -1,0 +1,18 @@
+[s14]   9.9s t1:grep t2:write t3:final(stop)
+[s1]  15.6s t1:read t2:edit t3:bash t4:bash t5:bash t6:final(stop)
+[s11]  15.4s t1:read t2:edit t3:read t4:edit t5:edit t6:read t7:bash t8:bash
+[s0]  15.8s t1:write t1:write t2:bash t3:bash t4:bash t5:final(stop)
+[s8]  15.6s t1:grep t2:read t3:write t4:read t5:bash t6:write t7:bash t8:bash
+[s9]  15.9s t1:write t2:bash t3:bash t4:final(stop)
+[s6]  16.1s t1:write t2:write t3:bash t4:bash t5:final(stop)
+[s13]  16.5s t1:read t2:edit t3:bash t4:read t5:edit t6:bash t7:final(stop)
+[s5]  16.9s t1:read t2:edit t3:read t4:edit t5:read t6:bash t7:read t8:grep
+[s12]  19.0s t1:write t1:write t2:bash t3:bash t4:bash t5:bash t6:final(stop)
+      PROBLEM t1 markup in content: '</tool_call>'
+[s7]  19.4s t1:read t2:edit t3:bash t4:bash t5:read t6:edit t7:bash t8:read
+[s3]  21.9s t1:write t2:bash t3:bash t4:final(stop)
+[s2]  27.4s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s4]  35.2s t1:write t2:write t3:bash t4:bash t5:bash t6:final(stop)
+[s10]  43.2s t1:write t2:write t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s15]  48.1s t1:final(length)
+TOTAL nemotron-exp effort=medium: sessions 16, turns 95, calls 87, done 10, unfinished 6, bad_name 0, bad_json 0, http_err 0, bang 0, markup_leak 1, ctrl_leak 0 | faults 1
