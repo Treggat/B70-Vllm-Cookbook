@@ -1,0 +1,58 @@
+Device : Intel(R)_Graphics_[0xe223]  (n/a)
+Blackwell: False
+dtype  : bfloat16
+ssm_cache_dtype: float32
+headdim: 64
+ngroups: 8
+triton : 3.8.0
+
+==========================================================================
+Tuning  headdim=64  dstate=128  ngroups=8  dtype=torch.bfloat16  ssm_cache_dtype=torch.float32
+==========================================================================
+BSM candidates (capped at next_pow2(headdim=64)): [4, 8, 16, 32, 64]
+EffBatch | BLOCK_M | warps |         us | note
+----------------------------------------------------
+      64 |       8 |     1 |       6.70 | best
+     128 |       8 |     1 |       6.78 | best
+     256 |       8 |     1 |      10.02 | best
+     512 |       8 |     1 |      16.11 | best
+     768 |       8 |     1 |      27.53 | best
+    1024 |       8 |     1 |      85.78 | best
+    1280 |       4 |     1 |     153.26 | best
+    1536 |       4 |     1 |     201.03 | best
+    2048 |       8 |     8 |     259.84 | best
+
+==========================================================================
+Comparison  headdim=64  dstate=128  ngroups=8  —  heuristic vs tuned
+Heuristic: BLOCK_SIZE_M=4, num_warps=4
+==========================================================================
+EffBatch |   Heur(us) |  Tuned(us) |  Speedup | Best config
+-----------------------------------------------------------
+      64 |      15.71 |       6.70 |    2.35x | M=8,w=1 <--
+     128 |      23.49 |       6.78 |    3.47x | M=8,w=1 <--
+     256 |      42.84 |      10.02 |    4.28x | M=8,w=1 <--
+     512 |      81.96 |      16.11 |    5.09x | M=8,w=1 <--
+     768 |     122.20 |      27.53 |    4.44x | M=8,w=1 <--
+    1024 |     162.94 |      85.78 |    1.90x | M=8,w=1 <--
+    1280 |     206.52 |     153.26 |    1.35x | M=4,w=1 <--
+    1536 |     246.55 |     201.03 |    1.23x | M=4,w=1 <--
+    2048 |     325.36 |     259.84 |    1.25x | M=8,w=8 <--
+
+==========================================================================
+Validation  headdim=64  dstate=128  ngroups=8  dtype=torch.bfloat16  ssm_cache_dtype=torch.float32  atol=0.01
+==========================================================================
+EffBatch |    MaxAbsErr |   Status
+------------------------------------
+      64 |     0.000000 |     PASS
+     128 |     0.000488 |     PASS
+     256 |     0.125000 |     PASS
+     512 |     0.031250 |     PASS
+     768 |     0.015625 |     PASS
+    1024 |     0.250000 |     PASS
+    1280 |     0.125000 |     PASS
+    1536 |     0.125000 |     PASS
+    2048 |     0.125000 |     PASS
+
+  9/9 configs passed validation for dstate=128
+
+Saved: ssm-configs/headdim=64,dstate=128,device_name=Intel(R)_Graphics_[0xe223],cache_dtype=float32.json

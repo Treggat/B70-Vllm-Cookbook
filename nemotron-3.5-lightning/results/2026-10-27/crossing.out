@@ -1,0 +1,10 @@
+# crossing_nemo.py 12000 8 (2026-10-27): func_6..func_399, first wrong line. temp 0 then 7 x temp 1.0.
+# MTP K=3, BF16 head:
+temp 0.0: gen 7684 finish=stop | funcs 6..94 in order (did not reach func_399) | first bad: 'def func_95(x):\n    return x * 95 + 3'
+(7 more runs: 6 x the same func_95, 1 x func_117 "x * 117 + 4")
+FAIL (8/8)
+# control, no speculation (--prefix-match-unit 64 only):
+temp 0.0: gen 7684 finish=stop | funcs 6..94 in order (did not reach func_399) | first bad: 'def func_95(x):\n    return x * 95 + 3'
+(7 more runs: 6 x the same func_95, 1 x func_94 "x * 93 + 3")
+FAIL (8/8)
+# => the model's own mod-7 slip (95 mod 7 = 4), not corruption.

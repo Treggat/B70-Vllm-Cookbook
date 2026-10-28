@@ -1,0 +1,18 @@
+[s1]  11.6s t1:read t2:edit t3:bash t4:final(stop)
+[s14]  12.4s t1:grep t2:write t3:final(stop)
+[s13]  15.1s t1:read t2:edit t3:bash t4:final(stop)
+[s12]  15.5s t1:bash t2:write t3:write t4:bash t5:final(stop)
+[s7]  17.4s t1:read t2:edit t3:bash t4:bash t5:bash t6:final(stop)
+[s11]  20.3s t1:read t2:edit t3:read t4:bash t5:read t6:bash t7:read t8:bash
+[s8]  22.5s t1:grep t2:read t3:write t4:final(stop)
+[s5]  24.1s t1:read t2:edit t3:read t4:bash t5:read t6:bash t7:bash t8:bash
+[s0]  26.6s t1:write t1:write t2:bash t3:bash t4:bash t5:read t5:read t6:write t6:write t7:bash t8:final(stop)
+[s2]  30.9s t1:grep t2:read t3:write t4:read t5:write t6:final(stop)
+[s6]  32.5s t1:write t1:write t2:bash t3:bash t4:bash t5:bash t6:bash t7:final(stop)
+[s4]  56.1s t1:write t2:write t3:bash t4:bash t5:bash t6:final(stop)
+[s15]  72.9s t1:final(length)
+[s9]  72.9s t1:final(length)
+[s3]  73.1s t1:final(length)
+[s10]  78.5s t1:write t1:write t2:write t3:bash t4:bash t5:final(stop)
+      PROBLEM t1 invalid JSON args for 'write': '{"filePath": "/work/test_bucket.py", "content": "from bucket import TokenBucket\\'
+TOTAL nemotron-exp effort=medium: sessions 16, turns 77, calls 68, done 14, unfinished 2, bad_name 0, bad_json 1, http_err 0, bang 0, markup_leak 0, ctrl_leak 0 | faults 1

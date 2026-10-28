@@ -1,0 +1,56 @@
+{
+ "runs": [
+  "2026-10-27 05:17 AM"
+ ],
+ "grade": {
+  "overall_pct": 77.1,
+  "correct": "540/700",
+  "capped": 58,
+  "loops": 0,
+  "per_task": {
+   "gsm8k": "187/200",
+   "math500": "97/150",
+   "mmlu": "144/200",
+   "csqa": "112/150"
+  }
+ },
+ "loops": {
+  "loops": 0,
+  "of": 200,
+  "capped": 41
+ },
+ "flow": {
+  "runs": 2,
+  "faults": 1,
+  "calls": 167,
+  "unfinished": 12,
+  "totals": [
+   {
+    "sessions": 16,
+    "turns": 91,
+    "calls": 84,
+    "done": 10,
+    "unfinished": 6,
+    "bad_name": 0,
+    "bad_json": 0,
+    "http_err": 0,
+    "bang": 0,
+    "markup_leak": 1,
+    "ctrl_leak": 0
+   },
+   {
+    "sessions": 16,
+    "turns": 90,
+    "calls": 83,
+    "done": 10,
+    "unfinished": 6,
+    "bad_name": 0,
+    "bad_json": 0,
+    "http_err": 0,
+    "bang": 0,
+    "markup_leak": 0,
+    "ctrl_leak": 0
+   }
+  ]
+ }
+}

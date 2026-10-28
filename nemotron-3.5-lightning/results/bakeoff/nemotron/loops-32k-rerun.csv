@@ -1,0 +1,7 @@
+id,finish,tokens,loop
+antidoom:open_perfectblend_ultrainteract:44183,stop,4057,False
+antidoom:math_lighteval_train:3199,stop,6764,False
+antidoom:open_perfectblend_autoif:27236,stop,5223,False
+antidoom:mmlu_auxiliary_train:20021,stop,7739,False
+antidoom:ifstruct_train_generated:1028,stop,10339,False
+antidoom:math_qa_train:18148,stop,21937,False

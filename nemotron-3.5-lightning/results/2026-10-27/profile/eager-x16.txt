@@ -1,0 +1,107 @@
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg      Self XPU    Self XPU %     XPU total  XPU time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                 execute_context_0(0)_generation_16(16)        15.51%     376.151ms        95.12%        2.306s      64.062ms        2.178s       295.75%        2.842s      78.950ms            36  
+                 execute_context_0(0)_generation_16(16)         0.00%       0.000us         0.00%       0.000us       0.000us        2.178s       295.75%        2.178s      60.501ms            36  
+MoE::GemmCuteName<cutlass::bfloat16_t, unsigned char...         0.00%       0.000us         0.00%       0.000us       0.000us     414.981ms        56.35%     414.981ms     250.592us          1656  
+                 _xpu_C::cutlass_grouped_gemm_interface         0.88%      21.349ms         4.27%     103.555ms      62.533us     386.137ms        52.43%     387.617ms     234.068us          1656  
+                                            gemm_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     155.531ms        21.12%     155.531ms      33.752us          4608  
+                                _xpu_C::int4_gemm_w4a16         4.99%     121.053ms         9.78%     237.095ms      63.327us      94.723ms        12.86%      94.723ms      25.300us          3744  
+                          _selective_scan_update_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      77.949ms        10.58%      77.949ms      94.142us           828  
+                                     vllm::mamba_mixer2        10.58%     256.555ms        14.42%     349.507ms     422.110us      75.507ms        10.25%      75.507ms      91.192us           828  
+                                               aten::mm         2.07%      50.137ms         3.31%      80.250ms      92.882us      50.434ms         6.85%      50.434ms      58.373us           864  
+vllm::moe::grouped_topk_fused_kernel_impl<float, flo...         0.00%       0.000us         0.00%       0.000us       0.000us      16.188ms         2.20%      16.188ms      19.550us           828  
+## Call CompiledFxGraph fj2yeaukxqk7oaw3b364acqlqkki...         0.72%      17.477ms         2.41%      58.321ms      70.436us      15.042ms         2.04%      30.084ms      36.333us           828  
+                                   _moe_C::grouped_topk         0.56%      13.480ms         1.68%      40.844ms      49.329us      15.042ms         2.04%      15.042ms      18.167us           828  
+## Call CompiledFxGraph fj2yeaukxqk7oaw3b364acqlqkki...         0.00%       0.000us         0.00%       0.000us       0.000us      15.042ms         2.04%      15.042ms      19.535us           770  
+                                            aten::copy_         1.51%      36.619ms         4.76%     115.489ms      38.191us      14.345ms         1.95%      14.345ms       4.744us          3024  
+                                zeMemGetAllocProperties         0.25%       5.954ms         0.25%       5.954ms       0.144us       7.845ms         1.07%       7.845ms       0.190us         41328  
+vllm::moe::MoeGather<sycl::_V1::ext::oneapi::bfloat1...         0.00%       0.000us         0.00%       0.000us       0.000us       7.085ms         0.96%       7.085ms       8.556us           828  
+                                     _moe_C::moe_gather         0.28%       6.860ms         1.06%      25.718ms      31.060us       6.588ms         0.89%       6.588ms       7.957us           828  
+_ZTSN6compat12experimental6detail13KernelFunctorIXad...         0.00%       0.000us         0.00%       0.000us       0.000us       5.886ms         0.80%       5.886ms      27.249us           216  
+at::native::xpu::UnrolledElementwiseKernel<at::nativ...         0.00%       0.000us         0.00%       0.000us       0.000us       5.805ms         0.79%       5.805ms       7.011us           828  
+                                              aten::mul         1.17%      28.381ms         2.69%      65.110ms      26.212us       5.471ms         0.74%       5.471ms       2.202us          2484  
+                                _vllm_fa2_C::varlen_fwd         0.19%       4.505ms         0.45%      10.921ms      50.562us       5.455ms         0.74%       5.455ms      25.253us           216  
+vllm::fused_add_rms_norm_kernel<sycl::_V1::ext::onea...         0.00%       0.000us         0.00%       0.000us       0.000us       5.432ms         0.74%       5.432ms       2.902us          1872  
+at::native::xpu::UnrolledElementwiseKernel<at::nativ...         0.00%       0.000us         0.00%       0.000us       0.000us       5.310ms         0.72%       5.310ms       6.413us           828  
+                                 _C::fused_add_rms_norm         0.92%      22.352ms         2.67%      64.680ms      34.551us       5.045ms         0.69%       5.045ms       2.695us          1872  
+at::native::xpu::ReduceKernel<1, at::native::xpu::Re...         0.00%       0.000us         0.00%       0.000us       0.000us       4.841ms         0.66%       4.841ms       5.846us           828  
+                                             aten::mean         1.26%      30.446ms         1.88%      45.462ms      54.906us       4.494ms         0.61%       4.494ms       5.428us           828  
+vllm::act_kernel<sycl::_V1::ext::oneapi::bfloat16, &...         0.00%       0.000us         0.00%       0.000us       0.000us       4.394ms         0.60%       4.394ms       2.654us          1656  
+                            _moe_C::remap_hidden_states         0.57%      13.838ms         1.71%      41.554ms      50.186us       4.153ms         0.56%       4.153ms       5.016us           828  
+                                       _C::relu2_no_mul         0.63%      15.189ms         1.94%      46.955ms      28.355us       4.087ms         0.55%       4.087ms       2.468us          1656  
+at::native::xpu::ElementwiseGroupRangeKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us       3.783ms         0.51%       3.783ms       4.569us           828  
+                           _causal_conv1d_update_kernel         0.00%       0.000us         0.00%       0.000us       0.000us       3.350ms         0.45%       3.350ms       4.046us           828  
+vllm::moe::RemapHiddenStates<sycl::_V1::ext::oneapi:...         0.00%       0.000us         0.00%       0.000us       0.000us       3.294ms         0.45%       3.294ms       3.978us           828  
+                                              aten::add         1.03%      25.089ms         2.31%      56.040ms      31.134us       2.609ms         0.35%       2.609ms       1.450us          1800  
+at::native::xpu::VectorizedElementwiseKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us       2.437ms         0.33%       2.437ms       0.953us          2556  
+                                            aten::fill_         1.23%      29.895ms         3.60%      87.288ms      31.904us       2.351ms         0.32%       2.351ms       0.859us          2736  
+at::native::xpu::UnrolledElementwiseKernel<at::nativ...         0.00%       0.000us         0.00%       0.000us       0.000us       2.276ms         0.31%       2.276ms       2.748us           828  
+at::native::xpu::VectorizedElementwiseKernel<8, at::...         0.00%       0.000us         0.00%       0.000us       0.000us       2.030ms         0.28%       2.030ms       2.452us           828  
+at::native::xpu::VectorizedElementwiseKernel<8, at::...         0.00%       0.000us         0.00%       0.000us       0.000us       1.783ms         0.24%       1.783ms       2.153us           828  
+at::native::xpu::ElementwiseGlobalRangeKernel<at::na...         0.00%       0.000us         0.00%       0.000us       0.000us       1.587ms         0.22%       1.587ms       1.916us           828  
+at::native::xpu::VectorizedElementwiseKernel<8, at::...         0.00%       0.000us         0.00%       0.000us       0.000us       1.539ms         0.21%       1.539ms       1.859us           828  
+at::native::xpu::VectorizedElementwiseKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us       1.536ms         0.21%       1.536ms       1.855us           828  
+                                             aten::mul_         0.48%      11.618ms         1.20%      29.181ms      35.243us       1.431ms         0.19%       1.431ms       1.728us           828  
+                                             aten::silu         0.40%       9.663ms         0.90%      21.829ms      26.363us       1.426ms         0.19%       1.426ms       1.722us           828  
+                                   zeKernelSetGroupSize         0.12%       2.998ms         0.12%       2.998ms       0.099us       1.201ms         0.16%       1.201ms       0.040us         30276  
+at::native::xpu::VectorizedElementwiseKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us       1.177ms         0.16%       1.177ms       1.422us           828  
+                          vllm::moe::RowsPerExpertCount         0.00%       0.000us         0.00%       0.000us       0.000us       1.171ms         0.16%       1.171ms       1.415us           828  
+                                              aten::pow         0.48%      11.529ms         1.04%      25.195ms      30.429us       1.093ms         0.15%       1.093ms       1.321us           828  
+vllm::reshape_and_cache_flash_strided_kernel<c10::BF...         0.00%       0.000us         0.00%       0.000us       0.000us     891.040us         0.12%     891.040us       4.125us           216  
+at::native::xpu::VectorizedElementwiseKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us     882.648us         0.12%     882.648us       1.066us           828  
+at::native::xpu::VectorizedElementwiseKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us     859.039us         0.12%     859.039us       1.037us           828  
+                         zeCommandListAppendSignalEvent         0.00%      57.338us         0.00%      57.338us       0.123us     839.045us         0.11%     839.045us       1.793us           468  
+                  _C_cache_ops::reshape_and_cache_flash         0.11%       2.601ms         0.35%       8.449ms      39.116us     824.486us         0.11%     824.486us       3.817us           216  
+                                            aten::rsqrt         0.35%       8.587ms         0.91%      22.086ms      26.674us     797.932us         0.11%     797.932us       0.964us           828  
+                       urEnqueueKernelLaunchWithArgsExp         6.29%     152.552ms        27.47%     666.128ms      22.002us     764.041us         0.10%       2.729ms       0.090us         30276  
+           zeCommandListAppendLaunchKernelWithArguments        12.54%     304.047ms        12.54%     304.047ms      10.043us     764.041us         0.10%     764.041us       0.025us         30276  
+at::native::xpu::IndexSelectSmallIndexFunctor<c10::B...         0.00%       0.000us         0.00%       0.000us       0.000us     540.400us         0.07%     540.400us      15.011us            36  
+                                     aten::index_select         0.02%     580.235us         0.06%       1.344ms      37.344us     494.881us         0.07%     494.881us      13.747us            36  
+                                  _gumbel_sample_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     367.904us         0.05%     367.904us      10.220us            36  
+at::native::xpu::ReduceKernel<1, at::native::xpu::Re...         0.00%       0.000us         0.00%       0.000us       0.000us     315.509us         0.04%     315.509us       8.764us            36  
+                                           aten::argmax         0.06%       1.569ms         0.11%       2.653ms      73.706us     297.489us         0.04%     297.489us       8.264us            36  
+                                            aten::index         0.10%       2.350ms         0.22%       5.424ms      50.222us     283.288us         0.04%     283.288us       2.623us           108  
+at::native::xpu::UnrolledElementwiseKernel<at::nativ...         0.00%       0.000us         0.00%       0.000us       0.000us     239.408us         0.03%     239.408us       1.330us           180  
+                                           aten::gather         0.29%       6.950ms         0.45%      10.791ms      59.951us     232.605us         0.03%     232.605us       1.292us           180  
+at::native::xpu::VectorizedElementwiseKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us     224.962us         0.03%     224.962us       1.562us           144  
+                          _compute_slot_mappings_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     211.132us         0.03%     211.132us       5.865us            36  
+                         postprocess_mamba_fused_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     207.492us         0.03%     207.492us       5.764us            36  
+                                     aten::floor_divide         0.08%       1.856ms         0.18%       4.442ms      30.847us     206.528us         0.03%     206.528us       1.434us           144  
+                       precopy_mamba_align_fused_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     186.240us         0.03%     186.240us       5.173us            36  
+at::native::xpu::ScatterGatherElementwiseKernelFunct...         0.00%       0.000us         0.00%       0.000us       0.000us     172.614us         0.02%     172.614us       1.199us           144  
+at::native::xpu::ElementwiseKernelWithIndexFunctor<i...         0.00%       0.000us         0.00%       0.000us       0.000us     170.255us         0.02%     170.255us       0.946us           180  
+at::native::xpu::VectorizedElementwiseKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us     163.876us         0.02%     163.876us       1.138us           144  
+                                           aten::arange         0.09%       2.225ms         0.44%      10.685ms      29.682us     158.905us         0.02%     317.810us       0.883us           360  
+                                           aten::clamp_         0.07%       1.781ms         0.16%       3.906ms      27.123us     150.445us         0.02%     150.445us       1.045us           144  
+at::native::xpu::VectorizedElementwiseKernel<4, at::...         0.00%       0.000us         0.00%       0.000us       0.000us     149.835us         0.02%     149.835us       1.041us           144  
+at::native::xpu::ElementwiseGlobalRangeKernel<at::na...         0.00%       0.000us         0.00%       0.000us       0.000us     144.946us         0.02%     144.946us       1.007us           144  
+                            _gather_block_tables_kernel         0.00%       0.000us         0.00%       0.000us       0.000us     141.759us         0.02%     141.759us       3.938us            36  
+                                              aten::sub         0.10%       2.534ms         0.34%       8.152ms      37.739us     137.652us         0.02%     137.652us       0.637us           216  
+at::native::xpu::IndexKernelFunctor<at::native::xpu:...         0.00%       0.000us         0.00%       0.000us       0.000us     135.823us         0.02%     135.823us       3.773us            36  
+         Memcpy H2D (Host (Driver Allocated) -> Device)         0.00%       0.000us         0.00%       0.000us       0.000us     129.335us         0.02%     129.335us       1.796us            72  
+         Memcpy D2H (Device -> Host (Driver Allocated))         0.00%       0.000us         0.00%       0.000us       0.000us     123.677us         0.02%     123.677us       1.718us            72  
+at::native::xpu::IndexKernelFunctor<at::native::xpu:...         0.00%       0.000us         0.00%       0.000us       0.000us     103.312us         0.01%     103.312us       2.870us            36  
+vllm::rms_norm_kernel<sycl::_V1::ext::oneapi::bfloat...         0.00%       0.000us         0.00%       0.000us       0.000us      82.996us         0.01%      82.996us       2.305us            36  
+at::native::xpu::VectorizedElementwiseKernel<16, at:...         0.00%       0.000us         0.00%       0.000us       0.000us      82.893us         0.01%      82.893us       2.303us            36  
+                   _get_num_sampled_and_rejected_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      81.854us         0.01%      81.854us       2.274us            36  
+at::native::xpu::ScatterGatherElementwiseKernelFunct...         0.00%       0.000us         0.00%       0.000us       0.000us      78.732us         0.01%      78.732us       2.187us            36  
+                                           _C::rms_norm         0.02%     473.080us         0.05%       1.162ms      32.283us      76.123us         0.01%      76.123us       2.115us            36  
+                                    _post_update_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      75.924us         0.01%      75.924us       2.109us            36  
+               _combine_sampled_and_draft_tokens_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      74.573us         0.01%      74.573us       2.071us            36  
+                    preprocess_mamba_align_fused_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      62.577us         0.01%      62.577us       1.738us            36  
+      at::native::xpu::VectorizedGatherKernel<16, long>         0.00%       0.000us         0.00%       0.000us       0.000us      60.296us         0.01%      60.296us       1.675us            36  
+                          Memcpy D2D (Device -> Device)         0.00%       0.000us         0.00%       0.000us       0.000us      48.640us         0.01%      48.640us       1.351us            36  
+                           _scatter_num_accepted_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      41.337us         0.01%      41.337us       1.148us            36  
+                                 zeEventHostSynchronize         0.00%      85.879us         0.00%      85.879us       2.386us      38.957us         0.01%      38.957us       1.082us            36  
+                           _prepare_pos_seq_lens_kernel         0.00%       0.000us         0.00%       0.000us       0.000us      36.956us         0.01%      36.956us       1.027us            36  
+                        zeCommandListAppendWaitOnEvents         0.01%     142.626us         0.01%     142.626us       3.962us      18.437us         0.00%      18.437us       0.512us            36  
+                                            aten::slice         0.59%      14.252ms         0.80%      19.485ms       1.906us       0.000us         0.00%       0.000us       0.000us         10224  
+                                       aten::as_strided         0.76%      18.461ms         0.76%      18.461ms       0.489us       0.000us         0.00%       0.000us       0.000us         37728  
+                                        Instrumentation        12.38%     300.227ms        12.38%     300.227ms       1.199us       0.000us         0.00%       0.000us       0.000us        250452  
+                                       aten::lift_fresh         0.00%      37.556us         0.00%      37.556us       0.209us       0.000us         0.00%       0.000us       0.000us           180  
+                                        aten::is_pinned         0.01%     266.288us         0.01%     291.513us       4.049us       0.000us         0.00%       0.000us       0.000us            72  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 2.425s
+Self XPU time total: 736.452ms
+

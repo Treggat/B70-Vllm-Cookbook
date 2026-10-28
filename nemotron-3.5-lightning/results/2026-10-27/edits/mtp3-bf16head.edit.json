@@ -1,0 +1,62 @@
+[
+ {
+  "task": "E1 rename",
+  "mode": "g",
+  "prompt": 1497,
+  "out": 1465,
+  "ttft": 0.41,
+  "tps": 223.7,
+  "exact": true,
+  "ratio": 1.0
+ },
+ {
+  "task": "E1 rename",
+  "mode": "s",
+  "prompt": 1497,
+  "out": 1465,
+  "ttft": 0.07,
+  "tps": 219.8,
+  "exact": true,
+  "ratio": 0.9999
+ },
+ {
+  "task": "E2 param",
+  "mode": "g",
+  "prompt": 3365,
+  "out": 3292,
+  "ttft": 0.48,
+  "tps": 222.9,
+  "exact": true,
+  "ratio": 1.0
+ },
+ {
+  "task": "E2 param",
+  "mode": "s",
+  "prompt": 3365,
+  "out": 3285,
+  "ttft": 0.09,
+  "tps": 219.7,
+  "exact": false,
+  "ratio": 0.9986
+ },
+ {
+  "task": "E3 bugfix",
+  "mode": "g",
+  "prompt": 3586,
+  "out": 3513,
+  "ttft": 0.51,
+  "tps": 222.2,
+  "exact": false,
+  "ratio": 0.9999
+ },
+ {
+  "task": "E3 bugfix",
+  "mode": "s",
+  "prompt": 3586,
+  "out": 3513,
+  "ttft": 0.08,
+  "tps": 219.0,
+  "exact": false,
+  "ratio": 1.0
+ }
+]

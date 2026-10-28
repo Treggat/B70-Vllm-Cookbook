@@ -1,0 +1,39 @@
+{
+ "runs": [
+  "2026-10-27 05:16 PM"
+ ],
+ "flow": {
+  "runs": 2,
+  "faults": 0,
+  "calls": 172,
+  "unfinished": 15,
+  "totals": [
+   {
+    "sessions": 16,
+    "turns": 92,
+    "calls": 88,
+    "done": 8,
+    "unfinished": 8,
+    "bad_name": 0,
+    "bad_json": 0,
+    "http_err": 0,
+    "bang": 0,
+    "markup_leak": 0,
+    "ctrl_leak": 0
+   },
+   {
+    "sessions": 16,
+    "turns": 91,
+    "calls": 84,
+    "done": 9,
+    "unfinished": 7,
+    "bad_name": 0,
+    "bad_json": 0,
+    "http_err": 0,
+    "bang": 0,
+    "markup_leak": 0,
+    "ctrl_leak": 0
+   }
+  ]
+ }
+}

@@ -1,0 +1,14 @@
+# cachecheck.py on --prefix-match-unit 64 (2026-10-27): 15k-token prefix + 8 questions, greedy, thinking off.
+# cached = plain request after the prefix is warm; cold = same tokens with a unique cache_salt.
+prompt 15193 cached 15168 (cold run cached 0)  identical=True
+prompt 15188 cached 15168 (cold run cached 0)  identical=True
+prompt 15188 cached 15168 (cold run cached 0)  identical=True
+prompt 15187 cached 15168 (cold run cached 0)  identical=True
+prompt 15186 cached 15168 (cold run cached 0)  identical=True
+prompt 15190 cached 15168 (cold run cached 0)  identical=True
+prompt 15189 cached 15168 (cold run cached 0)  identical=False  (the "summarize in one sentence" question; both answers correct)
+prompt 15189 cached 15168 (cold run cached 0)  identical=True
+IDENTICAL 7/8
+# control on the same server, cold vs cold (two unique cache_salts), the 8 questions twice:
+cold/cold differs: Summarize in one sentence what this code
+COLD vs COLD identical 15/16

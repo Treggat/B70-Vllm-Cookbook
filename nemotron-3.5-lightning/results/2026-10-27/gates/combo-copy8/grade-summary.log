@@ -1,0 +1,5 @@
+grade.jsonl: 536/700 = 76.6% correct, 55 hit max_tokens, 0 loops
+    gsm8k    181/200 =  90.5%   capped 16   loops 0
+    math500  103/150 =  68.7%   capped 17   loops 0
+    mmlu     146/200 =  73.0%   capped 16   loops 0
+    csqa     106/150 =  70.7%   capped 6   loops 0

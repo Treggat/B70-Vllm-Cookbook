@@ -1,0 +1,2 @@
+[vllm.general_plugins]
+nemoeffort = nemoeffort.vllm_plugin:register

@@ -1,0 +1,1 @@
+--no-enforce-eager --compilation-config {"mode":0,"cudagraph_mode":"FULL_DECODE_ONLY","cudagraph_capture_sizes":[1,2,4,8,12,16,20,24,32]} --enable-prefix-caching --prefix-match-unit 64 --gpu-memory-utilization 0.93 --speculative-config {"method":"mtp","model":"/models/nemotron-3.5-lightning-mtp-w4a16","num_speculative_tokens":3}
