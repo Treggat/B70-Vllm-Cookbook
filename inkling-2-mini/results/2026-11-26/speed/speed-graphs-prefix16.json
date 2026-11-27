@@ -1,0 +1,27 @@
+{
+ "model": "inkling-2-mini",
+ "tokens": 512,
+ "runs": [
+  {
+   "streams": 1,
+   "aggregate_tps": 26.8,
+   "per_stream_tps_mean": 26.7,
+   "ttft_max_s": 0.26,
+   "tokens_each": 512
+  },
+  {
+   "streams": 4,
+   "aggregate_tps": 63.1,
+   "per_stream_tps_mean": 15.8,
+   "ttft_max_s": 0.51,
+   "tokens_each": 512
+  },
+  {
+   "streams": 16,
+   "aggregate_tps": 150.9,
+   "per_stream_tps_mean": 9.4,
+   "ttft_max_s": 1.11,
+   "tokens_each": 512
+  }
+ ]
+}

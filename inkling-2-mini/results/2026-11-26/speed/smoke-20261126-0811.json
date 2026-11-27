@@ -1,0 +1,37 @@
+{
+ "tool_call": {
+  "ok": true,
+  "args": {
+   "city": "Denver",
+   "unit": "f"
+  },
+  "finish": "tool_calls",
+  "s": 1.7
+ },
+ "tool_round_trip": {
+  "ok": true,
+  "s": 2.0
+ },
+ "long": {
+  "ok": true,
+  "prompt_tokens": 33051,
+  "answer": "7741-QX",
+  "s": 55.5
+ },
+ "effort": {
+  "low": {
+   "answer": "46",
+   "reasoning_tokens": 247,
+   "completion_tokens": 255,
+   "s": 3.3,
+   "ok": true
+  },
+  "high": {
+   "answer": "46",
+   "reasoning_tokens": 2378,
+   "completion_tokens": 2386,
+   "s": 30.3,
+   "ok": true
+  }
+ }
+}
