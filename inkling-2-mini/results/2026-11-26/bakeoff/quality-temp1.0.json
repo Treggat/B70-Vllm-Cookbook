@@ -1,0 +1,22 @@
+{
+ "runs": [
+  "2026-11-26 01:52 PM"
+ ],
+ "grade": {
+  "overall_pct": 75.4,
+  "correct": "528/700",
+  "capped": 35,
+  "loops": 0,
+  "per_task": {
+   "gsm8k": "193/200",
+   "math500": "106/150",
+   "mmlu": "148/200",
+   "csqa": "81/150"
+  }
+ },
+ "loops": {
+  "loops": 0,
+  "of": 200,
+  "capped": 26
+ }
+}

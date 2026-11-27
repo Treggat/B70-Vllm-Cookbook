@@ -1,0 +1,32 @@
+{"id": "math500:test/intermediate_algebra/1544.json", "kind": "grade", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.2, "loop": false, "correct": false}
+{"id": "math500:test/intermediate_algebra/991.json", "kind": "grade", "temp": 0.1, "finish": "stop", "completion_tokens": 1114, "secs": 319.6, "loop": false, "correct": true}
+{"id": "math500:test/intermediate_algebra/1350.json", "kind": "grade", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.2, "loop": true, "correct": false}
+{"id": "mmlu:627", "kind": "grade", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 694.9, "loop": true, "correct": false}
+{"id": "mmlu:10966", "kind": "grade", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.0, "loop": false, "correct": false}
+{"id": "mmlu:11185", "kind": "grade", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.1, "loop": false, "correct": false}
+{"id": "mmlu:481", "kind": "grade", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.0, "loop": true, "correct": false}
+{"id": "mmlu:8644", "kind": "grade", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.1, "loop": true, "correct": false}
+{"id": "csqa:6ca8439d062de4d43d7d471c508b78db", "kind": "grade", "temp": 0.1, "finish": "stop", "completion_tokens": 1365, "secs": 353.8, "loop": false, "correct": true}
+{"id": "antidoom:apps_train:2713", "kind": "loops", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.1, "loop": false}
+{"id": "antidoom:open_perfectblend_ultrachat200k:46288", "kind": "loops", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.1, "loop": true}
+{"id": "antidoom:apps_train:1845", "kind": "loops", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.0, "loop": false}
+{"id": "antidoom:open_perfectblend_ultrachat200k:16447", "kind": "loops", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.1, "loop": false}
+{"id": "antidoom:open_perfectblend_autoif:15548", "kind": "loops", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.1, "loop": false}
+{"id": "antidoom:gsm8k_train:4959", "kind": "loops", "temp": 0.1, "finish": "length", "completion_tokens": 4000, "secs": 695.0, "loop": true}
+{"id": "antidoom:open_perfectblend_autoif:20944", "kind": "loops", "temp": 0.1, "finish": "stop", "completion_tokens": 2516, "secs": 506.4, "loop": false}
+{"id": "math500:test/intermediate_algebra/1544.json", "kind": "grade", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.1, "loop": false, "correct": false}
+{"id": "math500:test/intermediate_algebra/991.json", "kind": "grade", "temp": 1.0, "finish": "stop", "completion_tokens": 791, "secs": 105.4, "loop": false, "correct": true}
+{"id": "math500:test/intermediate_algebra/1350.json", "kind": "grade", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.0, "loop": false, "correct": false}
+{"id": "mmlu:627", "kind": "grade", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.0, "loop": false, "correct": false}
+{"id": "mmlu:10966", "kind": "grade", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.0, "loop": false, "correct": false}
+{"id": "mmlu:11185", "kind": "grade", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.0, "loop": false, "correct": false}
+{"id": "mmlu:481", "kind": "grade", "temp": 1.0, "finish": "stop", "completion_tokens": 2550, "secs": 335.3, "loop": false, "correct": false}
+{"id": "mmlu:8644", "kind": "grade", "temp": 1.0, "finish": "stop", "completion_tokens": 2783, "secs": 363.4, "loop": false, "correct": true}
+{"id": "csqa:6ca8439d062de4d43d7d471c508b78db", "kind": "grade", "temp": 1.0, "finish": "stop", "completion_tokens": 1977, "secs": 263.2, "loop": false, "correct": true}
+{"id": "antidoom:apps_train:2713", "kind": "loops", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.1, "loop": false}
+{"id": "antidoom:open_perfectblend_ultrachat200k:46288", "kind": "loops", "temp": 1.0, "finish": "stop", "completion_tokens": 2859, "secs": 372.3, "loop": false}
+{"id": "antidoom:apps_train:1845", "kind": "loops", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.0, "loop": false}
+{"id": "antidoom:open_perfectblend_ultrachat200k:16447", "kind": "loops", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.0, "loop": false}
+{"id": "antidoom:open_perfectblend_autoif:15548", "kind": "loops", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.0, "loop": false}
+{"id": "antidoom:gsm8k_train:4959", "kind": "loops", "temp": 1.0, "finish": "length", "completion_tokens": 4000, "secs": 498.0, "loop": false}
+{"id": "antidoom:open_perfectblend_autoif:20944", "kind": "loops", "temp": 1.0, "finish": "stop", "completion_tokens": 2328, "secs": 307.5, "loop": false}

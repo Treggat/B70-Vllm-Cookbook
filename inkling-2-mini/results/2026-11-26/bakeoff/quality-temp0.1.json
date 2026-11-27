@@ -1,0 +1,60 @@
+{
+ "runs": [
+  "2026-11-26 09:27 AM",
+  "2026-11-26 09:39 AM"
+ ],
+ "grade": {
+  "overall_pct": 76.3,
+  "correct": "534/700",
+  "capped": 47,
+  "loops": 9,
+  "per_task": {
+   "gsm8k": "193/200",
+   "math500": "103/150",
+   "mmlu": "148/200",
+   "csqa": "90/150"
+  }
+ },
+ "loops": {
+  "loops": 7,
+  "of": 200,
+  "capped": 40
+ },
+ "flow": {
+  "runs": 2,
+  "faults": 0,
+  "calls": 259,
+  "unfinished": 32,
+  "totals": [
+   {
+    "sessions": 16,
+    "turns": 128,
+    "calls": 130,
+    "done": 0,
+    "unfinished": 16,
+    "bad_name": 0,
+    "bad_json": 0,
+    "http_err": 0,
+    "bang": 0,
+    "markup_leak": 0,
+    "ctrl_leak": 0
+   },
+   {
+    "sessions": 16,
+    "turns": 128,
+    "calls": 129,
+    "done": 0,
+    "unfinished": 16,
+    "bad_name": 0,
+    "bad_json": 0,
+    "http_err": 0,
+    "bang": 0,
+    "markup_leak": 0,
+    "ctrl_leak": 0
+   }
+  ]
+ },
+ "ptc": {
+  "score": "53/72"
+ }
+}

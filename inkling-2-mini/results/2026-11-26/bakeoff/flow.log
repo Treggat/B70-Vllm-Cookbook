@@ -1,0 +1,17 @@
+[s14]  46.6s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s0]  51.5s t1:bash t2:write t2:write t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s8]  51.3s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:grep t8:bash
+[s5]  53.4s t1:read t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s1]  57.3s t1:read t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s13]  57.6s t1:read t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s11]  57.6s t1:read t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s7]  59.4s t1:read t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s2]  60.3s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s9]  61.9s t1:bash t2:bash t3:bash t4:bash t5:bash t6:read t7:bash t8:write
+[s4]  63.2s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s10]  64.2s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s6]  65.3s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s12]  66.5s t1:bash t2:bash t3:bash t4:bash t5:bash t6:bash t7:write t8:write
+[s3]  69.2s t1:write t2:bash t3:bash t4:bash t5:bash t6:bash t7:bash t8:bash
+[s15]  71.2s t1:write t2:bash t3:bash t4:bash t5:bash t6:read t7:bash t8:bash
+TOTAL inkling-2-mini effort=medium: sessions 16, turns 128, calls 129, done 0, unfinished 16, bad_name 0, bad_json 0, http_err 0, bang 0, markup_leak 0, ctrl_leak 0 | faults 0
